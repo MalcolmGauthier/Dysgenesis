@@ -1,0 +1,56 @@
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libFLAC-8.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libjpeg-9.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libmodplug-1.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libmpg123-0.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libogg-0.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libopus-0.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libopusfile-0.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libpng16-16.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libtiff-5.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libvorbis-0.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\libwebp-7.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\SDL2.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\SDL2_image.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\SDL2_mixer.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\SDL2_ttf.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\zlib1.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\Dysgenesis.exe
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\Dysgenesis.deps.json
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\Dysgenesis.runtimeconfig.json
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\Dysgenesis.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\Dysgenesis.pdb
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\Sayers.SDL2.Core.dll
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\Dysgenesis.csproj.AssemblyReference.cache
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\Dysgenesis.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\Dysgenesis.AssemblyInfoInputs.cache
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\Dysgenesis.AssemblyInfo.cs
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\Dysgenesis.csproj.CoreCompileInputs.cache
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\Dysgenesis.csproj.CopyComplete
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\Dysgenesis.dll
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\refint\Dysgenesis.dll
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\Dysgenesis.pdb
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\Dysgenesis.genruntimeconfig.cache
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Release\net6.0\ref\Dysgenesis.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\NAudio.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\NAudio.Asio.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\NAudio.Core.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\NAudio.Midi.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\NAudio.Wasapi.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\NAudio.WinMM.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\240 Bits Per Mile.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\around the world.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\cant remove the pain.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\Dance of The Violins.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\eugenesis.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\explosion.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\explosion_enemy.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\laserShoot.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\powerUp.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\presents.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\sfx1.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\Stone Cold.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\synth.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\The beginning of Time.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\titlescreen.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\audio\tone.wav
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Release\net6.0\WindowsBase.dll

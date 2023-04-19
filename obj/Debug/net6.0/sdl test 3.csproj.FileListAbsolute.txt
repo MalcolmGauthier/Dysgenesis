@@ -1,0 +1,33 @@
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libFLAC-8.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libjpeg-9.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libmodplug-1.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libmpg123-0.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libogg-0.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libopus-0.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libopusfile-0.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libpng16-16.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libtiff-5.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libvorbis-0.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\libwebp-7.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\SDL2.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\SDL2_image.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\SDL2_mixer.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\SDL2_ttf.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\zlib1.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\sdl test 3.exe
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\sdl test 3.deps.json
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\sdl test 3.runtimeconfig.json
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\sdl test 3.dll
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\sdl test 3.pdb
+C:\Users\Malcolm\source\repos\sdl test 3\bin\Debug\net6.0\Sayers.SDL2.Core.dll
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\sdl test 3.csproj.AssemblyReference.cache
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\sdl test 3.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\sdl test 3.AssemblyInfoInputs.cache
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\sdl test 3.AssemblyInfo.cs
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\sdl test 3.csproj.CoreCompileInputs.cache
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\sdl test 3.csproj.CopyComplete
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\sdl test 3.dll
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\refint\sdl test 3.dll
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\sdl test 3.pdb
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\sdl test 3.genruntimeconfig.cache
+C:\Users\Malcolm\source\repos\sdl test 3\obj\Debug\net6.0\ref\sdl test 3.dll
