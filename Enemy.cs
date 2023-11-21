@@ -3,21 +3,35 @@ using static Dysgenesis.Program;
 using static SDL2.SDL;
 using static Dysgenesis.Background.Text;
 using static Dysgenesis.Background;
-using System;
-using System.Drawing;
-using System.Security;
-using System.Buffers;
-
 namespace Dysgenesis
 {
     public class Enemy
     {
-        public byte type = 0, special = 3, damage_radius = 30, alpha = 255;
+        public byte type = 0;
+        public byte special = 3;
+        public byte damage_radius = 30;
+        public byte alpha = 255;
+
         public short HP = 2;
-        public short depth = G_DEPTH_LAYERS, shoot_index = -1, shoot2_index = -1;
-        public float pitch = 0.3f, roll, fire_cooldown, speed, z_speed, vx = 0, vy = 0, x = W_SEMI_LARGEUR, y = W_SEMI_HAUTEUR, scale = 1f;
+        public short depth = G_DEPTH_LAYERS;
+        public short shoot_index = -1;
+        public short shoot_index_2 = -1;
+
+        public float pitch = 0.3f;
+        public float roll;
+        public float fire_cooldown;
+        public float speed;
+        public float z_speed;
+        public float vx = 0;
+        public float vy = 0;
+        public float x = W_SEMI_LARGEUR;
+        public float y = W_SEMI_HAUTEUR;
+        public float scale = 1f;
+
+        public uint lTimer = 0;
+        public uint color = 0xFFFFFFFF;
+
         public float[] target = new float[2] { player.x, player.y };
-        public uint lTimer = 0, color = 0xFFFFFFFF;
         public sbyte[,] model = new sbyte[0, 0];
         short[] skipped_line_indexes = new short[0];
         public Enemy(byte enemy_type, byte new_special = 3, short spx = -1, short spy = -1, short spz = -1)
@@ -45,7 +59,7 @@ namespace Dysgenesis
                         HP = 3;
                         color = 0xFF7F00;
                         shoot_index = 61;
-                        shoot2_index = 45;
+                        shoot_index_2 = 45;
                         damage_radius = 30;
                         skipped_line_indexes = new short[2] { 48, 50 };
                         model = MODELE_E2;
@@ -57,7 +71,7 @@ namespace Dysgenesis
                         HP = 3;
                         color = 0x00FF00;
                         shoot_index = 0;
-                        shoot2_index = 8;
+                        shoot_index_2 = 8;
                         damage_radius = 50;
                         skipped_line_indexes = new short[0];
                         model = MODELE_E3;
@@ -78,7 +92,7 @@ namespace Dysgenesis
                         HP = 10;
                         color = 0x0000FF;
                         shoot_index = 2;
-                        shoot2_index = 21;
+                        shoot_index_2 = 21;
                         damage_radius = 60;
                         model = MODELE_E5;
                         break;
@@ -124,7 +138,7 @@ namespace Dysgenesis
                         HP = 5;
                         color = 0x7F4000;
                         shoot_index = 61;
-                        shoot2_index = 63;
+                        shoot_index_2 = 63;
                         damage_radius = 30;
                         skipped_line_indexes = new short[2] { 48, 50 };
                         model = MODELE_E2;
@@ -136,7 +150,7 @@ namespace Dysgenesis
                         HP = 7;
                         color = 0x007F00;
                         shoot_index = 0;
-                        shoot2_index = 8;
+                        shoot_index_2 = 8;
                         damage_radius = 50;
                         skipped_line_indexes = new short[0];
                         model = MODELE_E3;
@@ -157,7 +171,7 @@ namespace Dysgenesis
                         HP = 12;
                         color = 0x00007F;
                         shoot_index = 2;
-                        shoot2_index = 21;
+                        shoot_index_2 = 21;
                         damage_radius = 60;
                         model = MODELE_E5;
                         break;
@@ -194,7 +208,7 @@ namespace Dysgenesis
                         depth = 7;
                         special = 110;
                         shoot_index = 1;
-                        shoot2_index = 16;
+                        shoot_index_2 = 16;
                         damage_radius = 50;
                         model = new sbyte[player.model.GetLength(0), player.model.GetLength(1)];
                         for (int i = 0; i < player.model.GetLength(0); i++)
@@ -707,10 +721,10 @@ namespace Dysgenesis
                         float num1, num2;
                         do
                         {
-                            num1 = RNG.Next(100, 1520);
-                            num2 = RNG.Next(100, 780);
+                            num1 = RNG.Next(100, W_LARGEUR - 100);
+                            num2 = RNG.Next(100, W_HAUTEUR - 400);
                         }
-                        while (Distance(num1, num2, player.x, player.y) < 800);
+                        while (Distance(num1, num2, player.x, player.y) < 800 * (W_LARGEUR / 1920.0));
                         return new float[2] { num1, num2 };
                     }
                     if (dist_player_target < 800)
@@ -722,10 +736,10 @@ namespace Dysgenesis
                         float num1, num2;
                         do
                         {
-                            num1 = RNG.Next(100, 1520);
-                            num2 = RNG.Next(100, 780);
+                            num1 = RNG.Next(100, W_LARGEUR - 100);
+                            num2 = RNG.Next(100, W_HAUTEUR - 400);
                         }
-                        while (Distance(num1, num2, player.x, player.y) > 800);
+                        while (Distance(num1, num2, player.x, player.y) > 800 * (W_LARGEUR / 1920.0));
                         return new float[2] { num1, num2 };
                     }
                 }
@@ -786,7 +800,7 @@ namespace Dysgenesis
                 if (gTimer % (fire_cooldown * G_FPS) == 0 && depth != 0)
                 {
                     Projectile.TirEnemy(this, true);
-                    if (shoot2_index != -1)
+                    if (shoot_index_2 != -1)
                         Projectile.TirEnemy(this, false);
                 }
             }

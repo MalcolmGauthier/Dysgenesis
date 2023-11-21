@@ -99,13 +99,16 @@ namespace Dysgenesis
                         //short next_x_offset = (short)(scale * model[i + 1, 0]);
                         //short y_offset = (short)(scale * model[i, 1]);
                         //short next_y_offset = (short)(scale * model[i + 1, 1]);
-                        //SDL_RenderDrawLine(render, (int)(Rotate(x_offset, y_offset, x, y, roll)[0]),
+                        //Background.NouveauDrawLine(render, (int)(Rotate(x_offset, y_offset, x, y, roll)[0]),
                         //    (int)(Rotate(x_offset, y_offset, x, y, roll)[1] + model[i, 2] * (pitch + PERMA_PITCH)),
                         //    (int)(Rotate(next_x_offset, next_y_offset, x, y, roll)[0]),
                         //    (int)(Rotate(next_x_offset, next_y_offset, x, y, roll)[1] + model[i + 1, 2] * (pitch + PERMA_PITCH)));
                         #endregion
                         int[] pos = RenderCalc(i);
-                        SDL_RenderDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
+                        if (Program.gamemode >= 4 || Program.gamemode == 1)
+                            Background.NouveauDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
+                        else
+                            SDL_RenderDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
                     }
                 else
                 {
@@ -131,7 +134,10 @@ namespace Dysgenesis
                             y += 1 / 50f;
                             roll += 1 / 4096f;
                             int[] pos = RenderCalc(i);
-                            SDL_RenderDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
+                            if (Program.gamemode >= 4 || Program.gamemode == 1)
+                                Background.NouveauDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
+                            else
+                                SDL_RenderDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
                         }
                     if (death_timer > 120)
                     {

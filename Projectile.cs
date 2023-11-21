@@ -167,8 +167,8 @@ namespace Dysgenesis
                     }
                     else
                     {
-                        pos[proj, 0] = (float)(e.model[e.shoot2_index,0] * Pow(0.95, e.depth) + e.x);
-                        pos[proj, 1] = (float)(e.model[e.shoot2_index,1] * Pow(0.95, e.depth) + e.y);
+                        pos[proj, 0] = (float)(e.model[e.shoot_index_2,0] * Pow(0.95, e.depth) + e.x);
+                        pos[proj, 1] = (float)(e.model[e.shoot_index_2,1] * Pow(0.95, e.depth) + e.y);
                     }
                     pos[proj, 2] = e.depth;
                     pos[proj, 3] = player.x;
@@ -266,7 +266,10 @@ namespace Dysgenesis
                         if (pos[i, 0] != -1)
                         {
                             int[] pos = CalcDepths(i);
-                            SDL_RenderDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
+                            if (Program.gamemode >= 4 || Program.gamemode == 1)
+                                Background.NouveauDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
+                            else
+                                SDL_RenderDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
                         }
                     }
                     else
@@ -341,7 +344,7 @@ namespace Dysgenesis
             {
                 sbyte randint2 = randint1;
                 randint1 = (sbyte)RNG.Next(-20, 20);
-                SDL_RenderDrawLine(render,
+                Background.NouveauDrawLine(render,
                     (int)(x + (size + randint1) * Sin(i * PI / 25)),
                     (int)(y + (size + randint1) * Cos(i * PI / 25)),
                     (int)(x + (size + randint2) * Sin((i + 1) * PI / 25)),
@@ -570,7 +573,7 @@ namespace Dysgenesis
     //                        if (pos[i, 0] != -1)
     //                        {
     //                            int[] pos = CalcDepths(i);
-    //                            SDL_RenderDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
+    //                            Background.NouveauDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
     //                        }
     //                    }
     //                }
@@ -595,7 +598,7 @@ namespace Dysgenesis
     //                        for (byte j = 0; j < G_DEPTH_LAYERS; j++)
     //                        {
     //                            int[] pos = CalcDepths(i, j);
-    //                            SDL_RenderDrawLine(render, pos[0] + RNG.Next(-5, 5), pos[1] + RNG.Next(-5, 5), pos[2] + RNG.Next(-5, 5), pos[3] + RNG.Next(-5, 5));
+    //                            Background.NouveauDrawLine(render, pos[0] + RNG.Next(-5, 5), pos[1] + RNG.Next(-5, 5), pos[2] + RNG.Next(-5, 5), pos[3] + RNG.Next(-5, 5));
     //                        }
     //                    }
     //                }
@@ -692,7 +695,7 @@ namespace Dysgenesis
     //                    if (pos[i, 0] != -1)
     //                    {
     //                        int[] depths = CalcDepths(i);
-    //                        SDL_RenderDrawLine(render, depths[0], depths[1], depths[2], depths[3]);
+    //                        Background.NouveauDrawLine(render, depths[0], depths[1], depths[2], depths[3]);
     //                    }
     //                }
     //        }

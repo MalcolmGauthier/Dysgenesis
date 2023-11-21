@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ZnLC4BpUT1kFbFwDlqJskwRBtU0rVOVBYNHEpq/Np0qKWPfG+4QtPci+YKDt7F2vc7MtG/c3mKQU/xGPGP1saw==",
+  "dgSpecHash": "LFUNQ8SzsSv8Q/m+Qleig5vdnClvAzvN/qzNMlxNv0Ww+RMzNdAPVQD19+VhRtqRcMJnuvc7bJlEonmbLxA6og==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Malcolm\\source\\repos\\sdl test 3\\Dysgenesis.csproj",
+  "projectFilePath": "C:\\Users\\Malcolm\\source\\repos\\! sessions 1-2\\sdl test 3\\Dysgenesis.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Malcolm\\.nuget\\packages\\microsoft.netcore.platforms\\3.1.0\\microsoft.netcore.platforms.3.1.0.nupkg.sha512",
     "C:\\Users\\Malcolm\\.nuget\\packages\\microsoft.win32.registry\\4.7.0\\microsoft.win32.registry.4.7.0.nupkg.sha512",

@@ -6,7 +6,6 @@ using static SDL2.SDL;
 using static Dysgenesis.Data;
 using static Dysgenesis.Background;
 using NAudio.Wave;
-using System.Linq.Expressions;
 
 namespace Dysgenesis
 {
@@ -25,8 +24,8 @@ namespace Dysgenesis
         public static uint gTimer = 0;
         public static bool gTimer_lock = false, exit = false, arcade_unlock = false;
         public static long frame_time;
-        public static byte ens_killed = 0, ens_needed = 0, gamemode = 4, arcade_steps = 0, gFade = 0, volume = 8, v_timer = 0;
-        public static ushort level = 1, nv_continue = 1;
+        public static byte ens_killed = 0, ens_needed = 0, gamemode = 0, arcade_steps = 0, gFade = 0, volume = 8, v_timer = 0;
+        public static ushort level = 1, nv_continue = 20;
         public static Random RNG = new Random();
         public static WaveOutEvent bg_music = new WaveOutEvent();
         public static WaveOutEvent cut_music = new WaveOutEvent();
@@ -42,6 +41,7 @@ namespace Dysgenesis
             Init();
             while (!exit)
             {
+                TailleEcran();
                 Controlls();
                 Code();
                 Render();
@@ -57,8 +57,8 @@ namespace Dysgenesis
         {
             try
             {
-                window = SDL_CreateWindow(W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W_LARGEUR, W_HAUTEUR,
-                 SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WindowFlags.SDL_WINDOW_SHOWN);
+                window = SDL_CreateWindow(W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600,
+                 /*SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP |*/ SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
                 render = SDL_CreateRenderer(window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
                 TailleEcran();
                 SDL_Init(SDL_INIT_VIDEO);
@@ -69,7 +69,6 @@ namespace Dysgenesis
                 Etoiles.Init();
                 Level_Data.Init();
                 Explosion.Init();
-                SDL_ShowCursor(SDL_DISABLE);
                 frame_time = DateTime.Now.Ticks;
                 for (int i = 0; i < sfx.Length; i++)
                 {
@@ -352,10 +351,10 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
                 SDL_RenderFillRect(render, ref vol);
                 SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(render, vol.x, vol.y, vol.x + vol.w, vol.y);
-                SDL_RenderDrawLine(render, vol.x + vol.w, vol.y, vol.x + vol.w, vol.y + vol.h);
-                SDL_RenderDrawLine(render, vol.x + vol.w, vol.y + vol.h, vol.x, vol.y + vol.h);
-                SDL_RenderDrawLine(render, vol.x, vol.y + vol.h, vol.x, vol.y);
+                Background.NouveauDrawLine(render, vol.x, vol.y, vol.x + vol.w, vol.y);
+                Background.NouveauDrawLine(render, vol.x + vol.w, vol.y, vol.x + vol.w, vol.y + vol.h);
+                Background.NouveauDrawLine(render, vol.x + vol.w, vol.y + vol.h, vol.x, vol.y + vol.h);
+                Background.NouveauDrawLine(render, vol.x, vol.y + vol.h, vol.x, vol.y);
                 Text.DisplayText("volume: " + volume, 1600, 40, 3);
             }
 
@@ -427,22 +426,22 @@ namespace Dysgenesis
                 SDL_RenderDrawPoint(render, (int)Etoiles.star_positions[i, 0], (int)Etoiles.star_positions[i, 1]);
             }
             byte options = 1;
-            Text.DisplayText("dysgenesis", short.MinValue, short.MinValue, 5);
-            Text.DisplayText("nouvelle partie", (short)(W_SEMI_LARGEUR - 114), (short)(W_SEMI_HAUTEUR + 75), 2);
+            Text.DisplayText("dysgenesis", (short)(960 - 200), 545, 5);
+            Text.DisplayText("nouvelle partie", (short)(960 - 114), (short)(540 + 75), 2);
             if (player.x == -1 || arcade_unlock)
             {
-                Text.DisplayText("continuer: niveau " + nv_continue, (short)(W_SEMI_LARGEUR - 114), (short)(W_SEMI_HAUTEUR + 125), 2);
+                Text.DisplayText("continuer: niveau " + nv_continue, (short)(960 - 114), (short)(540 + 125), 2);
                 options++;
             }
             if (arcade_unlock)
             {
-                Text.DisplayText("arcade", (short)(W_SEMI_LARGEUR - 114), (short)(W_SEMI_HAUTEUR + 175), 2);
+                Text.DisplayText("arcade", (short)(960 - 114), (short)(540 + 175), 2);
                 options++;
             }
             Text.DisplayText("controles menu: w et s pour bouger le curseur, j pour sélectionner\n\n" +
-                             "controles globaux: esc. pour quitter, +/- pour monter ou baisser le volume", 10, (short)(W_HAUTEUR - 40), 1);
-            Text.DisplayText("v 0.1 (beta)", short.MinValue, (short)(W_HAUTEUR - 30), 2);
-            Curseur.SetVars(options, (short)(W_SEMI_LARGEUR - 150), (short)(W_SEMI_HAUTEUR + 35), 50);
+                             "controles globaux: esc. pour quitter, +/- pour monter ou baisser le volume", 10, (short)(1080 - 40), 1);
+            Text.DisplayText("v 0.1 (beta)", short.MinValue, (short)(1080 - 30), 2);
+            Curseur.SetVars(options, (short)(960 - 150), (short)(540 + 35), 50);
             Curseur.Exist();
             Son.LoopBGSong(Son.Music_list.title);
             if (Curseur.returned_sel != -1)
@@ -574,7 +573,7 @@ namespace Dysgenesis
                 else
                     SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
                 player.HP_BAR.x = i * 11 + 114;
-                SDL_RenderFillRect(render, ref player.HP_BAR);
+                NouveauDrawBox(render, ref player.HP_BAR);
             }
 
             Text.DisplayText("vagues:", 10, 40, 2);
@@ -584,11 +583,11 @@ namespace Dysgenesis
             for (int i = (int)Math.Floor(player.shockwaves); i > 0; i--)
             {
                 player.SHOCK_BAR.x = i * 105 + 20;
-                SDL_RenderFillRect(render, ref player.SHOCK_BAR);
+                NouveauDrawBox(render, ref player.SHOCK_BAR);
             }
             for (int i = 0; i < (int)(Math.Round(player.shockwaves % 1, 2) * 100); i++)
             {
-                SDL_RenderDrawLine(render, (int)Math.Floor(player.shockwaves) * 105 + 125 + i, 40, (int)Math.Floor(player.shockwaves) * 105 + 125 + i, 59);
+                Background.NouveauDrawLine(render, (int)Math.Floor(player.shockwaves) * 105 + 125 + i, 40, (int)Math.Floor(player.shockwaves) * 105 + 125 + i, 59);
             }
 
             if (gamemode == 2 && level == 20 && enemies[0] != null)
@@ -604,7 +603,7 @@ namespace Dysgenesis
                     else
                         SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
                     player.HP_BAR.x = i * 11 + 114;
-                    SDL_RenderFillRect(render, ref player.HP_BAR);
+                    Background.NouveauDrawBox(render, ref player.HP_BAR);
                 }
             }
 

@@ -405,7 +405,7 @@ namespace Dysgenesis
             { -4, 0 },
             { -4, 12 },
             { 10, 12 }
-         };
+        };
         public static sbyte[,] MODELE_I4 = new sbyte[29, 2] { 
             { -19, 22 },
             { -70, 0 },
@@ -531,8 +531,7 @@ namespace Dysgenesis
         };
         public static void TailleEcran()
         {
-            SDL_DisplayMode mode;
-            SDL_GetCurrentDisplayMode(0, out mode);
+            SDL_GetWindowDisplayMode(Program.window, out SDL_DisplayMode mode);
             W_HAUTEUR = (short)mode.h;
             W_LARGEUR = (short)mode.w;
             W_SEMI_HAUTEUR = (short)(W_HAUTEUR / 2);
