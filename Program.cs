@@ -2,102 +2,150 @@
  Dysgenesis par Malcolm Gauthier
  Beta v0.1: ~6397 lignes de code
  */
+using SDL2;
+using System.Data;
+using System.Linq.Expressions;
+using System.Text;
 using static SDL2.SDL;
-using static Dysgenesis.Data;
-using static Dysgenesis.Background;
-using NAudio.Wave;
+using static SDL2.SDL_mixer;
 
 namespace Dysgenesis
 {
-    class Keys
+    public struct Vector2
     {
-        public static bool w, a, s, d, l_click, j, k, r, c, e, plus, moins;
+        public Vector2(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        public float x;
+        public float y;
+    }
+    public struct Vector3
+    {
+        public Vector3(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+        public float x;
+        public float y;
+        public float z;
+    }
+    public enum Gamemode
+    {
+        TITLESCREEN,
+        GAMEPLAY,
+        ARCADE,
+        CUTSCENE_INTRO,
+        CUTSCENE_START,
+        CUTSCENE_BAD_END,
+        CUTSCENE_GOOD_END,
+        CREDITS
+    }
+    public enum Touches
+    {
+        W = 1,
+        A = 2,
+        S = 4,
+        D = 8,
+        J = 16,
+        K = 32,
+        R = 64,
+        C = 128,
+        E = 256,
+        MINUS = 1024,
+        PLUS = 2048,
+        M = 4096,
     }
     public static class Program
     {
-        public static IntPtr window;
+        static readonly SDL_Rect BARRE_HP = new SDL_Rect() { x = 125, y = 15, w = 10, h = 20 };
+        static readonly SDL_Rect BARRE_VAGUE = new SDL_Rect() { x = 125, y = 40, w = 100, h = 20 };
+        static readonly int[] code_arcade = { 0, (int)Touches.A, (int)Touches.R, (int)Touches.C, (int)Touches.A, (int)Touches.D, (int)Touches.E };
+        const int touches_arcade = (int)Touches.A | (int)Touches.R | (int)Touches.C | (int)Touches.A | (int)Touches.D | (int)Touches.E;
+
+        static IntPtr window;
         public static IntPtr render;
-        public static SDL_Event e;
+        static SDL_Event e;
+        public static SDL_Color couleure_fond_ecran = new SDL_Color() { r = 0, g = 0, b = 0, a = 255 };
+
         public static Player player = new Player();
-        public static Enemy[] enemies = new Enemy[30];
-        public static Item[] items = new Item[10];
-        public static uint gTimer = 0;
-        public static bool gTimer_lock = false, exit = false, arcade_unlock = false;
-        public static long frame_time;
-        public static byte ens_killed = 0, ens_needed = 0, gamemode = 0, arcade_steps = 0, gFade = 0, volume = 8, v_timer = 0;
-        public static ushort level = 1, nv_continue = 20;
+        public static Curseur curseur = new Curseur();
+        public static List<Ennemi> enemies = new List<Ennemi>(30);
+        public static List<Item> items = new List<Item>(10);
+        public static List<Projectile> projectiles = new List<Projectile>(50);
+        public static List<Explosion> explosions = new List<Explosion>(10);
         public static Random RNG = new Random();
-        public static WaveOutEvent bg_music = new WaveOutEvent();
-        public static WaveOutEvent cut_music = new WaveOutEvent();
-        public static WaveOutEvent[] sfx = new WaveOutEvent[8];
+
+        public static Gamemode gamemode = Gamemode.CUTSCENE_INTRO;
+        public static ushort level;
+        public static ushort nv_continue = 1;
+        public static int gTimer = 0;
+        public static int ens_killed = 0;
+        public static int ens_needed = 0;
+        public static bool bouger_etoiles = true;
+
+        static long frame_time;
+        static bool exit = false;
+        static bool arcade_unlock = false;
+        static byte arcade_steps = 0;
+        static int touches_peses = 0;
+        static int timer_generique = 0;
 
         // DEBUG VARS
-        public static byte debug_count = 0, debug_count_display = 0;
-        public static long debug_time = DateTime.Now.Ticks;
-        public static bool mute_music = false, free_items = false, cutscene_skip = false, 
-                           show_fps = false, monologue_skip = false, lvl_select = false;
+        static byte debug_count = 0, debug_count_display = 0;
+        static long debug_time = DateTime.Now.Ticks;
+        public static bool mute_sound = false, free_items = false, cutscene_skip = false,
+                           show_fps = false, monologue_skip = false, lvl_select = false,
+                           fps_unlock = false, crashtest = false, fullscreen = true;
         static void Main()
         {
-            Init();
+            if (Init() != 0)
+                CrashReport(new Exception("Erreure d'initialization: " + SDL_GetError()));
+
+            if (crashtest)
+            {
+                CrashReport(new Exception("crash test. disable crashtest debug flag to play the game."));
+            }
+
             while (!exit)
             {
-                TailleEcran();
                 Controlls();
                 Code();
                 Render();
-                while (frame_time > DateTime.Now.Ticks - (gamemode == 2 || gamemode == 3 || gamemode == 0 ? 10000000 : 20000000) / G_FPS) { }
+                if (!fps_unlock)
+                    while (frame_time > DateTime.Now.Ticks - 10000000 / Data.G_FPS) { }
                 frame_time = DateTime.Now.Ticks;
                 gTimer++;
+
+                if (GamemodeAction() || gamemode == Gamemode.TITLESCREEN) //todo: wtf
+                    Data.G_FPS = 60;
+                else
+                    Data.G_FPS = 30;
             }
+
             SDL_DestroyWindow(window);
             SDL_DestroyRenderer(render);
             SDL_Quit();
         }
-        static void Init()
+        static int Init()
         {
-            try
-            {
-                window = SDL_CreateWindow(W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600,
-                 /*SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP |*/ SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
-                render = SDL_CreateRenderer(window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
-                TailleEcran();
-                SDL_Init(SDL_INIT_VIDEO);
-                SDL_PollEvent(out e);
-                SDL_SetRenderDrawBlendMode(render, SDL_BlendMode.SDL_BLENDMODE_BLEND);
-                SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
-                SDL_RenderPresent(render);
-                Etoiles.Init();
-                Level_Data.Init();
-                Explosion.Init();
-                frame_time = DateTime.Now.Ticks;
-                for (int i = 0; i < sfx.Length; i++)
-                {
-                    sfx[i] = new WaveOutEvent();
-                }
-                Son.LoadMusic();
-                Son.LoadSFX();
-                volume = 4;
-                bg_music.Volume = 0.25f;
-                cut_music.Volume = 0.25f;
-                for (byte i = 0; i < sfx.Length; i++)
-                {
-                    sfx[i].Volume = 0.25f;
-                }
-                try
-                {
-                    SaveLoad.Load();
-                }
-                catch (Exception _)
-                {
-                    return;
-                }
-                if (nv_continue != 1)
-                    player.x = -1;
-            }
-            catch (Exception ex)
-            {
-                CrashReport(ex);
-            }
+            if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) return 1;
+            window = SDL_CreateWindow(Data.W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Data.W_LARGEUR, Data.W_HAUTEUR,
+                fullscreen ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP : 0 | SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+            render = SDL_CreateRenderer(window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
+            SDL_PollEvent(out e);
+            if (SDL_SetRenderDrawBlendMode(render, SDL_BlendMode.SDL_BLENDMODE_BLEND) != 0) return 2;
+            SDL_SetRenderDrawColor(render, couleure_fond_ecran.r, couleure_fond_ecran.g, couleure_fond_ecran.b, couleure_fond_ecran.a);
+            SDL_RenderPresent(render);
+            Etoiles.Spawn(new SDL_Rect() { x = 0, y = 0, w = Data.W_LARGEUR, h = Data.W_HAUTEUR });
+            frame_time = DateTime.Now.Ticks;
+            if (Son.InitSDLMixer() != 0) return 3;
+            SaveLoad.Load();
+            SDL_ShowCursor(0);
+            return 0;
         }
         static void Controlls()
         {
@@ -114,89 +162,111 @@ namespace Dysgenesis
                             case SDL_Keycode.SDLK_ESCAPE:
                                 exit = true;
                                 break;
+
                             case SDL_Keycode.SDLK_w:
-                                Keys.w = true;
+                                touches_peses |= (int)Touches.W;
                                 break;
+
                             case SDL_Keycode.SDLK_a:
-                                Keys.a = true;
+                                touches_peses |= (int)Touches.A;
                                 break;
+
                             case SDL_Keycode.SDLK_s:
-                                Keys.s = true;
+                                touches_peses |= (int)Touches.S;
                                 break;
+
                             case SDL_Keycode.SDLK_d:
-                                Keys.d = true;
+                                touches_peses |= (int)Touches.D;
                                 break;
+
                             case SDL_Keycode.SDLK_j:
-                                Keys.j = true;
+                                touches_peses |= (int)Touches.J;
                                 break;
+
                             case SDL_Keycode.SDLK_k:
-                                Keys.k = true;
+                                touches_peses |= (int)Touches.K;
                                 break;
+
                             case SDL_Keycode.SDLK_r:
-                                Keys.r = true;
+                                touches_peses |= (int)Touches.R;
                                 break;
+
                             case SDL_Keycode.SDLK_c:
-                                Keys.c = true;
+                                touches_peses |= (int)Touches.C;
                                 break;
+
                             case SDL_Keycode.SDLK_e:
-                                Keys.e = true;
+                                touches_peses |= (int)Touches.E;
                                 break;
-                            case SDL_Keycode.SDLK_EQUALS:
-                                Keys.plus = true;
-                                break;
+
                             case SDL_Keycode.SDLK_MINUS:
-                                Keys.moins = true;
+                                touches_peses |= (int)Touches.MINUS;
+                                break;
+
+                            case SDL_Keycode.SDLK_EQUALS:
+                                touches_peses |= (int)Touches.PLUS;
+                                break;
+
+                            case SDL_Keycode.SDLK_m:
+                                touches_peses |= (int)Touches.M;
                                 break;
                         }
                         break;
+
                     case SDL_EventType.SDL_KEYUP:
                         switch (e.key.keysym.sym)
                         {
+                            case SDL_Keycode.SDLK_ESCAPE:
+                                exit = true;
+                                break;
+
                             case SDL_Keycode.SDLK_w:
-                                Keys.w = false;
+                                touches_peses &= ~(int)Touches.W;
                                 break;
+
                             case SDL_Keycode.SDLK_a:
-                                Keys.a = false;
+                                touches_peses &= ~(int)Touches.A;
                                 break;
+
                             case SDL_Keycode.SDLK_s:
-                                Keys.s = false;
+                                touches_peses &= ~(int)Touches.S;
                                 break;
+
                             case SDL_Keycode.SDLK_d:
-                                Keys.d = false;
+                                touches_peses &= ~(int)Touches.D;
                                 break;
+
                             case SDL_Keycode.SDLK_j:
-                                Keys.j = false;
+                                touches_peses &= ~(int)Touches.J;
                                 break;
+
                             case SDL_Keycode.SDLK_k:
-                                Keys.k = false;
+                                touches_peses &= ~(int)Touches.K;
                                 break;
+
                             case SDL_Keycode.SDLK_r:
-                                Keys.r = false;
+                                touches_peses &= ~(int)Touches.R;
                                 break;
+
                             case SDL_Keycode.SDLK_c:
-                                Keys.c = false;
+                                touches_peses &= ~(int)Touches.C;
                                 break;
+
                             case SDL_Keycode.SDLK_e:
-                                Keys.e = false;
+                                touches_peses &= ~(int)Touches.E;
                                 break;
-                            case SDL_Keycode.SDLK_EQUALS:
-                                Keys.plus = false;
-                                break;
+
                             case SDL_Keycode.SDLK_MINUS:
-                                Keys.moins = false;
+                                touches_peses &= ~(int)Touches.MINUS;
                                 break;
-                        }
-                        break;
-                    case SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                        if (e.button.button == SDL_BUTTON_LEFT)
-                        {
-                            Keys.l_click = true;
-                        }
-                        break;
-                    case SDL_EventType.SDL_MOUSEBUTTONUP:
-                        if (e.button.button == SDL_BUTTON_LEFT)
-                        {
-                            Keys.l_click = false;
+
+                            case SDL_Keycode.SDLK_EQUALS:
+                                touches_peses &= ~(int)Touches.PLUS;
+                                break;
+
+                            case SDL_Keycode.SDLK_m:
+                                touches_peses &= ~(int)Touches.M;
+                                break;
                         }
                         break;
                 }
@@ -204,117 +274,274 @@ namespace Dysgenesis
         }
         static void Code()
         {
-            try
+            if (bouger_etoiles)
+                Etoiles.Move();
+
+            if (gamemode == Gamemode.TITLESCREEN)
             {
-                if (gamemode == 2 && level == 20 && enemies[0] != null)
-                {
-                    if (enemies[0].depth != 20)
-                        Etoiles.Exist();
-                }
+                if (TouchePesee(Touches.M))
+                    timer_generique++;
                 else
-                    Etoiles.Exist();
+                    timer_generique = 0;
 
-                if (Keys.a && lvl_select && gTimer % 10 == 0 && nv_continue > 1)
-                    nv_continue--;
-                if (Keys.d && lvl_select && gTimer % 10 == 0 && nv_continue < 20)
-                    nv_continue++;
-
-                if (gamemode != 2 && gamemode != 3)
+                if (timer_generique >= 120)
+                {
+                    gTimer = 0;
+                    Son.StopMusic();
+                    gamemode = Gamemode.CREDITS;
                     return;
-
-                player.Exist();
-
-                if (player.HP > 0)
-                {
-                    Projectile.Exist();
-                }
-
-                if (gTimer % (100 + 100 / (level + 1)) == (99 + 100 / (level + 1)) && ens_needed > 0 && !player.dead)
-                {
-                    for (int i = 0; i < enemies.Length; i++)
-                    {
-                        if (enemies[i] == null)
-                        {
-                            if (gamemode == 2)
-                                enemies[i] = new Enemy(Level_Data.lvl_list[level][ens_needed - 1]);
-                            else
-                                enemies[i] = new Enemy(Level_Data.arcade_ens[ens_needed - 1]);
-                            ens_needed--;
-                            break;
-                        }
-                    }
-                }
-
-                if (gamemode == 2)
-                    if (ens_killed == Level_Data.lvl_list[level].Length && gamemode == 2 && IsEmpty(enemies))
-                        Level_Data.Level_Change();
-
-                if (gamemode == 2)
-                {
-                    if (level == 20 && enemies[0] != null && !player.dead)
-                    {
-                        if (enemies[0].special == 99 && enemies[0].HP > 0 && BombePulsar.HP_bombe > 0)
-                            Son.LoopBGSong(Son.Music_list.dotv);
-                    }
-                    //else if (level != 20 && !player.dead)     // j'ai longtemps essayé de chercher une musique de gameplay régulier, mais
-                    //    Son.LoopBGSong(Son.Music_list.stone); // rien de ce que j'ai trouvé me satisfait. j'ai faillit mettre ceci
-                }                                               // (stone cold par leon riskin) comme musique, mais je l'ai enlevé au dernier
-                else                                            // moment. J'ai décidé que je préfère le silence.
-                {
-                    if (!player.dead)
-                        Son.LoopBGSong(Son.Music_list.dcq_pbm);
-                }
-
-                if (gamemode == 3)
-                {
-                    if (ens_killed == Level_Data.arcade_ens.Length)
-                        Level_Data.Level_Change();
-                }
-
-                for (int i = 0; i < enemies.Length; i++)
-                {
-                    if (enemies[i] != null)
-                        enemies[i].Exist(ref enemies[i]);
-                }
-
-                for (int i = 0; i < items.Length; i++)
-                {
-                    if (items[i] != null)
-                        items[i].Exist(ref items[i]);
                 }
             }
-            catch (Exception ex)
+
+            if (!GamemodeAction())
+                return;
+
+            player.Exist();
+
+            for (int i = 0; i < projectiles.Count; i++)
             {
-                CrashReport(ex);
+                if (projectiles[i].Exist())
+                    i--;
+            }
+
+            if (gTimer % (400 / (level + 1)) == (399 / (level + 1)) - 1 &&
+                ens_needed > 0 &&
+                !player.Mort())
+            {
+                int verif = enemies.Count;
+
+                if (gamemode == Gamemode.GAMEPLAY)
+                    new Ennemi(Level_Data.lvl_list[level][ens_needed - 1], StatusEnnemi.INITIALIZATION);
+                else
+                    new Ennemi(Level_Data.arcade_ens[ens_needed - 1], StatusEnnemi.INITIALIZATION);
+                if (enemies.Count > verif)
+                    ens_needed--;
+            }
+
+            if (enemies.Count == 0)
+            {
+                if ((gamemode == Gamemode.GAMEPLAY && ens_killed >= Level_Data.lvl_list[level].Length) ||
+                    (gamemode == Gamemode.ARCADE && ens_killed >= Level_Data.arcade_ens.Length))
+                {
+                    Level_Data.Level_Change();
+                }
+            }
+
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                if (enemies[i].Exist())
+                    i--;
+            }
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].Exist())
+                    i--;
             }
         }
         static void Render()
         {
-            switch (gamemode)
+            if (GamemodeAction())
             {
-                case 0:
-                    Render_Menu();
-                    break;
-                case 1:
-                    Render_Cutscene(1);
-                    break;
-                case 2:
-                case 3:
-                    Render_Gameplay();
-                    break;
-                case 4:
-                    Render_Cutscene(0);
-                    break;
-                case 5:
-                    Render_Cutscene(2);
-                    break;
-                case 6:
-                    Render_Cutscene(3);
-                    break;
-                case 7:
-                    Render_Cutscene(4);
-                    break;
+                Etoiles.Render(Data.S_DENSITY);
+
+                if (VerifBoss())
+                {
+                    BombePulsar.DessinerBombePulsar(
+                        new Vector2(Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR / 2),
+                        (byte)(25 - enemies[0].position.z / 4),
+                        BombePulsar.COULEUR_BOMBE,
+                        true
+                    );
+                    BombePulsar.VerifCollision();
+                }
+
+                foreach (Ennemi e in enemies)
+                    e.RenderObject();
+
+                foreach (Item i in items)
+                    i.RenderObject();
+
+                foreach (Projectile p in projectiles)
+                    p.RenderObject();
+
+                player.RenderObject();
+
+                if (BombePulsar.HP_bombe <= 0)//todo: enlver goto, peux pas faire return car ça ne render pas
+                    goto render;
+
+                if (TouchePesee(Touches.K))
+                    Shockwave.Spawn();
+
+                Shockwave.Display();
+
+                for (int i = 0; i < explosions.Count; i++)
+                {
+                    if (explosions[i].Exist())
+                        i--;
+                }
+
+                if (player.HP > Player.JOUEUR_MAX_HP)
+                    player.HP = Player.JOUEUR_MAX_HP;
+
+                if (player.shockwaves > Player.JOUEUR_MAX_VAGUES)
+                    player.shockwaves = Player.JOUEUR_MAX_VAGUES;
+
+                SDL_Rect barre_hud = BARRE_HP;
+                for (int i = 0; i < player.HP; i++)
+                {
+                    if (i <= 20)
+                        SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
+                    else if (i <= 50)
+                        SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
+                    else if (i <= 100)
+                        SDL_SetRenderDrawColor(render, 64, 255, 64, 255);
+                    else
+                        SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
+                    SDL_RenderFillRect(render, ref barre_hud);
+                    barre_hud.x += barre_hud.w + 1;
+                }
+
+                barre_hud = BARRE_VAGUE;
+                int vagues_entiers = (int)MathF.Floor(player.shockwaves);
+                float vagues_reste = player.shockwaves % 1.0f;
+                SDL_SetRenderDrawColor(render, 0, 255, 255, 255);
+                for (int i = vagues_entiers; i > 0; i--)
+                {
+                    SDL_RenderFillRect(render, ref barre_hud);
+                    barre_hud.x += barre_hud.w + 5;
+                }
+                for (int i = (int)((vagues_reste - (vagues_reste % 0.01f)) * 100); i > 0; i--)
+                {
+                    int posx = vagues_entiers * 105 + BARRE_VAGUE.x + i;
+                    SDL_RenderDrawLine(render, posx, 40, posx, 59);
+                }
+
+                Text.DisplayText("    hp:\nvagues:", new Vector2(10, 15), 2);
+
+                if (VerifBoss())
+                {//todo: fonction dessiner hp/barres
+                    Text.DisplayText("    hp:\nennemi", new Vector2(10, 85), 2);
+                    barre_hud = BARRE_HP;
+                    barre_hud.y += 70;
+                    for (int i = 0; i < enemies[0].HP; i++)
+                    {
+                        if (i <= 20)
+                            SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
+                        else if (i <= 50)
+                            SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
+                        else
+                            SDL_SetRenderDrawColor(render, 64, 255, 64, 255);
+                        SDL_RenderFillRect(render, ref barre_hud);
+                        barre_hud.x += barre_hud.w + 1;
+                    }
+                }
             }
+            else if (gamemode == Gamemode.TITLESCREEN)
+            {
+                if (!arcade_unlock)
+                {
+                    if (!TouchePesee((Touches)code_arcade[arcade_steps]) && TouchePesee((Touches)code_arcade[arcade_steps + 1]))
+                    {
+                        arcade_steps++;
+                        Son.JouerEffet(ListeAudio.EXPLOSION_ENNEMI);
+                        if (arcade_steps >= code_arcade.Length - 1)
+                        {
+                            arcade_unlock = true;
+                            curseur.curseur_max_selection = 3;
+                        }
+                    }
+                    else if (TouchePesee((Touches)touches_arcade - code_arcade[arcade_steps] - code_arcade[arcade_steps + 1]))
+                    {
+                        arcade_steps = 0;
+                    }
+                }
+
+                Etoiles.Render(Data.S_DENSITY);
+
+                Text.DisplayText("dysgenesis",
+                    new Vector2(Text.CENTRE, Text.CENTRE), 5);
+                Text.DisplayText("nouvelle partie",
+                    new Vector2(Data.W_SEMI_LARGEUR - 114, Data.W_SEMI_HAUTEUR + 75), 2);
+                Text.DisplayText("controles menu: w et s pour bouger le curseur, " +
+                    "j pour sélectionner\n\ncontroles globaux: esc. pour quitter, " +
+                    "+/- pour monter ou baisser le volume",
+                    new Vector2(10, Data.W_HAUTEUR - 40), 1);
+                Text.DisplayText("v 0.2 (beta)",
+                    new Vector2(Text.CENTRE, Data.W_HAUTEUR - 30), 2);
+
+                if (curseur.curseur_max_selection >= 2)
+                    Text.DisplayText("continuer: niveau " + nv_continue,
+                    new Vector2(Data.W_SEMI_LARGEUR - 114, Data.W_SEMI_HAUTEUR + 125), 2);
+                if (curseur.curseur_max_selection >= 3)
+                    Text.DisplayText("arcade",
+                    new Vector2(Data.W_SEMI_LARGEUR - 114, Data.W_SEMI_HAUTEUR + 175), 2);
+
+                if (lvl_select && gTimer % 10 == 0)
+                {
+                    if (TouchePesee(Touches.A) && nv_continue > 1)
+                        nv_continue--;
+                    else if (TouchePesee(Touches.D) && nv_continue < 20)
+                        nv_continue++;
+                }
+
+                switch (curseur.Selection())
+                {
+                    case 0:
+                        Son.StopMusic();
+                        level = 0;
+                        player.Init();
+                        gTimer = 0;
+                        gamemode = Gamemode.CUTSCENE_START;
+                        break;
+
+                    case 1:
+                        Son.StopMusic();
+                        level = (byte)(nv_continue - 1);
+                        ens_killed = Level_Data.lvl_list[level].Length;
+                        ens_needed = 0;
+                        player.Init();
+                        player.HP = 50;
+                        player.shockwaves = 0;
+                        player.afficher = true;
+                        gamemode = Gamemode.GAMEPLAY;
+                        break;
+
+                    case 2:
+                        level = 0;
+                        player.Init();
+                        player.afficher = true;
+                        Son.JouerMusique(ListeAudio.DCQBPM, true);
+                        gamemode = Gamemode.ARCADE;
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                switch (gamemode)
+                {
+                    case Gamemode.CUTSCENE_INTRO:
+                        Cutscene.Cut_0();
+                        break;
+                    case Gamemode.CUTSCENE_START:
+                        Cutscene.Cut_1();
+                        break;
+                    case Gamemode.CUTSCENE_BAD_END:
+                        Cutscene.Cut_3();
+                        break;
+                    case Gamemode.CUTSCENE_GOOD_END:
+                        Cutscene.Cut_2();
+                        break;
+                    case Gamemode.CREDITS:
+                        Cutscene.Cut_4();
+                        break;
+                }
+            }
+
+        render:
 
             if (show_fps)
             {
@@ -328,319 +555,41 @@ namespace Dysgenesis
                 else
                     debug_count++;
                 SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-                Text.DisplayText(debug_count_display.ToString(), 1858, 22, 3);
+                Text.DisplayText(debug_count_display.ToString(), new Vector2(1828, 52), 3);
             }
             //Text.DisplayText(gTimer + "", short.MinValue, 40, 2); // afficher gTimer à l'écran
 
-            // volume
-            if (v_timer != 0)
-                v_timer--;
-            if (Keys.plus || Keys.moins || v_timer != 0)
-            {
-                SDL_Rect vol = new SDL_Rect() { x = 1560, y = 10, w = 350, h = 100 };
-                if (Keys.plus && v_timer < 25)
-                {
-                    Son.AugmenterVolume();
-                    v_timer = 30;
-                }
-                if (Keys.moins && v_timer < 25)
-                {
-                    Son.BaisserVolume();
-                    v_timer = 30;
-                }
-                SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
-                SDL_RenderFillRect(render, ref vol);
-                SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-                Background.NouveauDrawLine(render, vol.x, vol.y, vol.x + vol.w, vol.y);
-                Background.NouveauDrawLine(render, vol.x + vol.w, vol.y, vol.x + vol.w, vol.y + vol.h);
-                Background.NouveauDrawLine(render, vol.x + vol.w, vol.y + vol.h, vol.x, vol.y + vol.h);
-                Background.NouveauDrawLine(render, vol.x, vol.y + vol.h, vol.x, vol.y);
-                Text.DisplayText("volume: " + volume, 1600, 40, 3);
-            }
+            Son.ChangerVolume();
 
-            SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+            SDL_SetRenderDrawColor(render, couleure_fond_ecran.r, couleure_fond_ecran.g, couleure_fond_ecran.b, 255);
             SDL_RenderPresent(render);
             SDL_RenderClear(render);
         }
-        static void Render_Menu()
+        public static bool GamemodeAction()
         {
-            if (!arcade_unlock)
-            {
-                switch (arcade_steps)
-                {
-                    case 0:
-                        if (Keys.a)
-                            arcade_steps++;
-                        break;
-                    case 1:
-                        if (Keys.r && !Keys.a)
-                        {
-                            arcade_steps++;
-                            Son.PlaySFX(Son.SFX_list.e_boom);
-                        }
-                        if (Keys.d || Keys.c || Keys.w || Keys.s || Keys.j || Keys.k || Keys.e)
-                            arcade_steps = 0;
-                        break;
-                    case 2:
-                        if (Keys.c && !Keys.r)
-                        {
-                            arcade_steps++;
-                            Son.PlaySFX(Son.SFX_list.e_boom);
-                        }
-                        if (Keys.d || Keys.a || Keys.w || Keys.s || Keys.j || Keys.k || Keys.e)
-                            arcade_steps = 0;
-                        break;
-                    case 3:
-                        if (Keys.a && !Keys.c)
-                        {
-                            arcade_steps++;
-                            Son.PlaySFX(Son.SFX_list.e_boom);
-                        }
-                        if (Keys.d || Keys.r || Keys.w || Keys.s || Keys.j || Keys.k || Keys.e)
-                            arcade_steps = 0;
-                        break;
-                    case 4:
-                        if (Keys.d && !Keys.a)
-                        {
-                            arcade_steps++;
-                            Son.PlaySFX(Son.SFX_list.e_boom);
-                        }
-                        if (Keys.r || Keys.c || Keys.w || Keys.s || Keys.j || Keys.k || Keys.e)
-                            arcade_steps = 0;
-                        break;
-                    case 5:
-                        if (Keys.e && !Keys.d)
-                        {
-                            arcade_unlock = true;
-                            Son.PlaySFX(Son.SFX_list.e_boom);
-                        }
-                        if (Keys.r || Keys.c || Keys.w || Keys.s || Keys.j || Keys.k || Keys.a)
-                            arcade_steps = 0;
-                        break;
-                }
-            }
-
-            SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-            for (int i = 0; i < S_DENSITY; i++)
-            {
-                SDL_RenderDrawPoint(render, (int)Etoiles.star_positions[i, 0], (int)Etoiles.star_positions[i, 1]);
-            }
-            byte options = 1;
-            Text.DisplayText("dysgenesis", (short)(960 - 200), 545, 5);
-            Text.DisplayText("nouvelle partie", (short)(960 - 114), (short)(540 + 75), 2);
-            if (player.x == -1 || arcade_unlock)
-            {
-                Text.DisplayText("continuer: niveau " + nv_continue, (short)(960 - 114), (short)(540 + 125), 2);
-                options++;
-            }
-            if (arcade_unlock)
-            {
-                Text.DisplayText("arcade", (short)(960 - 114), (short)(540 + 175), 2);
-                options++;
-            }
-            Text.DisplayText("controles menu: w et s pour bouger le curseur, j pour sélectionner\n\n" +
-                             "controles globaux: esc. pour quitter, +/- pour monter ou baisser le volume", 10, (short)(1080 - 40), 1);
-            Text.DisplayText("v 0.1 (beta)", short.MinValue, (short)(1080 - 30), 2);
-            Curseur.SetVars(options, (short)(960 - 150), (short)(540 + 35), 50);
-            Curseur.Exist();
-            Son.LoopBGSong(Son.Music_list.title);
-            if (Curseur.returned_sel != -1)
-            {
-                Son.StopMusic();
-                gamemode = (byte)Curseur.returned_sel;
-                if (gamemode == 1 || gamemode == 3)
-                {
-                    level = 0;
-                    player.HP = 100;
-                }
-                if (gamemode == 2)
-                {
-                    level = (ushort)(nv_continue - 1);
-                    player.HP = 49;
-                    player.shockwaves = 0;
-                    player.x = W_SEMI_LARGEUR;
-                    player.y = W_HAUTEUR - 30;
-                    player.roll = 0;
-                    player.vx = 0;
-                    player.vy = -30;
-                    player.scale = 1;
-                    ens_needed = 0;
-                    ens_killed = (byte)Level_Data.lvl_list[level].Length;
-                    Projectile.cooldown = gTimer;
-                }
-                if (gamemode == 3)
-                {
-                    player.HP = 100;
-                    player.shockwaves = 3;
-                    player.powerup = 0;
-                    ens_killed = 0;
-                    ens_needed = 0;
-                    player.x = W_SEMI_LARGEUR;
-                    player.y = W_HAUTEUR - 30;
-                    player.roll = 0;
-                    player.vx = 0;
-                    player.vy = -30;
-                    player.scale = 1;
-                    Projectile.cooldown = gTimer;
-                }
-            }
+            return gamemode == Gamemode.GAMEPLAY || gamemode == Gamemode.ARCADE;
         }
-        static void Render_Cutscene(byte cutscene_num)
+        public static bool TouchePesee(Touches touche)
         {
-            try
-            {
-                if (!gTimer_lock)
-                {
-                    gTimer_lock = true;
-                    gTimer = 0;
-                }
-                switch (cutscene_num)
-                {
-                    case 0:
-                        Cutscene.Cut_0();
-                        break;
-                    case 1:
-                        Cutscene.Cut_1();
-                        break;
-                    case 2:
-                        Cutscene.Cut_2();
-                        break;
-                    case 3:
-                        Cutscene.Cut_3();
-                        break;
-                    case 4:
-                        Cutscene.Cut_4();
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                CrashReport(ex);
-            }
+            return (touches_peses & (int)touche) != 0;
         }
-        static void Render_Gameplay()
+        public static bool VerifBoss()
         {
-            SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-            for (int i = 0; i < S_DENSITY; i++)
-            {
-                SDL_RenderDrawPoint(render, (int)Etoiles.star_positions[i, 0], (int)Etoiles.star_positions[i, 1]);
-            }
+            if (enemies.Count != 1)
+                return false;
 
-            if (gamemode == 2 && level == 20 && enemies[0] != null)
-            {
-                BombePulsar.Niveau20();
-            }
-
-            for (int i = 0; i < enemies.Length; i++)
-            {
-                if (enemies[i] != null)
-                    enemies[i].RenderEnemy();
-            }
-
-            for (int i = 0; i < items.Length; i++)
-            {
-                if (items[i] != null)
-                    items[i].Render();
-            }
-
-            if (BombePulsar.HP_bombe > 0)
-                Projectile.Render();
-
-            player.Render();
-
-            if (BombePulsar.HP_bombe <= 0)
-                return;
-
-            if (Keys.k)
-                Shockwave.Spawn();
-            Shockwave.Display();
-
-            Explosion.Draw();
-
-            if (player.HP > 150)
-                player.HP = 150;
-
-            Text.DisplayText("    hp:", 10, 15, 2);
-            player.HP_BAR.y = 15;
-            for (int i = player.HP; i > 0; i--)
-            {
-                if (i < 20)
-                    SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
-                else if (i < 50)
-                    SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
-                else if (i < 101)
-                    SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
-                else
-                    SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
-                player.HP_BAR.x = i * 11 + 114;
-                NouveauDrawBox(render, ref player.HP_BAR);
-            }
-
-            Text.DisplayText("vagues:", 10, 40, 2);
-            SDL_SetRenderDrawColor(render, 0, 255, 255, 255);
-            if (player.shockwaves >= 3)
-                player.shockwaves = 3;
-            for (int i = (int)Math.Floor(player.shockwaves); i > 0; i--)
-            {
-                player.SHOCK_BAR.x = i * 105 + 20;
-                NouveauDrawBox(render, ref player.SHOCK_BAR);
-            }
-            for (int i = 0; i < (int)(Math.Round(player.shockwaves % 1, 2) * 100); i++)
-            {
-                Background.NouveauDrawLine(render, (int)Math.Floor(player.shockwaves) * 105 + 125 + i, 40, (int)Math.Floor(player.shockwaves) * 105 + 125 + i, 59);
-            }
-
-            if (gamemode == 2 && level == 20 && enemies[0] != null)
-            {
-                Text.DisplayText("    hp:\nennemi", 10, 85, 2);
-                player.HP_BAR.y = 85;
-                for (int i = enemies[0].HP; i > 0; i--)
-                {
-                    if (i < 20)
-                        SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
-                    else if (i < 50)
-                        SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
-                    else
-                        SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
-                    player.HP_BAR.x = i * 11 + 114;
-                    Background.NouveauDrawBox(render, ref player.HP_BAR);
-                }
-            }
-
-            if (gamemode == 2 && level == 1 && ens_killed < Level_Data.lvl_list[1].Length)
-            {
-                Text.DisplayText("controles du vaisseau:\n" +
-                                 "    wasd pour bouger\n" +
-                                 "    j pour tirer\n" +
-                                 "    k pour envoyer une vague électrique", 600, 800, 2);
-            }
-
-            if (gFade != 0)
-            {
-                Cutscene.rect.x = 0; Cutscene.rect.y = 0; Cutscene.rect.w = W_LARGEUR; Cutscene.rect.h = W_HAUTEUR;
-                SDL_SetRenderDrawColor(render, 0, 0, 0, gFade);
-                SDL_RenderFillRect(render, ref Cutscene.rect);
-            }
-        }
-        public static bool IsEmpty(Enemy[] enemies)
-        {
-            foreach (Enemy enemy in enemies)
-            {
-                if (enemy != null)
-                    return false;
-            }
-            return true;
+            return enemies[0].type == TypeEnnemi.BOSS;
         }
         public static void CrashReport(Exception e)
         {
             Son.StopMusic();
             SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
             SDL_RenderClear(render);
-            Text.DisplayText("erreure fatale!\n\n" 
+            Text.DisplayText("erreure fatale!\n\n"
                 + e.Message + "\n"
-                + e.StackTrace + "\n"
-                + e.TargetSite.ToString() +
-                "\n\ntapez sur escape pour quitter l'application.", 10, 10, 1);
+                + e.StackTrace + "\n" +
+                "\n\ntapez sur escape pour quitter l'application.", new Vector2(10, 10), 1
+            );
             SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
             SDL_RenderPresent(render);
             while (!exit)

@@ -78,11 +78,9 @@ C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\D
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\eugenesis.wav
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\explosion.wav
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\explosion_enemy.wav
-C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\laserShoot.wav
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\powerUp.wav
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\presents.wav
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\sfx1.wav
-C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\Stone Cold.wav
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\synth.wav
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\The beginning of Time.wav
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\titlescreen.wav
@@ -109,3 +107,5 @@ C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\obj\Debug\net6.0\refint\
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\obj\Debug\net6.0\Dysgenesis.pdb
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\obj\Debug\net6.0\Dysgenesis.genruntimeconfig.cache
 C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\obj\Debug\net6.0\ref\Dysgenesis.dll
+C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\obj\Debug\net6.0\Dysgenesis.sourcelink.json
+C:\Users\Malcolm\source\repos\! sessions 1-2\sdl test 3\bin\Debug\net6.0\audio\laserShoot.wav

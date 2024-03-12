@@ -1,152 +1,170 @@
-﻿using static Dysgenesis.Program;
-using static Dysgenesis.Background;
-using static SDL2.SDL;
-using static Dysgenesis.Data;
-using System.Linq;
+﻿using static SDL2.SDL;
 
 namespace Dysgenesis
 {
-    public class Item
+    public enum TypeItem
     {
-        public float x, y;
-        public byte depth, type = 0;
-        sbyte[,] model = new sbyte[0,0];
-        byte[] skipped_line_indexes = new byte[0];
-        uint localTimer = 0, color = 0xFFFFFFFF;
-        public byte TypeRoll()
+        NONE,
+        X2_SHOT,
+        X3_SHOT,
+        HOMING,
+        SPREAD,
+        LASER,
+        HP,
+        WAVE
+    };
+
+    public class Item : Sprite
+    {
+        const int TIMER_DISPARITION_ITEM = 120;
+        const int HP_BONUS = 10;
+        const float FACTEUR_VITESSE_ITEM = 0.98f;
+        readonly SDL_Color[] couleures_items =
         {
-            if (free_items)
-                return (byte)RNG.Next(1, 8);
-            float roll = RNG.Next(1, 100);
-            roll -= (gamemode == 2 ? 20 : 40) * (float)Math.Pow(0.8, level);
+            new SDL_Color(){ r=255, g=127, b=0, a=255 }, // orange, x2
+            new SDL_Color(){ r=255, g=255, b=0, a=255 }, // jaune, x3
+            new SDL_Color(){ r=64, g=255, b=64, a=255 }, // vert pâle, homing
+            new SDL_Color(){ r=0, g=0, b=255, a=255 }, // bleu, spread
+            new SDL_Color(){ r=127, g=0, b=255, a=255 }, // mauve, laser
+            new SDL_Color(){ r=255, g=0, b=0, a=255 }, // rouge, hp
+            new SDL_Color(){ r=0, g=255, b=255, a=255 } // bleu pâle, vague
+        };
+
+        public TypeItem type;
+        public Item(Ennemi parent)
+        {
+            float roll = Program.RNG.Next(100);
+
+            byte facteur = 30;
+            if (Program.gamemode != Gamemode.GAMEPLAY)
+                facteur = 40;
+
+            roll -= facteur * MathF.Pow(0.8f, Program.level);
+
+            if (Program.free_items)
+                roll = roll * 0.4f + 60;
+
             if (roll < 60)
-                return 0;
+                return;
+
+            type = TypeItem.NONE;
+            pitch = 1.0f;
+            afficher = true;
+            position = parent.position;
+
             if (roll < 70)
-                return 1;
-            if (roll < 80)
-                return 2;
-            if (roll < 85)
-                return 3;
-            if (roll < 90)
-                return 6;
-            if (roll < 94)
-                return 5;
-            if (roll < 97)
-                return 7;
-            return 4;
+                type = TypeItem.HP;
+            else if (roll < 80)
+                type = TypeItem.WAVE;
+            else if (roll < 85)
+                type = TypeItem.X2_SHOT;
+            else if (roll < 90)
+                type = TypeItem.HOMING;
+            else if (roll < 94)
+                type = TypeItem.SPREAD;
+            else if (roll < 97)
+                type = TypeItem.LASER;
+            else
+                type = TypeItem.X3_SHOT;
+
+            if (Program.free_items)
+                type = (TypeItem)Program.RNG.Next(1, 8);
+
+            int index_data = (int)type - 1;
+            couleure = couleures_items[index_data];
+            modele = Data.modeles_items[index_data];
+            indexs_lignes_sauter = Data.lignes_a_sauter_items[index_data];
+
+            Program.items.Add(this);
         }
-        public void Spawn(ref Item self, float new_x, float new_y, byte new_depth)
+        public override bool Exist()
         {
-            x = new_x;
-            y = new_y;
-            depth = new_depth;
-            type = TypeRoll();
-            if (type == 0)
+            if (Move() != 0) return true;
+            if (CheckPlayerCollision() != 0) return true;
+
+            return false;
+        }
+        int Move()
+        {
+            if (position.z > 0)
             {
-                self = null;
+                position.z *= FACTEUR_VITESSE_ITEM;
+
+                if (position.z < 1f)
+                    position.z = 0;
+            }
+            else
+            {
+                if (timer > TIMER_DISPARITION_ITEM)
+                {
+                    Program.items.Remove(this);
+                    return 1;
+                }
+
+                timer++;
+            }
+
+            return 0;
+        }
+        int CheckPlayerCollision()
+        {
+            if (position.z > 0)
+                return 0;
+
+            if (Background.Distance(Program.player.position.x, Program.player.position.y, position.x, position.y) < 50)
+            {
+                switch (type)
+                {
+                    case TypeItem.NONE:
+                        break;
+                    case TypeItem.HP:
+                        Program.player.HP += HP_BONUS;
+                        break;
+                    case TypeItem.WAVE:
+                        Program.player.shockwaves += 1.0f;
+                        break;
+                    case TypeItem.HOMING:
+                    case TypeItem.X2_SHOT:
+                        Program.player.fire_rate = Player.JOUEUR_VITESSE_TIR / 2;
+                        Program.player.powerup = type;
+                        break;
+                    case TypeItem.X3_SHOT:
+                        Program.player.fire_rate = Player.JOUEUR_VITESSE_TIR / 3;
+                        Program.player.powerup = type;
+                        break;
+                    case TypeItem.LASER:
+                        Program.player.fire_rate = Player.JOUEUR_VITESSE_TIR * 2;
+                        Program.player.powerup = type;
+                        break;
+                    default:
+                        Program.player.fire_rate = Player.JOUEUR_VITESSE_TIR;
+                        Program.player.powerup = type;
+                        break;
+                }
+
+                Program.items.Remove(this);
+                Son.JouerEffet(ListeAudio.POWERUP);
+                return 1;
+            }
+
+            return 0;
+        }
+        public override void RenderObject()
+        {
+            if (type == TypeItem.WAVE)
+            {
+                SDL_SetRenderDrawColor(Program.render, couleure.r, couleure.g, couleure.b, couleure.a);
+
+                for (int i = 0; i < 3; i++)
+                    Background.DessinerCercle(new Vector2() { x = position.x, y = position.y }, (byte)((30 - i * 4) * MathF.Pow(0.95f, position.z)), 50);
+
                 return;
             }
-            switch (type)
-            {
-                case 1: // HP
-                    color = 0xFF0000FF;
-                    model = MODELE_I1;
-                    break;
-                case 2: // shock
-                    color = 0x00FFFFFF;
-                    break;
-                case 3: // x2
-                    color = 0xFF7F00FF;
-                    skipped_line_indexes = new byte[4] { 2, 17, 19, 21 };
-                    model = MODELE_I3;
-                    break;
-                case 4: // x3
-                    color = 0xFFFF00FF;
-                    skipped_line_indexes = new byte[4] { 2, 17, 19, 21 };
-                    model = MODELE_I4;
-                    break;
-                case 5: // homing
-                    color = 0x7FFF00FF;
-                    skipped_line_indexes = new byte[4] { 18, 20, 22, 24 };
-                    model = MODELE_I5;
-                    break;
-                case 6: // spread
-                    color = 0x0000FFFF;
-                    skipped_line_indexes = new byte[4] { 18, 21, 23, 26};
-                    model = MODELE_I6;
-                    break;
-                case 7: // laser
-                    color = 0x7F00FFFF;
-                    skipped_line_indexes = new byte[1] { 18 };
-                    model = MODELE_I7;
-                    break;
-            }
-        }
-        public void Exist(ref Item self)
-        {
-            Move(ref self);
-            if (self != null)
-                CheckPlayerCollision(ref self);
-        }
-        void Move(ref Item self)
-        {
-            localTimer++;
-            if (depth > 0 && localTimer % 10 == 0)
-            {
-                depth--;
-                if (depth == 0) localTimer = 0;
-            }
-            else
-            {
-                if (localTimer > 120 && depth == 0)
-                {
-                    self = null;
-                    return;
-                }
-            }
-        }
-        void CheckPlayerCollision(ref Item self)
-        {
-            if (Distance(player.x, player.y, x, y) < 50 && depth == 0)
-            {
-                if (type == 1)
-                    player.HP += 10;
-                else if (type == 2)
-                    player.shockwaves++;
-                else player.powerup = type;
-                self = null;
-                Son.PlaySFX(Son.SFX_list.powerup);
-            }
-        }
-        public void Render()
-        {
-            SDL_SetRenderDrawColor(render, (byte)((color & 0xFF000000) >> 24), (byte)((color & 0x00FF0000) >> 16), (byte)((color & 0x0000FF00) >> 8), (byte)(color & 0x000000FF));
-            if (type != 2)
-            {
-                byte SLI = 0;
-                for (int i = 0; i < model.GetLength(0) - 1; i++)
-                {
-                    if (skipped_line_indexes.Length > SLI)
-                        if (i == skipped_line_indexes[SLI])
-                        {
-                            SLI++;
-                            continue;
-                        }
-                    SDL_RenderDrawLine(render,
-                            (int)(model[i, 0] * Math.Pow(0.95, depth) + x),
-                            (int)(model[i, 1] * Math.Pow(0.95, depth) + y),
-                            (int)(model[i + 1, 0] * Math.Pow(0.95, depth) + x),
-                            (int)(model[i + 1, 1] * Math.Pow(0.95, depth) + y));
-                }
-            }
-            else
-            {
-                DessinerCercle((short)x, (short)y, (byte)(30 * Math.Pow(0.95, depth)), 50);
-                DessinerCercle((short)x, (short)y, (byte)(26 * Math.Pow(0.95, depth)), 50);
-                DessinerCercle((short)x, (short)y, (byte)(22 * Math.Pow(0.95, depth)), 50);
-            }
-            if (type == 5)
-                SDL_RenderDrawPoint(render, (int)x, (int)y);
+
+            base.RenderObject();
+
+            if (type == TypeItem.HOMING) //TODO: ajouter point à modèle
+                SDL_RenderDrawPoint(Program.render, (int)position.x, (int)position.y);
         }
     }
 }
