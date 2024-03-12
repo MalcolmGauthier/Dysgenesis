@@ -65,7 +65,7 @@ namespace Dysgenesis
 
             if (timer > 200 && timer < 320)
             {
-                Text.DisplayText("niveau "+(Program.level + 1), new Vector2( Text.CENTRE, Text.CENTRE ), 5);
+                Text.DisplayText("niveau " + (Program.level + 1), new Vector2(Text.CENTRE, Text.CENTRE), 5);
             }
 
             if (timer >= 350)

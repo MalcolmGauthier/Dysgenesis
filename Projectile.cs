@@ -9,7 +9,7 @@ namespace Dysgenesis
         JOUEUR,
         ENNEMI
     }
-    
+
     public class Projectile : Sprite
     {
         const float VITESSE_PROJECTILE = Data.P_PROJ_SPEED;
@@ -99,7 +99,7 @@ namespace Dysgenesis
             float facteur_profondeur_1 = MathF.Pow(VITESSE_PROJECTILE, depth);
             float facteur_profondeur_2 = MathF.Pow(VITESSE_PROJECTILE, depth + 1);
 
-            
+
             return new float[4]{
                 dist_x_de_destination * facteur_profondeur_1 + dest.x,
                 dist_y_de_destination * facteur_profondeur_1 + dest.y,
@@ -154,26 +154,26 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
             }
             else switch (Program.player.powerup)
-            {
-                case TypeItem.X2_SHOT:
-                    SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                    break;
-                case TypeItem.X3_SHOT:
-                    SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                    break;
-                case TypeItem.HOMING:
-                    SDL_SetRenderDrawColor(Program.render, 64, 255, 64, 255);
-                    break;
-                case TypeItem.SPREAD:
-                    SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                    break;
-                case TypeItem.LASER:
-                    SDL_SetRenderDrawColor(Program.render, 127, 0, 255, 255);
-                    break;
-                default:
-                    SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                    break;
-            }
+                {
+                    case TypeItem.X2_SHOT:
+                        SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
+                        break;
+                    case TypeItem.X3_SHOT:
+                        SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
+                        break;
+                    case TypeItem.HOMING:
+                        SDL_SetRenderDrawColor(Program.render, 64, 255, 64, 255);
+                        break;
+                    case TypeItem.SPREAD:
+                        SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
+                        break;
+                    case TypeItem.LASER:
+                        SDL_SetRenderDrawColor(Program.render, 127, 0, 255, 255);
+                        break;
+                    default:
+                        SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
+                        break;
+                }
 
             if (Program.player.Mort())
                 return;
@@ -268,7 +268,7 @@ namespace Dysgenesis
             for (int i = 0; i < Program.enemies.Count; i++)
             {
                 if (Program.enemies[i].position.z != 0)
-			        continue;
+                    continue;
 
                 if (Background.Distance(Program.enemies[i].position.x, Program.enemies[i].position.y, Program.player.position.x, Program.player.position.y) <= LARGEUR_MAX_VAGUE_ELECTRIQUE)
                     Program.enemies[i].HP--;

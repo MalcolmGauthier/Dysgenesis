@@ -59,24 +59,24 @@ namespace Dysgenesis
         static ushort lTimer = 0;
 
         readonly static sbyte[] hyperbole_bleue_bombe_pulsar_data = new sbyte[72] {
-	            -7, -19,  -8, -31,
-	            -8, -31, -12, -43,
-	            -12, -43, -18, -47,
-	            4, -20,   5, -31,
-	            5, -31,   7, -45,
-	            7, -45,  12, -49,
-	            -3, -23,  -3, -36,
-	            0, -35,   4, -45,
-	            -5, -45,  -8, -49,
-	            -6,  19,  -9,  30,
-	            -9,  30, -13,  39,
-	            -13,  39, -20,  44,
-	            5,  19,   6,  30,
-	            6,  30,  10,  40,
-	            10,  40,  20,  46,
-	            0,  24,   1,  36,
-	            -2,  31,  -3,  39,
-	            -8,  35,  -5,  26
+                -7, -19,  -8, -31,
+                -8, -31, -12, -43,
+                -12, -43, -18, -47,
+                4, -20,   5, -31,
+                5, -31,   7, -45,
+                7, -45,  12, -49,
+                -3, -23,  -3, -36,
+                0, -35,   4, -45,
+                -5, -45,  -8, -49,
+                -6,  19,  -9,  30,
+                -9,  30, -13,  39,
+                -13,  39, -20,  44,
+                5,  19,   6,  30,
+                6,  30,  10,  40,
+                10,  40,  20,  46,
+                0,  24,   1,  36,
+                -2,  31,  -3,  39,
+                -8,  35,  -5,  26
         };
 
         public static void DessinerBombePulsar(Vector2 position, byte rayon, SDL_Color couleure, bool hyperbole_bleue, Vector2[]? lignes_prefaites = null)
@@ -220,7 +220,7 @@ namespace Dysgenesis
                 {
                     star_positions[i].x = Program.RNG.Next(Data.W_SEMI_LARGEUR - RAYON_DEBUTE_ETOILES, Data.W_SEMI_LARGEUR + RAYON_DEBUTE_ETOILES);
                     star_positions[i].y = Program.RNG.Next(Data.W_SEMI_HAUTEUR - RAYON_DEBUTE_ETOILES, Data.W_SEMI_HAUTEUR + RAYON_DEBUTE_ETOILES);
-                        
+
                     if (star_positions[i].x == Data.W_SEMI_LARGEUR && star_positions[i].y == Data.W_SEMI_HAUTEUR)
                         star_positions[i].x++;
                 }
@@ -1156,10 +1156,10 @@ namespace Dysgenesis
                     }
                 }
                 if (Program.gTimer >= 1800) for (int i = 0; i < 30; i++)
-                {
-                    if (Abs(stars[i, 0] - 1000.0f) < (Program.gTimer - 1800) * 5)
-                        SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
-                }
+                    {
+                        if (Abs(stars[i, 0] - 1000.0f) < (Program.gTimer - 1800) * 5)
+                            SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    }
 
                 if (Program.gTimer < 1830)
                 {
@@ -1512,7 +1512,7 @@ namespace Dysgenesis
             } // ranconte - fini
             else if (Program.gTimer >= 840 && Program.gTimer < 1020)
             {
-                Text.DisplayText("le grand vide laissé par l'explosion a démontré la vérité de cette guerre.", 
+                Text.DisplayText("le grand vide laissé par l'explosion a démontré la vérité de cette guerre.",
                     new Vector2(20, 700), 3, scroll: (int)Program.gTimer / 2 - 420);
 
                 #region étoiles
@@ -3048,7 +3048,7 @@ namespace Dysgenesis
                     Program.enemies[i].position.y = (float)Sin((Program.gTimer - 600) / -10f + i) * 50 + Data.W_SEMI_HAUTEUR;
                 }
                 if (Program.gTimer == 899)
-                {                    
+                {
                     Program.enemies.Clear();
                 }
             }
@@ -3394,7 +3394,7 @@ namespace Dysgenesis
 
             if (Program.GamemodeAction())
                 Son.JouerEffet(ListeAudio.EXPLOSION_ENNEMI);
-            
+
             Program.explosions.Add(this);
         }
         public override bool Exist()
@@ -3435,7 +3435,8 @@ namespace Dysgenesis
     public static class Son
     {
         const int NB_CHAINES_SFX = 20;
-        /*const*/static int VOLUME_TEMPS_AFFICHAGE = Data.G_FPS / 2;
+        /*const*/
+        static int VOLUME_TEMPS_AFFICHAGE = Data.G_FPS / 2;
         const int VOLUME_DAS = 5;
         const int ALL_CHUNKS = -1;
         const int FIRST_FREE_CHANNEL = -1;

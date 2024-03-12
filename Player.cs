@@ -142,7 +142,7 @@ namespace Dysgenesis
                     continue;
 
                 float[] depths = p.PositionsSurEcran();
-                if (Background.Distance(depths[0], depths[1], position.x, position.y) > 30 )
+                if (Background.Distance(depths[0], depths[1], position.x, position.y) > 30)
                     continue;
 
                 HP--;
@@ -195,7 +195,7 @@ namespace Dysgenesis
 
                     if (Program.gamemode == Gamemode.ARCADE)
                         Text.DisplayText("score: " + Program.level,
-                            new Vector2(Text.CENTRE, Data.W_SEMI_HAUTEUR + 30 ), 2, Text.BLANC, (short)(timer - 120), Text.NO_SCROLL);
+                            new Vector2(Text.CENTRE, Data.W_SEMI_HAUTEUR + 30), 2, Text.BLANC, (short)(timer - 120), Text.NO_SCROLL);
                 }
 
                 if (timer > 800)
