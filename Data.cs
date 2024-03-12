@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Text;
+﻿using System.Text;
 using static SDL2.SDL;
 namespace Dysgenesis
 {
@@ -11,7 +10,7 @@ namespace Dysgenesis
         public static short W_SEMI_HAUTEUR = 540;
         public static short W_SEMI_LARGEUR = 960;
 
-        public const short G_FPS = 60;
+        public static short G_FPS = 60;
         public const byte G_DEPTH_LAYERS = 50;
 
         public const float P_FRICTION = 0.9f;
@@ -40,64 +39,69 @@ namespace Dysgenesis
         public const byte BP_MAX_HP = 50;
 
         // Y INVERSE, pas x, z: + = vers caméra
-        public static sbyte[,] MODELE_P = new sbyte[57, 3] {
-            {-50,0,0}, // rouge
-            {-46,-2,-50}, // orange
-            {-46,0,-2}, // vomi
-            {-46,-4,-2}, // -vomi
-            {-46,0,-2}, // vomi
-            {-10,5,-5}, // vert pâle
-            {-10,-5,-5}, // -vert pâle
-            {-10,5,-5}, // vert pâle
-            {-5,5,-15}, // rose
-            {-5,0,-15}, // -rose
-            {-5,5,-15}, // rose
-            {5,5,-15}, // rose
-            {5,0,-15}, // -rose
-            {5,5,-15}, // rose
-            {10,5,-5}, // vert pâle
-            {46,0,-2}, // vomi
-            {46,-2,-50}, // orange
-            {50,0,0}, // rouge
-            {50,-5,0}, // rouge 2
-            {13,-10,10}, // bleu
-            {15,-9,20}, // mauve
-            {4,10,10}, // vert foncé
-            {13,-10,10}, // bleu
-            {15,-9,20}, // mauve
-            {0,-15,20}, // bleh
-            {-15,-9,20}, // mauve
-            {-4,10,10}, // vert foncé
-            {-13,-10,10}, // bleu
-            {-15,-9,20}, // mauve
-            {-13,-10,10}, // bleu
-            {-50,-5,0}, // rouge 2
-            {-50,0,0}, // rouge
-            {-50,-5,0}, // rouge 2
-            {-46,-2,-50}, // orange
-            {-46,-4,-2}, // -vomi
-            {-10,-5,-5}, // -vert pâle
-            {-5,0,-15}, // -rose
-            {5,0,-15}, // -rose
-            {10,-5,-5}, // -vert pâle
-            {46,-4,-2}, // -vomi
-            {46,-2,-50}, // orange
-            {50,-5,0}, // rouge 2
-            {50,0,0}, // rouge
-            {10,5,10}, // -bleu
-            {4,10,10}, // vert foncé
-            {2,10,10}, // l'autre
-            {1,15,10}, // bleu pâle
-            {-1,15,10}, // bleu pâle
-            {1,15,10}, // bleu pâle
-            {0,15,25}, // jaune
-            {0,-15,20}, // bleh
-            {0,15,25}, // jaune
-            {-1,15,10}, // bleu pâle
-            {-2,10,10}, // l'autre
-            {-4,10,10}, // vert foncé
-            {-10,5,10}, // -bleu
-            {-50,0,0} // rouge
+        public static readonly Vector3[] MODELE_P =
+        {
+            new Vector3(-50,0,0), // rouge
+            new Vector3(-46,-2,-50), // orange
+            new Vector3(-46,0,-2), // vomi
+            new Vector3(-46,-4,-2), // -vomi
+            new Vector3(-46,0,-2), // vomi
+            new Vector3(-10,5,-5), // vert pâle
+            new Vector3(-10,-5,-5), // -vert pâle
+            new Vector3(-10,5,-5), // vert pâle
+            new Vector3(-5,5,-15), // rose
+            new Vector3(-5,0,-15), // -rose
+            new Vector3(-5,5,-15), // rose
+            new Vector3(5,5,-15), // rose
+            new Vector3(5,0,-15), // -rose
+            new Vector3(5,5,-15), // rose
+            new Vector3(10,5,-5), // vert pâle
+            new Vector3(46,0,-2), // vomi
+            new Vector3(46,-2,-50), // orange
+            new Vector3(50,0,0), // rouge
+            new Vector3(50,-5,0), // rouge 2
+            new Vector3(13,-10,10), // bleu
+            new Vector3(15,-9,20), // mauve
+            new Vector3(4,10,10), // vert foncé
+            new Vector3(13,-10,10), // bleu
+            new Vector3(15,-9,20), // mauve
+            new Vector3(0,-15,20), // bleh
+            new Vector3(-15,-9,20), // mauve
+            new Vector3(-4,10,10), // vert foncé
+            new Vector3(-13,-10,10), // bleu
+            new Vector3(-15,-9,20), // mauve
+            new Vector3(-13,-10,10), // bleu
+            new Vector3(-50,-5,0), // rouge 2
+            new Vector3(-50,0,0), // rouge
+            new Vector3(-50,-5,0), // rouge 2
+            new Vector3(-46,-2,-50), // orange
+            new Vector3(-46,-4,-2), // -vomi
+            new Vector3(-10,-5,-5), // -vert pâle
+            new Vector3(-5,0,-15), // -rose
+            new Vector3(5,0,-15), // -rose
+            new Vector3(10,-5,-5), // -vert pâle
+            new Vector3(46,-4,-2), // -vomi
+            new Vector3(46,-2,-50), // orange
+            new Vector3(50,-5,0), // rouge 2
+            new Vector3(50,0,0), // rouge
+            new Vector3(10,5,10), // -bleu
+            new Vector3(4,10,10), // vert foncé
+            new Vector3(2,10,10), // l'autre
+            new Vector3(1,15,10), // bleu pâle
+            new Vector3(-1,15,10), // bleu pâle
+            new Vector3(1,15,10), // bleu pâle
+            new Vector3(0,15,25), // jaune
+            new Vector3(0,-15,20), // bleh
+            new Vector3(0,15,25), // jaune
+            new Vector3(-1,15,10), // bleu pâle
+            new Vector3(-2,10,10), // l'autre
+            new Vector3(-4,10,10), // vert foncé
+            new Vector3(-10,5,10), // -bleu
+            new Vector3(-50,0,0) // rouge
+        };
+        public static readonly int[] MODELE_P_SAUTS =
+        {
+            -1
         };
 
         public static sbyte[,] MODELE_A = new sbyte[7, 2]
@@ -111,433 +115,696 @@ namespace Dysgenesis
             { -25, -10}
         };
 
-        public static sbyte[,] MODELE_E1 = new sbyte[19, 3]{
-            { 0, 0, -20 },
-            { -16, 0, 10 },
-            { 16, 0, 10 },
-            { 0, 0, -20 },
-            { 0, 30, 0 },
-            { -16, 0, 10 },
-            { 0, 30, 0 },
-            { 16, 0, 10 },
-            { 0, -30, 0 },
-            { 0, 0, -20 },
-            { -16, 0, 10 },
-            { 0, -30, 0 },
-            { -5, -5, 0 },
-            { 0, -2, 0 },
-            { 5, -5, 0 },
-            { 0, -8, 0 },
-            { -5, -5, 0 },
-            { 0, -5, 0 },
-            { 0, -5, 0 }
-        };
-        public static sbyte[,] MODELE_E2 = new sbyte[67, 3]{
-            { -30, 0, 0 },
-            { -15, 0, 26 },
-            { 0, -50, 0 },
-            { -30, 0, 0 },
-            { -15, 0, -26 },
-            { 0, -50, 0 },
-            { 15, 0, -26 },
-            { -15, 0, -26 },
-            { 15, 0, -26 },
-            { 30, 0, 0 },
-            { 0, -50, 0 },
-            { 15, 0, 26 },
-            { 30, 0, 0 },
-            { 15, 0, 26 },
-            { -15, 0, 26 },
-            { -12, 10, 21 },
-            { -25, 10, 0 },
-            { -30, 0, 0 },
-            { -25, 10, 0 },
-            { -12, 10, -21 },
-            { -15, 0, -26 },
-            { -12, 10, -21 },
-            { 12, 10, -21 },
-            { 15, 0, -26 },
-            { 12, 10, -21 },
-            { 25, 10, 0 },
-            { 30, 0, 0 },
-            { 25, 10, 0 },
-            { 12, 10, 21 },
-            { 15, 0, 26 },
-            { 12, 10, 21 },
-            { -12, 10, 21 },
-            { -12, 10, 3 },
-            { -12, 10, -3 },
-            { -17, 10, 0 },
-            { -20, 18, 0 },
-            { -15, 18, 3 },
-            { -12, 10, 3 },
-            { -15, 18, 3 },
-            { -15, 18, -3 },
-            { -12, 10, -3 },
-            { -15, 18, -3 },
-            { -20, 18, 0 },
-            { -5, 23, 0 },
-            { -15, 18, -3 },
-            { -5, 23, 0 },
-            { -15, 18, 3 },
-            { -12, 10, 3 },
-            { -12, 10, 21 },
-            { 12, 10, 21 },
-            { 12, 10, 3 },
-            { 12, 10, -3 },
-            { 17, 10, 0 },
-            { 20, 18, 0 },
-            { 15, 18, 3 },
-            { 12, 10, 3 },
-            { 15, 18, 3 },
-            { 15, 18, -3 },
-            { 12, 10, -3 },
-            { 15, 18, -3 },
-            { 20, 18, 0 },
-            { 5, 23, 0 },
-            { 15, 18, -3 },
-            { 5, 23, 0 },
-            { 15, 18, 3 },
-            { 12, 10, 3 },
-            { 12, 10, 21 }
-        };
-        public static sbyte[,] MODELE_E3 = new sbyte[27, 3]{
-            { -50, 0, 0 },
-            { -50, 10, 40 },
-            { -45, 0, 0 },
-            { -50, 0, 0 },
-            { -20, 10, -10 },
-            { -20, -10, -10 },
-            { 20, -10, -10 },
-            { 20, -10, 10 },
-            { 50, 0, 0 },
-            { 50, 10, 40 },
-            { 45, 0, 0 },
-            { 50, 0, 0 },
-            { 20, -10, -10 },
-            { 20, 10, -10 },
-            { -20, 10, -10 },
-            { -20, 10, 10 },
-            { 20, 10, 10 },
-            { 20, 10, -10 },
-            { 50, 0, 0 },
-            { 20, 10, 10 },
-            { 20, -10, 10 },
-            { -20, -10, 10 },
-            { -50, 0, 0 },
-            { -20, 10, 10 },
-            { -20, -10, 10 },
-            { -20, -10, -10 },
-            { -50, 0, 0 }
-        };
-        public static sbyte[,] MODELE_E5 = new sbyte[83, 3]{
-            { -15, -45, 10},
-            { -10, -30, 10},
-            { -25, -30, 50},
-            { -15, -45, 10 },
-            { -40, -30, 10 },
-            { -25, -30, 50 },
-            { -25, -20, 10 },
-            { -10, -30, 10 },
-            { -25, -20, 10 },
-            { -40, -30, 10 },
-            { -50, 0, 10 },
-            { -40, 30, 10 },
-            { -15, 50, 10 },
-            { 15, 50, 10 },
-            { 40, 30, 10 },
-            { 50, 0, 10 },
-            { 40, -25, 10 },
-            { 15, -45, 10 },
-            { 25, -30, 50 },
-            { 40, -25, 10 },
-            { 25, -20, 10 },
-            { 25, -30, 50 },
-            { 10, -30, 10 },
-            { 15, -45, 10 },
-            { 10, -30, 10 },
-            { 25, -20, 10 },
-            { 35, 0, 10 },
-            { 25, 20, 10 },
-            { 10, 30, 10 },
-            { 0, 10, 0 },
-            { -10, 30, 10 },
-            { -25, 20, 10 },
-            { -35, 0, 10 },
-            { -25, -20, 10 },
-            { -25, -20, -10 },
-            { -10, -30, -10 },
-            { -10, -30, 10 },
-            { -10, -30, -10 },
-            { -15, -45, -10 },
-            { -15, -45, 10 },
-            { -15, -45, -10 },
-            { -40, -30, -10 },
-            { -40, -30, 10 },
-            { -40, -30, -10 },
-            { -25, -20, -10 },
-            { -35, 0, -10 },
-            { -25, 20, -10 },
-            { -10, 30, -10 },
-            { 0, 10, 0 },
-            { -15, -10, -15 },
-            { 15, -10, -15 },
-            { 0, 10, 0 },
-            { 15, -10, 15 },
-            { 15, -10, -15 },
-            { 15, -10, 15 },
-            { -15, -10, 15 },
-            { -15, -10, -15 },
-            { -15, -10, 15 },
-            { 0, 10, 0 },
-            { 10, 30, -10 },
-            { 25, 20, -10 },
-            { 35, 0, -10 },
-            { 25, -20, -10 },
-            { 40, -30, -10 },
-            { 25, -20, -10 },
-            { 25, -20, 10 },
-            { 25, -20, -10 },
-            { 10, -30, -10 },
-            { 10, -30, 10 },
-            { 10, -30, -10 },
-            { 15, -45, -10 },
-            { 15, -45, 10 },
-            { 15, -45, -10 },
-            { 40, -30, -10 },
-            { 40, -30, 10 },
-            { 40, -30, -10 },
-            { 50, 0, -10 },
-            { 40, 30, -10 },
-            { 15, 50, -10 },
-            { -15, 50, -10 },
-            { -40, 30, -10 },
-            { -50, 0, -10 },
-            { -40, -30, -10 }
-        };
-        public static sbyte[,] MODELE_E6 = new sbyte[7, 3]
+        static readonly Vector3[] MODELE_E1 =
         {
-            { -25, 0, 0 },
-            { 0, 10, 0 },
-            { 25, 0, 0 },
-            { 0, 10, -30 },
-            { 0, 10, 0 },
-            { 0, 10, -30 },
-            { -25, 0, 0 }
+            new Vector3( 0, 0, -20 ),
+            new Vector3( -16, 0, 10 ),
+            new Vector3( 16, 0, 10 ),
+            new Vector3( 0, 0, -20 ),
+            new Vector3( 0, -30, 0 ),
+            new Vector3( -16, 0, 10 ),
+            new Vector3( 0, -30, 0 ),
+            new Vector3( 16, 0, 10 ),
+            new Vector3( 0, 30, 0 ),
+            new Vector3( 0, 0, -20 ),
+            new Vector3( -16, 0, 10 ),
+            new Vector3( 0, 30, 0 ),
+            new Vector3( -5, 5, 0 ),
+            new Vector3( 0, 2, 0 ),
+            new Vector3( 5, 5, 0 ),
+            new Vector3( 0, 8, 0 ),
+            new Vector3( -5, 5, 0 ),
+            new Vector3( 0, 5, 0 ),
+            new Vector3( 0, 5, 0 )
         };
-        public static sbyte[,] MODELE_E7 = new sbyte[9, 3]{
-            { 0, -20, 0},
-            { 40, 0, 0},
-            { 0, 20, 0},
-            { -40, 0, 0 },
-            { 0, -20, 0 },
-            { 10, 0, 0 },
-            { 0, 20, 0 },
-            { -10, 0, 0 },
-            { 0, -20, 0 }
+        static readonly int[] MODELE_E1_SAUTS =
+        {
+            12, 17, -1
         };
-        public static sbyte[,] MODELE_E7_1 = new sbyte[4, 3]{
-            { 0, -10, 0 },
-            { -8, 6, 0 },
-            { 8, 6, 0 },
-            { 0, -10, 0 }
+        static readonly Vector3[] MODELE_E2 =
+        {
+            new Vector3( -30, 0, 0 ),
+            new Vector3( -15, 0, 26 ),
+            new Vector3( 0, 50, 0 ),
+            new Vector3( -30, 0, 0 ),
+            new Vector3( -15, 0, -26 ),
+            new Vector3( 0, 50, 0 ),
+            new Vector3( 15, 0, -26 ),
+            new Vector3( -15, 0, -26 ),
+            new Vector3( 15, 0, -26 ),
+            new Vector3( 30, 0, 0 ),
+            new Vector3( 0, 50, 0 ),
+            new Vector3( 15, 0, 26 ),
+            new Vector3( 30, 0, 0 ),
+            new Vector3( 15, 0, 26 ),
+            new Vector3( -15, 0, 26 ),
+            new Vector3( -12, -10, 21 ),
+            new Vector3( -25, -10, 0 ),
+            new Vector3( -30, 0, 0 ),
+            new Vector3( -25, -10, 0 ),
+            new Vector3( -12, -10, -21 ),
+            new Vector3( -15, 0, -26 ),
+            new Vector3( -12, -10, -21 ),
+            new Vector3( 12, -10, -21 ),
+            new Vector3( 15, 0, -26 ),
+            new Vector3( 12, -10, -21 ),
+            new Vector3( 25, -10, 0 ),
+            new Vector3( 30, 0, 0 ),
+            new Vector3( 25, -10, 0 ),
+            new Vector3( 12, -10, 21 ),
+            new Vector3( 15, 0, 26 ),
+            new Vector3( 12, -10, 21 ),
+            new Vector3( -12, -10, 21 ),
+            new Vector3( -12, -10, 3 ),
+            new Vector3( -12, -10, -3 ),
+            new Vector3( -17, -10, 0 ),
+            new Vector3( -20, -18, 0 ),
+            new Vector3( -15, -18, 3 ),
+            new Vector3( -12, -10, 3 ),
+            new Vector3( -15, -18, 3 ),
+            new Vector3( -15, -18, -3 ),
+            new Vector3( -12, -10, -3 ),
+            new Vector3( -15, -18, -3 ),
+            new Vector3( -20, -18, 0 ),
+            new Vector3( -5, -23, 0 ),
+            new Vector3( -15, -18, -3 ),
+            new Vector3( -5, -23, 0 ),
+            new Vector3( -15, -18, 3 ),
+            new Vector3( -12, -10, 3 ),
+            new Vector3( -12, -10, 21 ),
+            new Vector3( 12, -10, 21 ),
+            new Vector3( 12, -10, 3 ),
+            new Vector3( 12, -10, -3 ),
+            new Vector3( 17, -10, 0 ),
+            new Vector3( 20, -18, 0 ),
+            new Vector3( 15, -18, 3 ),
+            new Vector3( 12, -10, 3 ),
+            new Vector3( 15, -18, 3 ),
+            new Vector3( 15, -18, -3 ),
+            new Vector3( 12, -10, -3 ),
+            new Vector3( 15, -18, -3 ),
+            new Vector3( 20, -18, 0 ),
+            new Vector3( 5, -23, 0 ),
+            new Vector3( 15, -18, -3 ),
+            new Vector3( 5, -23, 0 ),
+            new Vector3( 15, -18, 3 ),
+            new Vector3( 12, -10, 3 ),
+            new Vector3( 12, -10, 21 )
+        };
+        static readonly int[] MODELE_E2_SAUTS =
+        {
+            48, 50, -1
+        };
+        static readonly Vector3[] MODELE_E3 =
+        {
+            new Vector3( -50, 0, 0 ),
+            new Vector3( -50, -10, 40 ),
+            new Vector3( -45, 0, 0 ),
+            new Vector3( -50, 0, 0 ),
+            new Vector3( -20, -10, -10 ),
+            new Vector3( -20, 10, -10 ),
+            new Vector3( 20, 10, -10 ),
+            new Vector3( 20, 10, 10 ),
+            new Vector3( 50, 0, 0 ),
+            new Vector3( 50, -10, 40 ),
+            new Vector3( 45, 0, 0 ),
+            new Vector3( 50, 0, 0 ),
+            new Vector3( 20, 10, -10 ),
+            new Vector3( 20, -10, -10 ),
+            new Vector3( -20, -10, -10 ),
+            new Vector3( -20, -10, 10 ),
+            new Vector3( 20, -10, 10 ),
+            new Vector3( 20, -10, -10 ),
+            new Vector3( 50, 0, 0 ),
+            new Vector3( 20, -10, 10 ),
+            new Vector3( 20, 10, 10 ),
+            new Vector3( -20, 10, 10 ),
+            new Vector3( -50, 0, 0 ),
+            new Vector3( -20, -10, 10 ),
+            new Vector3( -20, 10, 10 ),
+            new Vector3( -20, 10, -10 ),
+            new Vector3( -50, 0, 0 )
+        };
+        static readonly int[] MODELE_E3_SAUTS =
+        {
+            -1
+        };
+        static readonly Vector3[] MODELE_E5 =
+        {
+            new Vector3( -15, 45, 10),
+            new Vector3( -10, 30, 10),
+            new Vector3( -25, 30, 50),
+            new Vector3( -15, 45, 10 ),
+            new Vector3( -40, 30, 10 ),
+            new Vector3( -25, 30, 50 ),
+            new Vector3( -25, 20, 10 ),
+            new Vector3( -10, 30, 10 ),
+            new Vector3( -25, 20, 10 ),
+            new Vector3( -40, 30, 10 ),
+            new Vector3( -50, 0, 10 ),
+            new Vector3( -40, -30, 10 ),
+            new Vector3( -15, -50, 10 ),
+            new Vector3( 15, -50, 10 ),
+            new Vector3( 40, -30, 10 ),
+            new Vector3( 50, 0, 10 ),
+            new Vector3( 40, 25, 10 ),
+            new Vector3( 15, 45, 10 ),
+            new Vector3( 25, 30, 50 ),
+            new Vector3( 40, 25, 10 ),
+            new Vector3( 25, 20, 10 ),
+            new Vector3( 25, 30, 50 ),
+            new Vector3( 10, 30, 10 ),
+            new Vector3( 15, 45, 10 ),
+            new Vector3( 10, 30, 10 ),
+            new Vector3( 25, 20, 10 ),
+            new Vector3( 35, 0, 10 ),
+            new Vector3( 25, -20, 10 ),
+            new Vector3( 10, -30, 10 ),
+            new Vector3( 0, -10, 0 ),
+            new Vector3( -10, -30, 10 ),
+            new Vector3( -25, -20, 10 ),
+            new Vector3( -35, 0, 10 ),
+            new Vector3( -25, 20, 10 ),
+            new Vector3( -25, 20, -10 ),
+            new Vector3( -10, 30, -10 ),
+            new Vector3( -10, 30, 10 ),
+            new Vector3( -10, 30, -10 ),
+            new Vector3( -15, 45, -10 ),
+            new Vector3( -15, 45, 10 ),
+            new Vector3( -15, 45, -10 ),
+            new Vector3( -40, 30, -10 ),
+            new Vector3( -40, 30, 10 ),
+            new Vector3( -40, 30, -10 ),
+            new Vector3( -25, 20, -10 ),
+            new Vector3( -35, 0, -10 ),
+            new Vector3( -25, -20, -10 ),
+            new Vector3( -10, -30, -10 ),
+            new Vector3( 0, -10, 0 ),
+            new Vector3( -15, 10, -15 ),
+            new Vector3( 15, 10, -15 ),
+            new Vector3( 0, -10, 0 ),
+            new Vector3( 15, 10, 15 ),
+            new Vector3( 15, 10, -15 ),
+            new Vector3( 15, 10, 15 ),
+            new Vector3( -15, 10, 15 ),
+            new Vector3( -15, 10, -15 ),
+            new Vector3( -15, 10, 15 ),
+            new Vector3( 0, -10, 0 ),
+            new Vector3( 10, -30, -10 ),
+            new Vector3( 25, -20, -10 ),
+            new Vector3( 35, 0, -10 ),
+            new Vector3( 25, 20, -10 ),
+            new Vector3( 40, 30, -10 ),
+            new Vector3( 25, 20, -10 ),
+            new Vector3( 25, 20, 10 ),
+            new Vector3( 25, 20, -10 ),
+            new Vector3( 10, 30, -10 ),
+            new Vector3( 10, 30, 10 ),
+            new Vector3( 10, 30, -10 ),
+            new Vector3( 15, 45, -10 ),
+            new Vector3( 15, 45, 10 ),
+            new Vector3( 15, 45, -10 ),
+            new Vector3( 40, 30, -10 ),
+            new Vector3( 40, 30, 10 ),
+            new Vector3( 40, 30, -10 ),
+            new Vector3( 50, 0, -10 ),
+            new Vector3( 40, -30, -10 ),
+            new Vector3( 15, -50, -10 ),
+            new Vector3( -15, -50, -10 ),
+            new Vector3( -40, -30, -10 ),
+            new Vector3( -50, 0, -10 ),
+            new Vector3( -40, 30, -10 )
+        };
+        static readonly int[] MODELE_E5_SAUTS =
+        {
+            -1
+        };
+        static readonly Vector3[] MODELE_E6 =
+        {
+            new Vector3( -25, 0, 0 ),
+            new Vector3( 0, -10, 0 ),
+            new Vector3( 25, 0, 0 ),
+            new Vector3( 0, -10, -30 ),
+            new Vector3( 0, -10, 0 ),
+            new Vector3( 0, -10, -30 ),
+            new Vector3( -25, 0, 0 )
+        };
+        static readonly int[] MODELE_E6_SAUTS =
+        {
+            -1
+        };
+        static readonly Vector3[] MODELE_E7 =
+        {
+            new Vector3( 0, 20, 0),
+            new Vector3( 40, 0, 0),
+            new Vector3( 0, -20, 0),
+            new Vector3( -40, 0, 0 ),
+            new Vector3( 0, 20, 0 ),
+            new Vector3( 10, 0, 0 ),
+            new Vector3( 0, -20, 0 ),
+            new Vector3( -10, 0, 0 ),
+            new Vector3( 0, 20, 0 )
+        };
+        static readonly int[] MODELE_E7_SAUTS =
+        {
+            -1
+        };
+        static readonly Vector3[] MODELE_E7_1 =
+        {
+            new Vector3( 0, 10, 0 ),
+            new Vector3( -8, -6, 0 ),
+            new Vector3( 8, -6, 0 ),
+            new Vector3( 0, 10, 0 )
+        };
+        static readonly int[] MODELE_E7_1_SAUTS =
+        {
+            -1
+        };
+        public static readonly Vector3[][] modeles_ennemis =
+        {
+            MODELE_E1, MODELE_E2, MODELE_E3, new Vector3[]{ }, MODELE_E5,
+            MODELE_E6, MODELE_E7, MODELE_E1, MODELE_E2, MODELE_E3,
+            new Vector3[]{ }, MODELE_E5, MODELE_E6, MODELE_E7, MODELE_P,
+            MODELE_E7_1, MODELE_E7_1
+        };
+        public static readonly int[][] lignes_a_sauter_ennemis =
+        {
+            MODELE_E1_SAUTS, MODELE_E2_SAUTS, MODELE_E3_SAUTS, new int[1]{-1}, MODELE_E5_SAUTS,
+            MODELE_E6_SAUTS, MODELE_E7_SAUTS, MODELE_E1_SAUTS, MODELE_E2_SAUTS, MODELE_E3_SAUTS,
+            new int[1]{-1}, MODELE_E5_SAUTS, MODELE_E6_SAUTS, MODELE_E7_SAUTS, MODELE_P_SAUTS,
+            MODELE_E7_1_SAUTS, MODELE_E7_1_SAUTS
         };
 
-        public static sbyte[,] MODELE_I1 = new sbyte[31, 2] {
-            { -5, -10 },
-            { -15, -10 },
-            { -20, -5 },
-            { -5, -5 },
-            { -5, -20 },
-            { 0, -25 },
-            { 10, -25 },
-            { 5, -20 },
-            { -5, -20 },
-            { 5, -20 },
-            { 5, -5 },
-            { 20, -5 },
-            { 25, -10 },
-            { 10, -10 },
-            { 10, -25 },
-            { 10, -10 },
-            { 25, -10 },
-            { 25, 0 },
-            { 20, 5 },
-            { 20, -5 },
-            { 20, 5 },
-            { 5, 5 },
-            { 5, 20 },
-            { 10, 15 },
-            { 10, 5 },
-            { 10, 15 },
-            { 5, 20 },
-            { -5, 20 },
-            { -5, 5 },
-            { -20, 5 },
-            { -20, -5 }
-        };
-        public static sbyte[,] MODELE_I3 = new sbyte[28, 2] {
-            { -19, 22},
-            { -70, 0},
-            { -19, -22 },
-            { -19, 22 },
-            { -30, 12 },
-            { -30, -12 },
-            { -12, -30 },
-            { 12, -30 },
-            { 19, -22 },
-            { 70, 0 },
-            { 19, 22 },
-            { 70, 0 },
-            { 19, -22 },
-            { 30, -12 },
-            { 30, 12 },
-            { 12, 30 },
-            { -12, 30 },
-            { -19, 22 },
-            { -14, -6 },
-            { -8, 6 },
-            { -8, -6 },
-            { -14, 6 },
-            { -4, -12 },
-            { 10, -12 },
-            { 10, 0 },
-            { -4, 0 },
-            { -4, 12 },
-            { 10, 12 }
-         };
-        public static sbyte[,] MODELE_I4 = new sbyte[29, 2] { 
-            { -19, 22 },
-            { -70, 0 },
-            { -19, -22 },
-            { -19, 22 },
-            { -30, 12 },
-            { -30, -12 },
-            { -12, -30 },
-            { 12, -30 },
-            { 19, -22 },
-            { 70, 0 },
-            { 19, 22 },
-            { 70, 0 },
-            { 19, -22 },
-            { 30, -12 },
-            { 30, 12 },
-            { 12, 30 },
-            { -12, 30 },
-            { -19, 22 },
-            { -14, -6 },
-            { -8, 6 },
-            { -8, -6 },
-            { -14, 6 },
-            { -4, -12 },
-            { 10, -12 },
-            { 10, 0 },
-            { -4, 0 },
-            { 10, 0 },
-            { 10, 12 },
-            { -4, 12 }
-        };
-        public static sbyte[,] MODELE_I5 = new sbyte[32, 2] { 
-            { -19, 22 },
-            { -70, 0 },
-            { -19, -22 },
-            { -70, 0 },
-            { -19, 22 },
-            { -30, 12 },
-            { -30, -12 },
-            { -12, -30 },
-            { 12, -30 },
-            { 19, -22 },
-            { 70, 0 },
-            { 19, 22 },
-            { 70, 0 },
-            { 19, -22 },
-            { 30, -12 },
-            { 30, 12 },
-            { 12, 30 },
-            { -12, 30 },
-            { -19, 22 },
-            { -16, 0 },
-            { -4, 0 },
-            { 0, -4 },
-            { 0, -16 },
-            { 16, 0 },
-            { 4, 0 },
-            { 0, 4 },
-            { 0, 16 },
-            { 0, 10 },
-            { -10, 0 },
-            { 0, -10 },
-            { 10, 0 },
-            { 0, 10 }
-        };
-        public static sbyte[,] MODELE_I6 = new sbyte[29, 2] {
-            { -19, 22 },
-            { -70, 0 },
-            { -19, -22 },
-            { -70, 0 },
-            { -19, 22 },
-            { -30, 12 },
-            { -30, -12 },
-            { -12, -30 },
-            { 12, -30 },
-            { 19, -22 },
-            { 70, 0 },
-            { 19, 22 },
-            { 70, 0 },
-            { 19, -22 },
-            { 30, -12 },
-            { 30, 12 },
-            { 12, 30 },
-            { -12, 30 },
-            { -19, 22 },
-            { -16, -10 },
-            { -10, 10 },
-            { -4, -10 },
-            { -10, -10 },
-            { -10, 10 },
-            { 4, -10 },
-            { 10, 10 },
-            { 16, -10 },
-            { 10, -10 },
-            { 10, 10 },
-        };
-        public static sbyte[,] MODELE_I7 = new sbyte[25, 2] { 
-            { -19, 22 },
-            { -70, 0 },
-            { -19, -22 },
-            { -70, 0 },
-            { -19, 22 },
-            { -30, 12 },
-            { -30, -12 },
-            { -12, -30 },
-            { 12, -30 },
-            { 19, -22 },
-            { 70, 0 },
-            { 19, 22 },
-            { 70, 0 },
-            { 19, -22 },
-            { 30, -12 },
-            { 30, 12 },
-            { 12, 30 },
-            { -12, 30 },
-            { -19, 22 },
-            { -6, 20 },
-            { 6, 12 },
-            { -6, 4 },
-            { 6, -4 },
-            { -6, -12 },
-            { 6, -20 },
-        };
-        public static void TailleEcran()
+        static readonly Vector3[] MODELE_I1 =
         {
-            SDL_DisplayMode mode;
-            SDL_GetCurrentDisplayMode(0, out mode);
-            W_HAUTEUR = (short)mode.h;
-            W_LARGEUR = (short)mode.w;
-            W_SEMI_HAUTEUR = (short)(W_HAUTEUR / 2);
-            W_SEMI_LARGEUR = (short)(W_LARGEUR / 2);
-        }
+            new Vector3(-5, -10, 0 ),
+            new Vector3(-15, -10, 0),
+            new Vector3(-20, -5, 0),
+            new Vector3(-5, -5, 0),
+            new Vector3(-5, -20, 0),
+            new Vector3(0, -25, 0),
+            new Vector3(10, -25, 0),
+            new Vector3(5, -20, 0),
+            new Vector3(-5, -20, 0),
+            new Vector3(5, -20, 0),
+            new Vector3(5, -5, 0),
+            new Vector3(20, -5, 0),
+            new Vector3(25, -10, 0),
+            new Vector3(10, -10, 0),
+            new Vector3(10, -25, 0),
+            new Vector3(10, -10, 0),
+            new Vector3( 25, -10, 0),
+            new Vector3( 25, 0, 0),
+            new Vector3( 20, 5, 0),
+            new Vector3( 20, -5, 0),
+            new Vector3(20, 5, 0),
+            new Vector3(5, 5, 0),
+            new Vector3(5, 20, 0),
+            new Vector3(10, 15, 0),
+            new Vector3(10, 5, 0),
+            new Vector3(10, 15, 0),
+            new Vector3(5, 20, 0),
+            new Vector3(-5, 20, 0),
+            new Vector3(-5, 5, 0),
+            new Vector3(-20, 5, 0),
+            new Vector3(-20, -5, 0)
+        };
+        static readonly int[] MODELE_I1_SAUTS = { -1 };
+        static readonly Vector3[] MODELE_I3 =
+        {
+            new Vector3(-19, 22,0),
+            new Vector3(-70, 0,0),
+            new Vector3(-19, -22 ,0),
+            new Vector3(-19, 22 ,0),
+            new Vector3(-30, 12 ,0),
+            new Vector3(-30, -12 ,0),
+            new Vector3(-12, -30 ,0),
+            new Vector3(12, -30 ,0),
+            new Vector3(19, -22 ,0),
+            new Vector3(70, 0 ,0),
+            new Vector3(19, 22 ,0),
+            new Vector3(70, 0 ,0),
+            new Vector3(19, -22 ,0),
+            new Vector3(30, -12 ,0),
+            new Vector3(30, 12 ,0),
+            new Vector3(12, 30 ,0),
+            new Vector3(-12, 30 ,0),
+            new Vector3(-19, 22 ,0),
+            new Vector3(-14, -6 ,0),
+            new Vector3(-8, 6 ,0),
+            new Vector3(-8, -6 ,0),
+            new Vector3(-14, 6 ,0),
+            new Vector3(-4, -12 ,0),
+            new Vector3(10, -12 ,0),
+            new Vector3(10, 0 ,0),
+            new Vector3(-4, 0 ,0),
+            new Vector3(-4, 12 ,0),
+            new Vector3(10, 12 ,0)
+        };
+        static readonly int[] MODELE_I3_SAUTS = { 3, 18, 20, 22, -1 };
+        static readonly Vector3[] MODELE_I4 =
+        {
+            new Vector3(19, 22 ,0),
+            new Vector3(70, 0 ,0),
+            new Vector3(19, -22 ,0),
+            new Vector3(19, 22 ,0),
+            new Vector3(30, 12 ,0),
+            new Vector3(30, -12 ,0),
+            new Vector3(12, -30 ,0),
+            new Vector3(-12, -30 ,0),
+            new Vector3(-19, -22 ,0),
+            new Vector3(-70, 0 ,0),
+            new Vector3(-19, 22 ,0),
+            new Vector3(-70, 0 ,0),
+            new Vector3(-19, -22 ,0),
+            new Vector3(-30, -12 ,0),
+            new Vector3(-30, 12 ,0),
+            new Vector3(-12, 30 ,0),
+            new Vector3(12, 30 ,0),
+            new Vector3(19, 22 ,0),
+            new Vector3(14, -6 ,0),
+            new Vector3(8, 6 ,0),
+            new Vector3(8, -6 ,0),
+            new Vector3(14, 6 ,0),
+            new Vector3(4, -12 ,0),
+            new Vector3(-10, -12 ,0),
+            new Vector3(-10, 0 ,0),
+            new Vector3(4, 0 ,0),
+            new Vector3(-10, 0 ,0),
+            new Vector3(-10, 12 ,0),
+            new Vector3(4, 12 ,0)
+        };
+        static readonly int[] MODELE_I4_SAUTS = { 3, 18, 20, 22, -1 };
+        static readonly Vector3[] MODELE_I5 =
+        {
+            new Vector3(-19, 22 ,0),
+            new Vector3(-70, 0 ,0),
+            new Vector3(-19, -22 ,0),
+            new Vector3(-70, 0 ,0),
+            new Vector3(-19, 22 ,0),
+            new Vector3(-30, 12 ,0),
+            new Vector3(-30, -12 ,0),
+            new Vector3(-12, -30 ,0),
+            new Vector3(12, -30 ,0),
+            new Vector3(19, -22 ,0),
+            new Vector3(70, 0 ,0),
+            new Vector3(19, 22 ,0),
+            new Vector3(70, 0 ,0),
+            new Vector3(19, -22 ,0),
+            new Vector3(30, -12 ,0),
+            new Vector3(30, 12 ,0),
+            new Vector3(12, 30 ,0),
+            new Vector3(-12, 30 ,0),
+            new Vector3(-19, 22 ,0),
+            new Vector3(-16, 0 ,0),
+            new Vector3(-4, 0 ,0),
+            new Vector3(0, -4 ,0),
+            new Vector3(0, -16 ,0),
+            new Vector3(16, 0 ,0),
+            new Vector3(4, 0 ,0),
+            new Vector3(0, 4 ,0),
+            new Vector3(0, 16 ,0),
+            new Vector3(0, 10 ,0),
+            new Vector3(-10, 0 ,0),
+            new Vector3(0, -10 ,0),
+            new Vector3(10, 0 ,0),
+            new Vector3(0, 10  ,0),
+            new Vector3(0, 0, 0),
+            new Vector3(0, 0, 0)
+        };
+        static readonly int[] MODELE_I5_SAUTS = { 19, 21, 23, 25, 32, -1 };
+        static readonly Vector3[] MODELE_I6 =
+        {
+            new Vector3(-19, -22 ,0),
+            new Vector3(-70, 0 ,0),
+            new Vector3(-19, 22 ,0),
+            new Vector3(-70, 0 ,0),
+            new Vector3(-19, -22 ,0),
+            new Vector3(-30, -12 ,0),
+            new Vector3(-30, 12 ,0),
+            new Vector3(-12, 30 ,0),
+            new Vector3(12, 30 ,0),
+            new Vector3(19, 22 ,0),
+            new Vector3(70, 0 ,0),
+            new Vector3(19, -22 ,0),
+            new Vector3(70, 0 ,0),
+            new Vector3(19, 22 ,0),
+            new Vector3(30, 12 ,0),
+            new Vector3(30, -12 ,0),
+            new Vector3(12, -30 ,0),
+            new Vector3(-12, -30 ,0),
+            new Vector3(-19, -22 ,0),
+            new Vector3(-16, 10 ,0),
+            new Vector3(-10, -10 ,0),
+            new Vector3(-4, 10 ,0),
+            new Vector3(-10, 10 ,0),
+            new Vector3(-10, -10 ,0),
+            new Vector3(4, 10 ,0),
+            new Vector3(10, -10 ,0),
+            new Vector3(16, 10 ,0),
+            new Vector3(10, 10 ,0),
+            new Vector3(10, -10 , 0)
+        };
+        static readonly int[] MODELE_I6_SAUTS = { 19, 22, 24, 27, -1 };
+        static readonly Vector3[] MODELE_I7 =
+        {
+            new Vector3(-19, 22 ,0),
+            new Vector3(-70, 0 ,0),
+            new Vector3(-19, -22 ,0),
+            new Vector3(-70, 0 ,0),
+            new Vector3(-19, 22 ,0),
+            new Vector3(-30, 12 ,0),
+            new Vector3(-30, -12 ,0),
+            new Vector3(-12, -30 ,0),
+            new Vector3(12, -30 ,0),
+            new Vector3(19, -22 ,0),
+            new Vector3(70, 0 ,0),
+            new Vector3(19, 22 ,0),
+            new Vector3(70, 0 ,0),
+            new Vector3(19, -22 ,0),
+            new Vector3(30, -12 ,0),
+            new Vector3(30, 12 ,0),
+            new Vector3(12, 30 ,0),
+            new Vector3(-12, 30 ,0),
+            new Vector3(-19, 22 ,0),
+            new Vector3(-6, 20 ,0),
+            new Vector3(6, 12 ,0),
+            new Vector3(-6, 4 ,0),
+            new Vector3(6, -4 ,0),
+            new Vector3(-6, -12 ,0),
+            new Vector3(6, -20 , 0)
+        };
+        static readonly int[] MODELE_I7_SAUTS = { 19, -1 };
+        public static readonly Vector3[][] modeles_items =
+        {
+            MODELE_I3, MODELE_I4, MODELE_I5, MODELE_I6, MODELE_I7, MODELE_I1, new Vector3[0]
+        };
+        public static readonly int[][] lignes_a_sauter_items =
+        {
+            MODELE_I3_SAUTS, MODELE_I4_SAUTS, MODELE_I5_SAUTS,
+            MODELE_I6_SAUTS, MODELE_I7_SAUTS, MODELE_I1_SAUTS, new int[0]
+        };
+
+        //public static sbyte[,] MODELE_I1 = new sbyte[31, 2] {
+        //    { -5, -10 },
+        //    { -15, -10 },
+        //    { -20, -5 },
+        //    { -5, -5 },
+        //    { -5, -20 },
+        //    { 0, -25 },
+        //    { 10, -25 },
+        //    { 5, -20 },
+        //    { -5, -20 },
+        //    { 5, -20 },
+        //    { 5, -5 },
+        //    { 20, -5 },
+        //    { 25, -10 },
+        //    { 10, -10 },
+        //    { 10, -25 },
+        //    { 10, -10 },
+        //    { 25, -10 },
+        //    { 25, 0 },
+        //    { 20, 5 },
+        //    { 20, -5 },
+        //    { 20, 5 },
+        //    { 5, 5 },
+        //    { 5, 20 },
+        //    { 10, 15 },
+        //    { 10, 5 },
+        //    { 10, 15 },
+        //    { 5, 20 },
+        //    { -5, 20 },
+        //    { -5, 5 },
+        //    { -20, 5 },
+        //    { -20, -5 }
+        //};
+
+        //public static sbyte[,] MODELE_I3 = new sbyte[28, 2] {
+        //    { -19, 22},
+        //    { -70, 0},
+        //    { -19, -22 },
+        //    { -19, 22 },
+        //    { -30, 12 },
+        //    { -30, -12 },
+        //    { -12, -30 },
+        //    { 12, -30 },
+        //    { 19, -22 },
+        //    { 70, 0 },
+        //    { 19, 22 },
+        //    { 70, 0 },
+        //    { 19, -22 },
+        //    { 30, -12 },
+        //    { 30, 12 },
+        //    { 12, 30 },
+        //    { -12, 30 },
+        //    { -19, 22 },
+        //    { -14, -6 },
+        //    { -8, 6 },
+        //    { -8, -6 },
+        //    { -14, 6 },
+        //    { -4, -12 },
+        //    { 10, -12 },
+        //    { 10, 0 },
+        //    { -4, 0 },
+        //    { -4, 12 },
+        //    { 10, 12 }
+        //};
+
+        //public static sbyte[,] MODELE_I4 = new sbyte[29, 2] { 
+        //    { -19, 22 },
+        //    { -70, 0 },
+        //    { -19, -22 },
+        //    { -19, 22 },
+        //    { -30, 12 },
+        //    { -30, -12 },
+        //    { -12, -30 },
+        //    { 12, -30 },
+        //    { 19, -22 },
+        //    { 70, 0 },
+        //    { 19, 22 },
+        //    { 70, 0 },
+        //    { 19, -22 },
+        //    { 30, -12 },
+        //    { 30, 12 },
+        //    { 12, 30 },
+        //    { -12, 30 },
+        //    { -19, 22 },
+        //    { -14, -6 },
+        //    { -8, 6 },
+        //    { -8, -6 },
+        //    { -14, 6 },
+        //    { -4, -12 },
+        //    { 10, -12 },
+        //    { 10, 0 },
+        //    { -4, 0 },
+        //    { 10, 0 },
+        //    { 10, 12 },
+        //    { -4, 12 }
+        //};
+
+        //public static sbyte[,] MODELE_I5 = new sbyte[32, 2] { 
+        //    { -19, 22 },
+        //    { -70, 0 },
+        //    { -19, -22 },
+        //    { -70, 0 },
+        //    { -19, 22 },
+        //    { -30, 12 },
+        //    { -30, -12 },
+        //    { -12, -30 },
+        //    { 12, -30 },
+        //    { 19, -22 },
+        //    { 70, 0 },
+        //    { 19, 22 },
+        //    { 70, 0 },
+        //    { 19, -22 },
+        //    { 30, -12 },
+        //    { 30, 12 },
+        //    { 12, 30 },
+        //    { -12, 30 },
+        //    { -19, 22 },
+        //    { -16, 0 },
+        //    { -4, 0 },
+        //    { 0, -4 },
+        //    { 0, -16 },
+        //    { 16, 0 },
+        //    { 4, 0 },
+        //    { 0, 4 },
+        //    { 0, 16 },
+        //    { 0, 10 },
+        //    { -10, 0 },
+        //    { 0, -10 },
+        //    { 10, 0 },
+        //    { 0, 10 }
+        //};
+
+        //public static sbyte[,] MODELE_I6 = new sbyte[29, 2] {
+        //    { -19, 22 },
+        //    { -70, 0 },
+        //    { -19, -22 },
+        //    { -70, 0 },
+        //    { -19, 22 },
+        //    { -30, 12 },
+        //    { -30, -12 },
+        //    { -12, -30 },
+        //    { 12, -30 },
+        //    { 19, -22 },
+        //    { 70, 0 },
+        //    { 19, 22 },
+        //    { 70, 0 },
+        //    { 19, -22 },
+        //    { 30, -12 },
+        //    { 30, 12 },
+        //    { 12, 30 },
+        //    { -12, 30 },
+        //    { -19, 22 },
+        //    { -16, -10 },
+        //    { -10, 10 },
+        //    { -4, -10 },
+        //    { -10, -10 },
+        //    { -10, 10 },
+        //    { 4, -10 },
+        //    { 10, 10 },
+        //    { 16, -10 },
+        //    { 10, -10 },
+        //    { 10, 10 },
+        //};
+
+        //public static sbyte[,] MODELE_I7 = new sbyte[25, 2] { 
+        //    { -19, 22 },
+        //    { -70, 0 },
+        //    { -19, -22 },
+        //    { -70, 0 },
+        //    { -19, 22 },
+        //    { -30, 12 },
+        //    { -30, -12 },
+        //    { -12, -30 },
+        //    { 12, -30 },
+        //    { 19, -22 },
+        //    { 70, 0 },
+        //    { 19, 22 },
+        //    { 70, 0 },
+        //    { 19, -22 },
+        //    { 30, -12 },
+        //    { 30, 12 },
+        //    { 12, 30 },
+        //    { -12, 30 },
+        //    { -19, 22 },
+        //    { -6, 20 },
+        //    { 6, 12 },
+        //    { -6, 4 },
+        //    { 6, -4 },
+        //    { -6, -12 },
+        //    { 6, -20 },
+        //};
+
+        //public static void TailleEcran()
+        //{
+        //    SDL_GetWindowDisplayMode(Program.window, out SDL_DisplayMode mode);
+        //    W_HAUTEUR = (short)mode.h;
+        //    W_LARGEUR = (short)mode.w;
+        //    W_SEMI_HAUTEUR = (short)(W_HAUTEUR / 2);
+        //    W_SEMI_LARGEUR = (short)(W_LARGEUR / 2);
+        //}
     }
 
     public static class SaveLoad
@@ -554,7 +821,7 @@ namespace Dysgenesis
         public static void Load()
         {
             string read = File.ReadAllText(@"save.txt");
-            UInt32.TryParse(read, out uint num);
+            uint.TryParse(read, out uint num);
             if (num.ToString() == read && read != "0")
             {
                 double check = (num - 395248) / 824593;

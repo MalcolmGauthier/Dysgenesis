@@ -1,196 +1,74 @@
-﻿using static SDL2.SDL;
-using static Dysgenesis.Program;
-using static Dysgenesis.Data;
+﻿using SDL2;
+using static SDL2.SDL;
 using static System.Math;
-using static Dysgenesis.Background;
 
 namespace Dysgenesis
 {
-    public static class Projectile
+    public enum ProprietaireProjectile
     {
-        public static float[,] pos = new float[60, 6];
-        public static byte[] owner = new byte[pos.GetLength(0)];
-        public static byte fire_rate = P_SHOOTING_COOLDOWN;
-        public static uint cooldown;
-        static Projectile()
+        JOUEUR,
+        ENNEMI
+    }
+    
+    public class Projectile : Sprite
+    {
+        const float VITESSE_PROJECTILE = Data.P_PROJ_SPEED;
+
+        public Vector3 destination;
+        public ProprietaireProjectile proprietaire;
+        public byte ID;//todo: enlever ID
+        public bool laser;
+
+        public Projectile(Vector3 position, Vector3 destination, ProprietaireProjectile proprietaire, byte ID)
         {
-            for (int i = 0; i < pos.GetLength(0); i++)
+            this.proprietaire = proprietaire;
+            this.position = position;
+            this.destination = destination;
+            this.ID = ID;
+            laser = false;
+
+            if (proprietaire == ProprietaireProjectile.JOUEUR)
             {
-                pos[i, 0] = -1;//x
-                pos[i, 1] = -1;//y
-                pos[i, 2] = 0;//z
-                pos[i, 3] = -1;//tx
-                pos[i, 4] = -1;//ty
-                pos[i, 5] = 0;//tz
+                if (Program.GamemodeAction())
+                    Son.JouerEffet(ListeAudio.TIR);
+
+                if (Program.player.powerup == TypeItem.LASER)
+                    laser = true;
             }
+
+            Program.projectiles.Add(this);
         }
-        public static void Exist()
+        public override bool Exist()
         {
-            for (int i = 0; i < pos.GetLength(0); i++)
+            if (ProjectileToucheJoueur() > 0) return true;
+
+            if (Abs(position.z - destination.z) < 1)
             {
-                if (pos[i, 0] == -1)
-                    continue;
-                if (pos[i, 2] > pos[i, 5])
-                    pos[i, 2]--;
-                if (pos[i, 2] < pos[i, 5])
-                    pos[i, 2]++;
-                if (pos[i, 2] == pos[i, 5])
-                    pos[i, 0] = -1;
+                Program.projectiles.Remove(this);
+                return true;
             }
-        }
-        public static void TirJoueur()
-        {
-            if (player.powerup == 3 || player.powerup == 6)
-                fire_rate = P_SHOOTING_COOLDOWN / 2;
-            else if (player.powerup == 4 || player.powerup == 5)
-                fire_rate = P_SHOOTING_COOLDOWN / 3;
-            else if (player.powerup == 7)
-                fire_rate = P_SHOOTING_COOLDOWN * 2;
+            else if (position.z < destination.z)
+                position.z++;
             else
-                fire_rate = P_SHOOTING_COOLDOWN;
-            if (Keys.j && gTimer - cooldown > fire_rate)
-            {
-                cooldown = gTimer;
-                int proj1 = -1, proj2 = -1, proj3 = -1, proj4 = -1, proj5 = -1, proj6 = -1;
-                for (byte i = 0; i < pos.GetLength(0); i++)
-                {
-                    if (pos[i, 0] == -1)
-                    {
-                        if (proj2 != -1)
-                        {
-                            proj1 = i;
-                            break;
-                        }
-                        if (proj3 != -1 || player.powerup != 6)
-                        {
-                            proj2 = i;
-                            continue;
-                        }
-                        if (proj4 != -1)
-                        {
-                            proj3 = i;
-                            continue;
-                        }
-                        if (proj5 != -1)
-                        {
-                            proj4 = i;
-                            continue;
-                        }
-                        if (proj6 != -1)
-                        {
-                            proj5 = i;
-                            continue;
-                        }
-                        else proj6 = i;
-                    }
-                }
-                if (proj1 != -1 && proj2 != -1)
-                {
-                    int[] shoot_point1 = player.RenderCalc(1);
-                    int[] shoot_point2 = player.RenderCalc(16);
+                position.z--;
 
-                    pos[proj1, 0] = shoot_point1[0];
-                    pos[proj1, 1] = shoot_point1[1];
-                    pos[proj1, 2] = 1;
-                    pos[proj1, 3] = pos[proj1, 0] - 45;
-                    pos[proj1, 4] = pos[proj1, 1] - 200;
-                    pos[proj1, 5] = G_DEPTH_LAYERS;
-                    owner[proj1] = 0;
-
-                    pos[proj2, 0] = shoot_point2[0];
-                    pos[proj2, 1] = shoot_point2[1];
-                    pos[proj2, 2] = 1;
-                    pos[proj2, 3] = pos[proj2, 0] + 45;
-                    pos[proj2, 4] = pos[proj2, 1] - 200;
-                    pos[proj2, 5] = G_DEPTH_LAYERS;
-                    owner[proj2] = 0;
-
-                    if (player.powerup == 5)
-                        FindTarget(proj1, proj2);
-                    if (player.powerup == 6)
-                    {
-                        pos[proj3, 0] = shoot_point1[0];
-                        pos[proj3, 1] = shoot_point1[1];
-                        pos[proj3, 2] = 1;
-                        pos[proj3, 3] = pos[proj3, 0];
-                        pos[proj3, 4] = pos[proj3, 1] - 250;
-                        pos[proj3, 5] = G_DEPTH_LAYERS;
-                        owner[proj3] = 0;
-
-                        pos[proj4, 0] = shoot_point1[0];
-                        pos[proj4, 1] = shoot_point1[1];
-                        pos[proj4, 2] = 1;
-                        pos[proj4, 3] = pos[proj4, 0] + 20;
-                        pos[proj4, 4] = pos[proj4, 1] - 200;
-                        pos[proj4, 5] = G_DEPTH_LAYERS;
-                        owner[proj4] = 0;
-
-                        pos[proj5, 0] = shoot_point2[0];
-                        pos[proj5, 1] = shoot_point2[1];
-                        pos[proj5, 2] = 1;
-                        pos[proj5, 3] = pos[proj5, 0];
-                        pos[proj5, 4] = pos[proj5, 1] - 250;
-                        pos[proj5, 5] = G_DEPTH_LAYERS;
-                        owner[proj5] = 0;
-
-                        pos[proj6, 0] = shoot_point2[0];
-                        pos[proj6, 1] = shoot_point2[1];
-                        pos[proj6, 2] = 1;
-                        pos[proj6, 3] = pos[proj6, 0] - 20;
-                        pos[proj6, 4] = pos[proj6, 1] - 200;
-                        pos[proj6, 5] = G_DEPTH_LAYERS;
-                        owner[proj6] = 0;
-                    }
-                    Son.PlaySFX(Son.SFX_list.shoot);
-                }
-            }
+            return false;
         }
-        public static void TirEnemy(Enemy e, bool first)
-        {
-            try
-            {
-                byte proj = 255;
-                for (byte i = 0; i < pos.GetLength(0); i++)
-                {
-                    if (pos[i, 0] == -1)
-                    {
-                        proj = i;
-                        break;
-                    }
-                }
-                if (proj != 255)
-                {
-                    if (first)
-                    {
-                        pos[proj, 0] = (float)(e.model[e.shoot_index,0] * Pow(0.95, e.depth) + e.x);
-                        pos[proj, 1] = (float)(e.model[e.shoot_index,1] * Pow(0.95, e.depth) + e.y);
-                    }
-                    else
-                    {
-                        pos[proj, 0] = (float)(e.model[e.shoot2_index,0] * Pow(0.95, e.depth) + e.x);
-                        pos[proj, 1] = (float)(e.model[e.shoot2_index,1] * Pow(0.95, e.depth) + e.y);
-                    }
-                    pos[proj, 2] = e.depth;
-                    pos[proj, 3] = player.x;
-                    pos[proj, 4] = player.y;
-                    pos[proj, 5] = -1;
-                    owner[proj] = 1;
-                }
-            }
-            catch (Exception ex)
-            {
-                CrashReport(ex);
-            }
-        }
-        static void FindTarget(int proj1, int proj2)
+        public void FindTarget()
         {
             short closest = 99;
             short closest_distance = 9999;
-            for (short i = 0; i < enemies.Length; i++)
+            for (short i = 0; i < Program.enemies.Count; i++)
             {
-                if (enemies[i] != null)
+                if (Program.enemies[i] != null)
                 {
-                    short distance = Distance(player.x, player.y, enemies[i].x, enemies[i].y);
+                    short distance = Background.Distance(
+                        Program.player.position.x,
+                        Program.player.position.y,
+                        Program.enemies[i].position.x,
+                        Program.enemies[i].position.y
+                    );
+
                     if (distance < closest_distance)
                     {
                         closest = i;
@@ -200,501 +78,207 @@ namespace Dysgenesis
             }
             if (closest != 99)
             {
-                pos[proj1, 3] = enemies[closest].x;
-                pos[proj1, 4] = enemies[closest].y;
-                pos[proj2, 3] = enemies[closest].x;
-                pos[proj2, 4] = enemies[closest].y;
+                destination.x = Program.enemies[closest].position.x;
+                destination.y = Program.enemies[closest].position.y;
             }
         }
-        public static int[] CalcDepths(int i, byte powerup7 = 0)
+        public float[] PositionsSurEcran(float depth)
         {
-            float[] cur_pos;
-            float[] target_pos;
-            if (owner[i] == 0)
+            Vector3 pos = position;
+            Vector3 dest = destination;
+
+            if (proprietaire == ProprietaireProjectile.ENNEMI)
             {
-                cur_pos = new float[3] { pos[i, 0], pos[i, 1], pos[i, 2] };
-                target_pos = new float[2] { pos[i, 3], pos[i, 4] };
+                // "it just works" - Todd Howard
+                (pos, dest) = (dest, pos);
+                pos.z = depth;
+            }
+
+            float dist_x_de_destination = pos.x - dest.x;
+            float dist_y_de_destination = pos.y - dest.y;
+            float facteur_profondeur_1 = MathF.Pow(VITESSE_PROJECTILE, depth);
+            float facteur_profondeur_2 = MathF.Pow(VITESSE_PROJECTILE, depth + 1);
+
+            
+            return new float[4]{
+                dist_x_de_destination * facteur_profondeur_1 + dest.x,
+                dist_y_de_destination * facteur_profondeur_1 + dest.y,
+                dist_x_de_destination * facteur_profondeur_2 + dest.x,
+                dist_y_de_destination * facteur_profondeur_2 + dest.y
+            };
+        }
+        public float[] PositionsSurEcran()
+        {
+            return PositionsSurEcran(position.z);
+        }
+        public int ProjectileToucheJoueur()
+        {
+            if (proprietaire == ProprietaireProjectile.JOUEUR)
+                return -4;
+
+            if (Program.player.Mort())
+                return 0;
+
+            if (position.z > 0)
+                return -2;
+
+            float[] positions_projectile = PositionsSurEcran();
+
+            if (Background.Distance(positions_projectile[0], positions_projectile[1], Program.player.position.x, Program.player.position.y) < 0.75f * Data.P_WIDTH)
+            {
+                Program.player.HP--;
+                new Explosion(Program.player.position);
+                Program.projectiles.Remove(this);
+
+                if (Program.player.Mort())
+                {
+                    Son.JouerEffet(ListeAudio.EXPLOSION_JOUEUR);
+                    SDL_mixer.Mix_HaltMusic();
+                    Program.player.timer = 0;
+                    if (Program.curseur.curseur_max_selection < 2)
+                        Program.curseur.curseur_max_selection = 2;
+                    if (Program.gamemode == Gamemode.GAMEPLAY)
+                        Program.nv_continue = Program.level;
+                    return 2;
+                }
+
+                return 1;
+            }
+
+            return -3;
+        }
+        public override void RenderObject()
+        {
+            if (proprietaire == ProprietaireProjectile.ENNEMI)
+            {
+                SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
+            }
+            else switch (Program.player.powerup)
+            {
+                case TypeItem.X2_SHOT:
+                    SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
+                    break;
+                case TypeItem.X3_SHOT:
+                    SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
+                    break;
+                case TypeItem.HOMING:
+                    SDL_SetRenderDrawColor(Program.render, 64, 255, 64, 255);
+                    break;
+                case TypeItem.SPREAD:
+                    SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
+                    break;
+                case TypeItem.LASER:
+                    SDL_SetRenderDrawColor(Program.render, 127, 0, 255, 255);
+                    break;
+                default:
+                    SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
+                    break;
+            }
+
+            if (Program.player.Mort())
+                return;
+
+            float[] positions;
+
+            if (laser && proprietaire == ProprietaireProjectile.JOUEUR)
+            {
+                // à chaque frame, attacher le bout du laser au points de tir du joueur
+                positions = Program.player.RenderLineData(Program.player.indexs_de_tir[ID % Program.player.indexs_de_tir.Length]);
+                position.x = positions[0];
+                position.y = positions[1];
+
+                for (byte i = 0; i < Data.G_DEPTH_LAYERS; i++)
+                {
+                    positions = PositionsSurEcran(i);
+                    SDL_RenderDrawLine(Program.render,
+                        (int)positions[0] + Program.RNG.Next(-5, 5),
+                        (int)positions[1] + Program.RNG.Next(-5, 5),
+                        (int)positions[2] + Program.RNG.Next(-5, 5),
+                        (int)positions[3] + Program.RNG.Next(-5, 5)
+                    );
+                }
             }
             else
             {
-                cur_pos = new float[3] { pos[i, 3], pos[i, 4], pos[i, 2] };
-                target_pos = new float[2] { pos[i, 0], pos[i, 1] };
-            }
-            byte depth = powerup7 == 0 ? (byte)cur_pos[2] : powerup7;
-            return new int[4] {
-                (int)((cur_pos[0] - target_pos[0]) * Pow(P_PROJ_SPEED, depth) + target_pos[0]),
-                (int)((cur_pos[1] - target_pos[1]) * Pow(P_PROJ_SPEED, depth) + target_pos[1]),
-                (int)((cur_pos[0] - target_pos[0]) * Pow(P_PROJ_SPEED, depth + 1) + target_pos[0]),
-                (int)((cur_pos[1] - target_pos[1]) * Pow(P_PROJ_SPEED, depth + 1) + target_pos[1]),
-            };
-        }
-        public static void Render()
-        {
-            for (int i = 0; i < pos.GetLength(0); i++)
-            {
-                if (pos[i, 0] == -1)
-                    continue;
-                if (owner[i] == 1)
-                    SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
-                else
-                    switch (player.powerup)
-                    {
-                        case 0:
-                        case 1:
-                        case 2:
-                            SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
-                            break;
-                        case 3:
-                            SDL_SetRenderDrawColor(render, 255, 127, 0, 255);
-                            break;
-                        case 4:
-                            SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
-                            break;
-                        case 5:
-                            SDL_SetRenderDrawColor(render, 64, 255, 64, 255);
-                            break;
-                        case 6:
-                            SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
-                            break;
-                        case 7:
-                            SDL_SetRenderDrawColor(render, 127, 0, 255, 255);
-                            break;
-                    }
-                if (!player.dead)
-                    if (player.powerup != 7 || owner[i] == 1)
-                    {
-                        if (pos[i, 0] != -1)
-                        {
-                            int[] pos = CalcDepths(i);
-                            SDL_RenderDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
-                        }
-                    }
-                    else
-                    {
-                        int[] attach_point;
-                        if (i % 2 == 0)
-                            attach_point = player.RenderCalc(1);
-                        else
-                            attach_point = player.RenderCalc(16);
-                        pos[i, 0] = attach_point[0];
-                        pos[i, 1] = attach_point[1];
-                        for (byte j = 0; j < G_DEPTH_LAYERS; j++)
-                        {
-                            int[] pos = CalcDepths(i, j);
-                            SDL_RenderDrawLine(render, pos[0] + RNG.Next(-5, 5), pos[1] + RNG.Next(-5, 5), pos[2] + RNG.Next(-5, 5), pos[3] + RNG.Next(-5, 5));
-                        }
-                    }
+                positions = PositionsSurEcran();
+                SDL_RenderDrawLine(Program.render,
+                    (int)positions[0],
+                    (int)positions[1],
+                    (int)positions[2],
+                    (int)positions[3]
+                );
             }
         }
     }
     public static class Shockwave
     {
-        static short x = 0, y = 0;
-        static float r = 0, grow = 0;
+        const int LARGEUR_MAX_VAGUE_ELECTRIQUE = 150;
+        const int LARGEUR_MIN_VAGUE_ELECTRIQUE = 150;
+        const int PRECISION_VAGUE_ELECTRIQUE = 50;
+
+        static float rayon = 0, grow = 0;
         static bool shown = false;
         static uint cooldown = 0;
         public static void Spawn()
         {
-            if (!shown && cooldown > 60 && player.shockwaves >= 1 && !player.dead)
-            {
-                cooldown = 0;
-                player.shockwaves -= 1f;
-                x = (short)player.x;
-                y = (short)player.y;
-                r = 0;
-                grow = 160;
-                shown = true;
-                Son.PlaySFX(Son.SFX_list.wave);
-            }
+            if (shown || Program.player.Mort() || Program.player.shockwaves < 1.0f)
+                return;
+
+            cooldown = 0;
+            Program.player.shockwaves -= 1.0f;
+            rayon = 0;
+            grow = LARGEUR_MAX_VAGUE_ELECTRIQUE + LARGEUR_MIN_VAGUE_ELECTRIQUE;
+            shown = true;
+            Son.JouerEffet(ListeAudio.VAGUE);
         }
         public static void Display()
         {
+            if (!shown)
+                return;
+
             cooldown++;
-            if (shown)
+
+            SDL_SetRenderDrawColor(Program.render, 0, 255, 255, 255);
+            for (int nb_de_cercles = 0; nb_de_cercles < 3; nb_de_cercles++)
             {
-                SDL_SetRenderDrawColor(render, 0, 255, 255, 255);
-                Dessiner(r);
-                Dessiner(r);
-                Dessiner(r);
-                grow /= 1.2f;
-                x = (short)player.x;
-                y = (short)player.y;
-                r = 150 - grow;
-                if (r >= 149)
-                    shown = false;
-                if (cooldown >= 10)
-                    for (int i = 0; i < enemies.Length; i++)
-                    {
-                        if (enemies[i] == null)
-                            continue;
-                        if (enemies[i].depth != 0)
-                            continue;
-                        if (Distance(enemies[i].x, enemies[i].y, player.x, player.y) <= 150 && gTimer % 3 == 0)
-                            enemies[i].HP--;
-                    }
+                int randint1, randint2;
+                for (float i = 0; i < PRECISION_VAGUE_ELECTRIQUE; i++)
+                {
+                    randint1 = (int)(Program.RNG.Next(-20, 20) + rayon);
+                    randint2 = (int)(Program.RNG.Next(-20, 20) + rayon);
+                    float angle_pos1 = i * MathF.PI / (PRECISION_VAGUE_ELECTRIQUE / 2.0f);
+                    float angle_pos2 = (i + 1) * MathF.PI / (PRECISION_VAGUE_ELECTRIQUE / 2.0f);
+                    SDL_RenderDrawLine(Program.render,
+                        (int)(Program.player.position.x + randint1 * MathF.Sin(angle_pos1)),
+                        (int)(Program.player.position.y + randint1 * MathF.Cos(angle_pos1)),
+                        (int)(Program.player.position.x + randint2 * MathF.Sin(angle_pos2)),
+                        (int)(Program.player.position.y + randint2 * MathF.Cos(angle_pos2))
+                    );
+                }
             }
-        }
-        static void Dessiner(float size)
-        {
-            sbyte randint1 = 0;
-            for (int i = 0; i < 50; i++)
+
+            grow /= 1.2f;
+            rayon = LARGEUR_MAX_VAGUE_ELECTRIQUE - grow;
+            if (rayon >= LARGEUR_MAX_VAGUE_ELECTRIQUE - 1)
+                shown = false;
+
+            if (cooldown < 10 || Program.gTimer % 3 != 0)
+                return;
+
+            for (int i = 0; i < Program.enemies.Count; i++)
             {
-                sbyte randint2 = randint1;
-                randint1 = (sbyte)RNG.Next(-20, 20);
-                SDL_RenderDrawLine(render,
-                    (int)(x + (size + randint1) * Sin(i * PI / 25)),
-                    (int)(y + (size + randint1) * Cos(i * PI / 25)),
-                    (int)(x + (size + randint2) * Sin((i + 1) * PI / 25)),
-                    (int)(y + (size + randint2) * Cos((i + 1) * PI / 25)));
+                if (Program.enemies[i].position.z != 0)
+			        continue;
+
+                if (Background.Distance(Program.enemies[i].position.x, Program.enemies[i].position.y, Program.player.position.x, Program.player.position.y) <= LARGEUR_MAX_VAGUE_ELECTRIQUE)
+                    Program.enemies[i].HP--;
+
+                if (Program.enemies[i].HP <= 0)
+                {
+                    Program.ens_killed++;
+                    Program.enemies[i].afficher = false;
+                }
             }
         }
     }
-    // vieux, j'ai fusioné tir enemi et tir joueur car ils avaient 80% du même code
-    //public class Projectile
-    //{
-    //    public static class PlayerProjs
-    //    {
-    //        public static float[,] pos = new float[30, 5];
-    //        public static byte fire_rate = P_SHOOTING_COOLDOWN;
-    //        public static uint cooldown;
-    //        public static void Init()
-    //        {
-    //            for (int i = 0; i < pos.GetLength(0); i++)
-    //            {
-    //                pos[i, 0] = -1;//x
-    //                pos[i, 1] = -1;//y
-    //                pos[i, 2] = 0;//z
-    //                pos[i, 3] = -1;//tx
-    //                pos[i, 4] = -1;//ty
-    //            }
-    //        }
-    //        public static void Exist()
-    //        {
-    //            Shoot();
-    //            Move();
-    //        }
-    //        static void Move()
-    //        {
-    //            for (int i = 0; i < pos.GetLength(0); i++)
-    //            {
-    //                if (pos[i,0] != -1)
-    //                {
-    //                    pos[i, 2]++;
-    //                }
-    //                if (pos[i, 2] >= G_DEPTH_LAYERS)
-    //                {
-    //                    pos[i, 0] = -1;
-    //                    pos[i, 2] = 0;
-    //                }
-    //            }
-    //        }
-    //        static void Shoot()
-    //        {
-    //            if (player.powerup == 3)
-    //                fire_rate = P_SHOOTING_COOLDOWN / 2;
-    //            else if (player.powerup == 4)
-    //                fire_rate = P_SHOOTING_COOLDOWN / 3;
-    //            else if (player.powerup == 7)
-    //                fire_rate = P_SHOOTING_COOLDOWN * 2;
-    //            else
-    //                fire_rate = P_SHOOTING_COOLDOWN;
-    //            if (Keys.j && gTimer - cooldown > fire_rate)
-    //            {
-    //                cooldown = gTimer;
-    //                int proj1 = -1, proj2 = -1, proj3 = -1, proj4 = -1, proj5 = -1, proj6 = -1;
-    //                for (byte i = 0; i < pos.GetLength(0); i++)
-    //                {
-    //                    if (pos[i,0] == -1)
-    //                    {
-    //                        if (proj2 != -1)
-    //                        {
-    //                            proj1 = i;
-    //                            break;
-    //                        }
-    //                        if (proj3 != -1 || player.powerup != 6)
-    //                        {
-    //                            proj2 = i;
-    //                            continue;
-    //                        }
-    //                        if (player.powerup != 6) continue;
-    //                        if (proj4 != -1)
-    //                        {
-    //                            proj3 = i;
-    //                            continue;
-    //                        }
-    //                        if (proj5 != -1) 
-    //                        {
-    //                            proj4 = i;
-    //                            continue;
-    //                        }
-    //                        if (proj6 != -1)
-    //                        {
-    //                            proj5 = i;
-    //                            continue;
-    //                        }
-    //                        else proj6 = i;
-    //                    }
-    //                }
-    //                if (proj1 != -1 && proj2 != -1)
-    //                {
-    //                    int[] shoot_point1 = player.RenderCalc(1);
-    //                    int[] shoot_point2 = player.RenderCalc(16);
-
-    //                    pos[proj1, 0] = shoot_point1[0];
-    //                    pos[proj1, 1] = shoot_point1[1];
-    //                    pos[proj1, 3] = pos[proj1, 0] - 45;
-    //                    pos[proj1, 4] = pos[proj1, 1] - 200;
-
-    //                    pos[proj2, 0] = shoot_point2[0];
-    //                    pos[proj2, 1] = shoot_point2[1];
-    //                    pos[proj2, 3] = pos[proj2, 0] + 45;
-    //                    pos[proj2, 4] = pos[proj2, 1] - 200;
-
-    //                    if (player.powerup == 5) FindTarget(proj1, proj2);
-    //                    if (player.powerup == 6)
-    //                    {
-    //                        pos[proj3, 0] = shoot_point1[0];
-    //                        pos[proj3, 1] = shoot_point1[1];
-    //                        pos[proj3, 3] = pos[proj3, 0];
-    //                        pos[proj3, 4] = pos[proj3, 1] - 250;
-
-    //                        pos[proj4, 0] = shoot_point1[0];
-    //                        pos[proj4, 1] = shoot_point1[1];
-    //                        pos[proj4, 3] = pos[proj4, 0] + 20;
-    //                        pos[proj4, 4] = pos[proj4, 1] - 200;
-
-    //                        pos[proj5, 0] = shoot_point2[0];
-    //                        pos[proj5, 1] = shoot_point2[1];
-    //                        pos[proj5, 3] = pos[proj5, 0];
-    //                        pos[proj5, 4] = pos[proj5, 1] - 250;
-
-    //                        pos[proj6, 0] = shoot_point2[0];
-    //                        pos[proj6, 1] = shoot_point2[1];
-    //                        pos[proj6, 3] = pos[proj6, 0] - 20;
-    //                        pos[proj6, 4] = pos[proj6, 1] - 200;
-    //                    }
-    //                    Son.PlaySFX(Son.SFX_list.shoot);
-    //                }
-    //            }
-    //        }
-    //        static void FindTarget(int proj1, int proj2)
-    //        {
-    //            short closest = 99;
-    //            short closest_distance = 9999;
-    //            for (short i = 0; i < enemies.Length; i++)
-    //            {
-    //                if (enemies[i] != null)
-    //                {
-    //                    short distance = DistanceFrom(player.x, player.y, enemies[i].x, enemies[i].y);
-    //                    if (distance < closest_distance)
-    //                    {
-    //                        closest = i;
-    //                        closest_distance = distance;
-    //                    }
-    //                }
-    //            }
-    //            if (closest != 99)
-    //            {
-    //                pos[proj1, 3] = enemies[closest].x;
-    //                pos[proj1, 4] = enemies[closest].y;
-    //                pos[proj2, 3] = enemies[closest].x;
-    //                pos[proj2, 4] = enemies[closest].y;
-    //            }
-    //        }
-    //        // fonction inutile, merged avec Move()
-    //        //void Kill_self()
-    //        //{
-    //        //    for (int i = 0; i < pos.GetLength(0); i++)
-    //        //    {
-    //        //        if (pos[i,2] >= Game.DEPTH_LAYERS)
-    //        //        {
-    //        //            pos[i, 0] = -1;
-    //        //            pos[i, 2] = 0;
-    //        //        }
-    //        //    }
-    //        //}
-    //        #region .
-    //        #endregion
-    //        // vieux calc depth, terrible à appeler. bon débarras.
-    //        //public int Calc_Depth(int index, byte x_or_y, bool next_depth, byte l_or_r)
-    //        //{
-    //        //    float? real_pos = player_proj.pos[index, x_or_y];
-    //        //    int x_offset = 45;
-    //        //    if (l_or_r == 1) x_offset *= -1;
-    //        //    float? total_offset = x_or_y == 0 ? player_proj.pos[index, 0] + x_offset : player_proj.pos[index, 1] - 200;
-    //        //    double depth_factor = Pow(Player_Data.PROJECTILE_SPEED, (double)player_proj.pos[index, 2] - (next_depth ? 1 : 0));
-    //        //    return (int)((real_pos - total_offset) * depth_factor + total_offset);
-    //        //}
-    //        public static int[] CalcDepths(int index, byte powerup7 = 0)
-    //        {
-    //            float[] cur_pos = new float[3] { pos[index, 0], pos[index, 1], pos[index, 2] };
-    //            float[] target_pos = new float[2] { pos[index, 3], pos[index, 4] };
-    //            byte depth = powerup7 == 0 ? (byte)cur_pos[2] : powerup7;
-    //            return new int[4] {
-    //                (int)((cur_pos[0] - target_pos[0]) * Pow(P_PROJ_SPEED, depth) + target_pos[0]),
-    //                (int)((cur_pos[1] - target_pos[1]) * Pow(P_PROJ_SPEED, depth) + target_pos[1]),
-    //                (int)((cur_pos[0] - target_pos[0]) * Pow(P_PROJ_SPEED, depth + 1) + target_pos[0]),
-    //                (int)((cur_pos[1] - target_pos[1]) * Pow(P_PROJ_SPEED, depth + 1) + target_pos[1]),
-    //            };
-    //        }
-    //        public static void Render()
-    //        {
-    //            switch (player.powerup)
-    //            {
-    //                case 0:
-    //                case 1:
-    //                case 2:
-    //                    SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
-    //                    break;
-    //                case 3:
-    //                    SDL_SetRenderDrawColor(render, 255, 127, 0, 255);
-    //                    break;
-    //                case 4:
-    //                    SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
-    //                    break;
-    //                case 5:
-    //                    SDL_SetRenderDrawColor(render, 64, 255, 64, 255);
-    //                    break;
-    //                case 6:
-    //                    SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
-    //                    break;
-    //                case 7:
-    //                    SDL_SetRenderDrawColor(render, 127, 0, 255, 255);
-    //                    break;
-    //            }
-    //            if (!player.dead)
-    //                if (player.powerup != 7)
-    //                {
-    //                    for (int i = 0; i < pos.GetLength(0); i++)
-    //                    {
-    //                        if (pos[i, 0] != -1)
-    //                        {
-    //                            int[] pos = CalcDepths(i);
-    //                            SDL_RenderDrawLine(render, pos[0], pos[1], pos[2], pos[3]);
-    //                        }
-    //                    }
-    //                }
-    //                else
-    //                {
-    //                    for (int i = 0; i < pos.GetLength(0); i++)
-    //                    {
-    //                        if (pos[i, 0] == -1)
-    //                            continue;
-    //                        if (i % 2 == 0)
-    //                        {
-    //                            int[] attach_point = player.RenderCalc(1);
-    //                            pos[i, 0] = attach_point[0];
-    //                            pos[i, 1] = attach_point[1];
-    //                        }
-    //                        else
-    //                        {
-    //                            int[] attach_point = player.RenderCalc(16);
-    //                            pos[i, 0] = attach_point[0];
-    //                            pos[i, 1] = attach_point[1];
-    //                        }
-    //                        for (byte j = 0; j < G_DEPTH_LAYERS; j++)
-    //                        {
-    //                            int[] pos = CalcDepths(i, j);
-    //                            SDL_RenderDrawLine(render, pos[0] + RNG.Next(-5, 5), pos[1] + RNG.Next(-5, 5), pos[2] + RNG.Next(-5, 5), pos[3] + RNG.Next(-5, 5));
-    //                        }
-    //                    }
-    //                }
-    //        }
-    //    }
-    //    public static class EnemyProjs
-    //    {
-    //        public static float[,] pos = new float[30,5];
-    //        public static void Init()
-    //        {
-    //            for (int i = 0; i < pos.GetLength(0); i++)
-    //            {
-    //                pos[i, 0] = -1;
-    //                pos[i, 1] = -1;
-    //                pos[i, 2] = G_DEPTH_LAYERS;
-    //                pos[i, 3] = -1;
-    //                pos[i, 4] = -1;
-    //            }
-    //        }
-    //        public static void Exist()
-    //        {
-    //            Move();
-    //        }
-    //        static void Move()
-    //        {
-    //            for (int i = 0; i < pos.GetLength(0); i++)
-    //            {
-    //                if (pos[i, 0] != -1)
-    //                {
-    //                    pos[i, 2]--;
-    //                }
-    //                if (pos[i, 2] <= 0)
-    //                {
-    //                    pos[i, 0] = -1;
-    //                    pos[i, 2] = G_DEPTH_LAYERS;
-    //                }
-    //            }
-    //        }
-    //        public static void Shoot(Enemy e, bool first)
-    //        {
-    //            try
-    //            {
-    //                byte proj = 255;
-    //                for (byte i = 0; i < pos.GetLength(0); i++)
-    //                {
-    //                    if (pos[i, 0] == -1)
-    //                    {
-    //                        proj = i;
-    //                        break;
-    //                    }
-    //                }
-    //                if (proj < pos.GetLength(0))
-    //                {
-    //                    if (first)
-    //                    {
-    //                        pos[proj, 0] = (float)(e.model[e.shoot_index][0] * Pow(0.95, e.depth) + e.x);
-    //                        pos[proj, 1] = (float)(e.model[e.shoot_index][1] * Pow(0.95, e.depth) + e.y);
-    //                        pos[proj, 3] = player.x;
-    //                        pos[proj, 4] = player.y;
-    //                    }
-    //                    else
-    //                    {
-    //                        pos[proj, 0] = (float)(e.model[e.shoot2_index][0] * Pow(0.95, e.depth) + e.x);
-    //                        pos[proj, 1] = (float)(e.model[e.shoot2_index][1] * Pow(0.95, e.depth) + e.y);
-    //                        pos[proj, 3] = player.x;
-    //                        pos[proj, 4] = player.y;
-    //                    }
-    //                    if (e.type == 15)
-    //                        pos[proj, 2] = 20;
-    //                }
-    //            }
-    //            catch (Exception ex)
-    //            {
-    //                CrashReport(ex);
-    //            }
-    //        }
-    //        public static int[] CalcDepths(int index)
-    //        {
-    //            float[] self_pos = new float[3] { pos[index, 0], pos[index, 1], pos[index, 2] };
-    //            float[] target_pos = new float[2] { pos[index, 3], pos[index, 4] };
-    //            return new int[4] {
-    //                (int)((target_pos[0] - self_pos[0]) * Pow(P_PROJ_SPEED, self_pos[2]) + self_pos[0]),
-    //                (int)((target_pos[1] - self_pos[1]) * Pow(P_PROJ_SPEED, self_pos[2]) + self_pos[1]),
-    //                (int)((target_pos[0] - self_pos[0]) * Pow(P_PROJ_SPEED, self_pos[2] + 1) + self_pos[0]),
-    //                (int)((target_pos[1] - self_pos[1]) * Pow(P_PROJ_SPEED, self_pos[2] + 1) + self_pos[1]),
-    //            };
-    //        }
-    //        public static void Render()
-    //        {
-    //            SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
-    //            if (!player.dead)
-    //                for (int i = 0; i < pos.GetLength(0); i++)
-    //                {
-    //                    if (pos[i, 0] != -1)
-    //                    {
-    //                        int[] depths = CalcDepths(i);
-    //                        SDL_RenderDrawLine(render, depths[0], depths[1], depths[2], depths[3]);
-    //                    }
-    //                }
-    //        }
-    //    }
 }
