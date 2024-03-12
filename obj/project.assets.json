@@ -473,11 +473,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Malcolm\\source\\repos\\! sessions 1-2\\sdl test 3\\Dysgenesis.csproj",
+      "projectUniqueName": "C:\\Users\\Malcolm\\source\\repos\\! sessions 1-2\\Dysgenesis\\Dysgenesis.csproj",
       "projectName": "Dysgenesis",
-      "projectPath": "C:\\Users\\Malcolm\\source\\repos\\! sessions 1-2\\sdl test 3\\Dysgenesis.csproj",
+      "projectPath": "C:\\Users\\Malcolm\\source\\repos\\! sessions 1-2\\Dysgenesis\\Dysgenesis.csproj",
       "packagesPath": "C:\\Users\\Malcolm\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Malcolm\\source\\repos\\! sessions 1-2\\sdl test 3\\obj\\",
+      "outputPath": "C:\\Users\\Malcolm\\source\\repos\\! sessions 1-2\\Dysgenesis\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

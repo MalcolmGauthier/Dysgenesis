@@ -436,6 +436,18 @@ namespace Dysgenesis
                         barre_hud.x += barre_hud.w + 1;
                     }
                 }
+
+                if (gamemode == Gamemode.GAMEPLAY && level < 2)
+                {
+                    Text.DisplayText(
+                        "controles:\n" +
+                        "wasd pour bouger\n" +
+                        "j pour tirer\n" +
+                        "k pour activer une vague électrique",
+                        new Vector2(Data.W_SEMI_LARGEUR - 300, Data.W_SEMI_HAUTEUR + 400),
+                        2
+                    );
+                }
             }
             else if (gamemode == Gamemode.TITLESCREEN)
             {
