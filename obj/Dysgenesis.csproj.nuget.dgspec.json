@@ -44,10 +44,6 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
-            "NAudio": {
-              "target": "Package",
-              "version": "[2.1.0, )"
-            },
             "Sayers.SDL2.Core": {
               "target": "Package",
               "version": "[1.0.11, )"

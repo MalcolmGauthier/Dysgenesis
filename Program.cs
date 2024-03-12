@@ -1,11 +1,7 @@
 ﻿/*
  Dysgenesis par Malcolm Gauthier
- Beta v0.1: ~6397 lignes de code
+ Beta v0.2
  */
-using SDL2;
-using System.Data;
-using System.Linq.Expressions;
-using System.Text;
 using static SDL2.SDL;
 using static SDL2.SDL_mixer;
 
