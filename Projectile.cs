@@ -30,7 +30,7 @@ namespace Dysgenesis
             if (proprietaire == ProprietaireProjectile.JOUEUR)
             {
                 if (Program.GamemodeAction())
-                    Son.JouerEffet(ListeAudio.TIR);
+                    Son.JouerEffet(ListeAudioEffets.TIR);
 
                 if (Program.player.powerup == TypeItem.LASER)
                     laser = true;
@@ -38,6 +38,7 @@ namespace Dysgenesis
 
             Program.projectiles.Add(this);
         }
+
         public override bool Exist()
         {
             if (ProjectileToucheJoueur() > 0) return true;
@@ -54,15 +55,17 @@ namespace Dysgenesis
 
             return false;
         }
+
         public void FindTarget()
         {
-            short closest = 99;
-            short closest_distance = 9999;
-            for (short i = 0; i < Program.enemies.Count; i++)
+            int closest = 99;
+            int closest_distance = 9999;
+
+            for (int i = 0; i < Program.enemies.Count; i++)
             {
-                if (Program.enemies[i] != null)
+                if (Program.enemies[i].position.z > 0)
                 {
-                    short distance = Background.Distance(
+                    int distance = Background.Distance(
                         Program.player.position.x,
                         Program.player.position.y,
                         Program.enemies[i].position.x,
@@ -82,6 +85,7 @@ namespace Dysgenesis
                 destination.y = Program.enemies[closest].position.y;
             }
         }
+
         public float[] PositionsSurEcran(float depth)
         {
             Vector3 pos = position;
@@ -111,42 +115,61 @@ namespace Dysgenesis
         {
             return PositionsSurEcran(position.z);
         }
+
+        // Code de collision Projectile/Joueur.
+        // Retourne >0 si projectile détruit, <=0 sinon
         public int ProjectileToucheJoueur()
         {
             if (proprietaire == ProprietaireProjectile.JOUEUR)
-                return -4;
-
-            if (Program.player.Mort())
-                return 0;
+            {
+                return -1;
+            }
 
             if (position.z > 0)
+            {
                 return -2;
+            }
+
+            // pour si plusieurs projectiles touchent le joueur sur une image
+            if (Program.player.Mort())
+            {
+                Program.projectiles.Remove(this);
+                return 2;
+            }
 
             float[] positions_projectile = PositionsSurEcran();
 
-            if (Background.Distance(positions_projectile[0], positions_projectile[1], Program.player.position.x, Program.player.position.y) < 0.75f * Data.P_WIDTH)
+            // si le projectile manque le joueur
+            // 0.75f = marge de manoeuvre, le projectile doit clairment frapper le joueur
+            if (Background.Distance(positions_projectile[0], positions_projectile[1], Program.player.position.x, Program.player.position.y) > 0.75f * Data.P_WIDTH)
             {
-                Program.player.HP--;
-                new Explosion(Program.player.position);
-                Program.projectiles.Remove(this);
+                return 0;
+            }
 
-                if (Program.player.Mort())
-                {
-                    Son.JouerEffet(ListeAudio.EXPLOSION_JOUEUR);
-                    SDL_mixer.Mix_HaltMusic();
-                    Program.player.timer = 0;
-                    if (Program.curseur.curseur_max_selection < 2)
-                        Program.curseur.curseur_max_selection = 2;
-                    if (Program.gamemode == Gamemode.GAMEPLAY)
-                        Program.nv_continue = Program.level;
-                    return 2;
-                }
+            // joueur frappé
+            Program.player.HP -= 1;
+            new Explosion(Program.player.position);
+            Program.projectiles.Remove(this);
 
+            if (!Program.player.Mort())
+            {
                 return 1;
             }
 
-            return -3;
+            // joueur mort
+            Son.JouerEffet(ListeAudioEffets.EXPLOSION_JOUEUR);
+            Son.StopMusic();
+            Program.player.timer = 0;
+
+            // code pour option continuer sur menu
+            if (Program.curseur.curseur_max_selection < 2)
+                Program.curseur.curseur_max_selection = 2;
+            if (Program.gamemode == Gamemode.GAMEPLAY)
+                Program.nv_continue = Program.level;
+
+            return 3;
         }
+
         public override void RenderObject()
         {
             if (proprietaire == ProprietaireProjectile.ENNEMI)
@@ -154,26 +177,26 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
             }
             else switch (Program.player.powerup)
-                {
-                    case TypeItem.X2_SHOT:
-                        SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                        break;
-                    case TypeItem.X3_SHOT:
-                        SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                        break;
-                    case TypeItem.HOMING:
-                        SDL_SetRenderDrawColor(Program.render, 64, 255, 64, 255);
-                        break;
-                    case TypeItem.SPREAD:
-                        SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                        break;
-                    case TypeItem.LASER:
-                        SDL_SetRenderDrawColor(Program.render, 127, 0, 255, 255);
-                        break;
-                    default:
-                        SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                        break;
-                }
+            {
+                case TypeItem.X2_SHOT:
+                    SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
+                    break;
+                case TypeItem.X3_SHOT:
+                    SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
+                    break;
+                case TypeItem.HOMING:
+                    SDL_SetRenderDrawColor(Program.render, 64, 255, 64, 255);
+                    break;
+                case TypeItem.SPREAD:
+                    SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
+                    break;
+                case TypeItem.LASER:
+                    SDL_SetRenderDrawColor(Program.render, 127, 0, 255, 255);
+                    break;
+                default:
+                    SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
+                    break;
+            }
 
             if (Program.player.Mort())
                 return;
@@ -182,7 +205,8 @@ namespace Dysgenesis
 
             if (laser && proprietaire == ProprietaireProjectile.JOUEUR)
             {
-                // à chaque frame, attacher le bout du laser au points de tir du joueur
+                // à chaque image, attacher le bout du laser au points de tir du joueur
+                // TODO: ceci est la seule utilisation de ID, trouver comment l'enlever
                 positions = Program.player.RenderLineData(Program.player.indexs_de_tir[ID % Program.player.indexs_de_tir.Length]);
                 position.x = positions[0];
                 position.y = positions[1];
@@ -190,24 +214,24 @@ namespace Dysgenesis
                 for (byte i = 0; i < Data.G_DEPTH_LAYERS; i++)
                 {
                     positions = PositionsSurEcran(i);
-                    SDL_RenderDrawLine(Program.render,
-                        (int)positions[0] + Program.RNG.Next(-5, 5),
-                        (int)positions[1] + Program.RNG.Next(-5, 5),
-                        (int)positions[2] + Program.RNG.Next(-5, 5),
-                        (int)positions[3] + Program.RNG.Next(-5, 5)
+                    SDL_RenderDrawLineF(Program.render,
+                        positions[0] + Program.RNG.Next(-5, 5),
+                        positions[1] + Program.RNG.Next(-5, 5),
+                        positions[2] + Program.RNG.Next(-5, 5),
+                        positions[3] + Program.RNG.Next(-5, 5)
                     );
                 }
+
+                return;
             }
-            else
-            {
-                positions = PositionsSurEcran();
-                SDL_RenderDrawLine(Program.render,
-                    (int)positions[0],
-                    (int)positions[1],
-                    (int)positions[2],
-                    (int)positions[3]
-                );
-            }
+
+            positions = PositionsSurEcran();
+            SDL_RenderDrawLineF(Program.render,
+                positions[0],
+                positions[1],
+                positions[2],
+                positions[3]
+            );
         }
     }
     public static class Shockwave
@@ -216,9 +240,11 @@ namespace Dysgenesis
         const int LARGEUR_MIN_VAGUE_ELECTRIQUE = 150;
         const int PRECISION_VAGUE_ELECTRIQUE = 50;
 
-        static float rayon = 0, grow = 0;
+        static float rayon = 0;
+        static float grow = 0;
         static bool shown = false;
-        static uint cooldown = 0;
+        static uint cooldown;
+
         public static void Spawn()
         {
             if (shown || Program.player.Mort() || Program.player.shockwaves < 1.0f)
@@ -229,8 +255,9 @@ namespace Dysgenesis
             rayon = 0;
             grow = LARGEUR_MAX_VAGUE_ELECTRIQUE + LARGEUR_MIN_VAGUE_ELECTRIQUE;
             shown = true;
-            Son.JouerEffet(ListeAudio.VAGUE);
+            Son.JouerEffet(ListeAudioEffets.VAGUE);
         }
+        
         public static void Display()
         {
             if (!shown)
@@ -239,20 +266,22 @@ namespace Dysgenesis
             cooldown++;
 
             SDL_SetRenderDrawColor(Program.render, 0, 255, 255, 255);
+            float angle = MathF.PI / (PRECISION_VAGUE_ELECTRIQUE / 2.0f);
+
             for (int nb_de_cercles = 0; nb_de_cercles < 3; nb_de_cercles++)
             {
-                int randint1, randint2;
+                float rand1, rand2;
                 for (float i = 0; i < PRECISION_VAGUE_ELECTRIQUE; i++)
                 {
-                    randint1 = (int)(Program.RNG.Next(-20, 20) + rayon);
-                    randint2 = (int)(Program.RNG.Next(-20, 20) + rayon);
-                    float angle_pos1 = i * MathF.PI / (PRECISION_VAGUE_ELECTRIQUE / 2.0f);
-                    float angle_pos2 = (i + 1) * MathF.PI / (PRECISION_VAGUE_ELECTRIQUE / 2.0f);
-                    SDL_RenderDrawLine(Program.render,
-                        (int)(Program.player.position.x + randint1 * MathF.Sin(angle_pos1)),
-                        (int)(Program.player.position.y + randint1 * MathF.Cos(angle_pos1)),
-                        (int)(Program.player.position.x + randint2 * MathF.Sin(angle_pos2)),
-                        (int)(Program.player.position.y + randint2 * MathF.Cos(angle_pos2))
+                    rand1 = Program.RNG.Next(-20, 20) + rayon;
+                    rand2 = Program.RNG.Next(-20, 20) + rayon;
+                    float angle_pos1 = i * angle;
+                    float angle_pos2 = (i + 1) * angle;
+                    SDL_RenderDrawLineF(Program.render,
+                        Program.player.position.x + rand1 * MathF.Sin(angle_pos1),
+                        Program.player.position.y + rand1 * MathF.Cos(angle_pos1),
+                        Program.player.position.x + rand2 * MathF.Sin(angle_pos2),
+                        Program.player.position.y + rand2 * MathF.Cos(angle_pos2)
                     );
                 }
             }
@@ -262,7 +291,7 @@ namespace Dysgenesis
             if (rayon >= LARGEUR_MAX_VAGUE_ELECTRIQUE - 1)
                 shown = false;
 
-            if (cooldown < 10 || Program.gTimer % 3 != 0)
+            if (cooldown < 10 || cooldown % 3 != 0)
                 return;
 
             for (int i = 0; i < Program.enemies.Count; i++)

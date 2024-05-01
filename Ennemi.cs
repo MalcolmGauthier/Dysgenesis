@@ -151,7 +151,7 @@ namespace Dysgenesis
             speed = liste_vitesse_ennemi[(int)type] * VITESSE_MOYENNE_ENNEMI;
             z_speed = liste_vitesse_profondeur_ennemi[(int)type];
             indexs_de_tir = liste_indexs_tir_ennemi[(int)type];
-            fire_cooldown = liste_vitesse_tir_ennemi[(int)type];
+            fire_cooldown = liste_vitesse_tir_ennemi[(int)type] * Data.G_FPS;
             modele = Data.modeles_ennemis[(int)type];
             indexs_lignes_sauter = Data.lignes_a_sauter_ennemis[(int)type];
             uint couleure = liste_couleure_ennemi[(int)type];
@@ -189,8 +189,7 @@ namespace Dysgenesis
             {
                 this.statut = StatusEnnemi.PATRA_8_RESTANT;
             }
-            else if ((type == TypeEnnemi.DUPLIQUEUR || type == TypeEnnemi.DUPLIQUEUR_DUR) &&
-                !(statut >= StatusEnnemi.DUPLIQUEUR_0_RESTANT && statut <= StatusEnnemi.DUPLIQUEUR_2_RESTANT))
+            else if ((type == TypeEnnemi.DUPLIQUEUR || type == TypeEnnemi.DUPLIQUEUR_DUR) && statut == StatusEnnemi.INITIALIZATION)
             {
                 this.statut = StatusEnnemi.DUPLIQUEUR_2_RESTANT;
             }
@@ -207,21 +206,26 @@ namespace Dysgenesis
 
             timer++;
 
-            if (type == TypeEnnemi.BOSS && statut != StatusEnnemi.BOSS_NORMAL)
+            if (CodeBoss())
             {
-                Enemy15();
                 return false;
             }
 
             UpdateModele();
             Move();
 
+            target = UpdateTarget();
+
             for (int i = 0; i < Program.projectiles.Count; i++)
             {
-                if (ProjCollision(Program.projectiles[i]) != 0) return true;
+                if (ProjCollision(Program.projectiles[i]) != 0)
+                    return true;
             }
 
-            if (PlayerCollision() != 0) return true;
+            if (PlayerCollision() != 0)
+            {
+                return true;
+            }
 
             Tirer();
 
@@ -236,6 +240,7 @@ namespace Dysgenesis
         public void UpdateModele()
         {
             float speed = 0;
+            float angle;
             SDL_SetRenderDrawColor(Program.render, couleure.r, couleure.g, couleure.b, couleure.a);
 
             switch (type)
@@ -247,22 +252,24 @@ namespace Dysgenesis
                     if (speed == 0)
                         speed = 20.0f;
 
+                    angle = timer / speed;
+
                     for (int i = 0; i < modele_en_marche.Length; i++)
                     {
                         if (i == 0 || i == 3 || i == 9)
                         {
-                            modele_en_marche[i].x = (sbyte)(MathF.Cos(timer / speed) * 20);
-                            modele_en_marche[i].z = (sbyte)(MathF.Sin(timer / speed) * 20);
+                            modele_en_marche[i].x = (sbyte)(MathF.Cos(angle) * 20);
+                            modele_en_marche[i].z = (sbyte)(MathF.Sin(angle) * 20);
                         }
                         if (i == 1 || i == 5 || i == 10)
                         {
-                            modele_en_marche[i].x = (sbyte)(MathF.Cos(timer / speed + 2) * 20);
-                            modele_en_marche[i].z = (sbyte)(MathF.Sin(timer / speed + 2) * 20);
+                            modele_en_marche[i].x = (sbyte)(MathF.Cos(angle + 2) * 20);
+                            modele_en_marche[i].z = (sbyte)(MathF.Sin(angle + 2) * 20);
                         }
                         if (i == 2 || i == 7)
                         {
-                            modele_en_marche[i].x = (sbyte)(MathF.Cos(timer / speed + 4) * 20);
-                            modele_en_marche[i].z = (sbyte)(MathF.Sin(timer / speed + 4) * 20);
+                            modele_en_marche[i].x = (sbyte)(MathF.Cos(angle + 4) * 20);
+                            modele_en_marche[i].z = (sbyte)(MathF.Sin(angle + 4) * 20);
                         }
                     }
                     break;
@@ -274,49 +281,50 @@ namespace Dysgenesis
                     if (speed == 0)
                         speed = 20.0f;
 
+                    angle = timer / speed;
                     for (int i = 0; i < modele_en_marche.GetLength(0); i++)
                     {
                         switch (i)
                         {
                             case 16:
                             case 19:
-                                modele_en_marche[i].y = MathF.Cos(timer / speed) * 10;
-                                modele_en_marche[i].z = MathF.Sin(timer / speed) * 10;
+                                modele_en_marche[i].y = MathF.Cos(angle) * 10;
+                                modele_en_marche[i].z = MathF.Sin(angle) * 10;
                                 break;
                             case 13:
                             case 17:
-                                modele_en_marche[i].y = MathF.Cos(timer / speed + 1.5f) * 10;
-                                modele_en_marche[i].z = MathF.Sin(timer / speed + 1.5f) * 10;
+                                modele_en_marche[i].y = MathF.Cos(angle + 1.5f) * 10;
+                                modele_en_marche[i].z = MathF.Sin(angle + 1.5f) * 10;
                                 break;
                             case 6:
                             case 12:
-                                modele_en_marche[i].y = MathF.Cos(timer / speed + 3) * 10;
-                                modele_en_marche[i].z = MathF.Sin(timer / speed + 3) * 10;
+                                modele_en_marche[i].y = MathF.Cos(angle + 3) * 10;
+                                modele_en_marche[i].z = MathF.Sin(angle + 3) * 10;
                                 break;
                             case 7:
                             case 20:
-                                modele_en_marche[i].y = MathF.Cos(timer / speed + 4.5f) * 10;
-                                modele_en_marche[i].z = MathF.Sin(timer / speed + 4.5f) * 10;
+                                modele_en_marche[i].y = MathF.Cos(angle + 4.5f) * 10;
+                                modele_en_marche[i].z = MathF.Sin(angle + 4.5f) * 10;
                                 break;
                             case 15:
                             case 23:
-                                modele_en_marche[i].y = MathF.Cos(timer / -speed) * 10;
-                                modele_en_marche[i].z = MathF.Sin(timer / -speed) * 10;
+                                modele_en_marche[i].y = MathF.Cos(-angle) * 10;
+                                modele_en_marche[i].z = MathF.Sin(-angle) * 10;
                                 break;
                             case 4:
                             case 14:
-                                modele_en_marche[i].y = MathF.Cos(timer / -speed + 1.5f) * 10;
-                                modele_en_marche[i].z = MathF.Sin(timer / -speed + 1.5f) * 10;
+                                modele_en_marche[i].y = MathF.Cos(-angle + 1.5f) * 10;
+                                modele_en_marche[i].z = MathF.Sin(-angle + 1.5f) * 10;
                                 break;
                             case 5:
                             case 25:
-                                modele_en_marche[i].y = MathF.Cos(timer / -speed + 3) * 10;
-                                modele_en_marche[i].z = MathF.Sin(timer / -speed + 3) * 10;
+                                modele_en_marche[i].y = MathF.Cos(-angle + 3) * 10;
+                                modele_en_marche[i].z = MathF.Sin(-angle + 3) * 10;
                                 break;
                             case 21:
                             case 24:
-                                modele_en_marche[i].y = MathF.Cos(timer / -speed + 4.5f) * 10;
-                                modele_en_marche[i].z = MathF.Sin(timer / -speed + 4.5f) * 10;
+                                modele_en_marche[i].y = MathF.Cos(-angle + 4.5f) * 10;
+                                modele_en_marche[i].z = MathF.Sin(-angle + 4.5f) * 10;
                                 break;
                         }
                     }
@@ -339,27 +347,29 @@ namespace Dysgenesis
                     if (speed == 0)
                         speed = 50.0f;
 
+                    angle = timer / speed;
+
                     for (int i = 0; i < modele_en_marche.Length; i++)
                     {
                         if (i == 49 || i == 56)
                         {
-                            modele_en_marche[i].x = MathF.Cos(timer / speed) * 20;
-                            modele_en_marche[i].z = MathF.Sin(timer / speed) * 20;
+                            modele_en_marche[i].x = MathF.Cos(angle) * 20;
+                            modele_en_marche[i].z = MathF.Sin(angle) * 20;
                         }
                         if (i == 53 || i == 50)
                         {
-                            modele_en_marche[i].x = MathF.Cos(timer / speed + 1.5f) * 20;
-                            modele_en_marche[i].z = MathF.Sin(timer / speed + 1.5f) * 20;
+                            modele_en_marche[i].x = MathF.Cos(angle + 1.5f) * 20;
+                            modele_en_marche[i].z = MathF.Sin(angle + 1.5f) * 20;
                         }
                         if (i == 52 || i == 54)
                         {
-                            modele_en_marche[i].x = MathF.Cos(timer / speed + 3) * 20;
-                            modele_en_marche[i].z = MathF.Sin(timer / speed + 3) * 20;
+                            modele_en_marche[i].x = MathF.Cos(angle + 3) * 20;
+                            modele_en_marche[i].z = MathF.Sin(angle + 3) * 20;
                         }
                         if (i == 55 || i == 57)
                         {
-                            modele_en_marche[i].x = MathF.Cos(timer / speed + 4.5f) * 20;
-                            modele_en_marche[i].z = MathF.Sin(timer / speed + 4.5f) * 20;
+                            modele_en_marche[i].x = MathF.Cos(angle + 4.5f) * 20;
+                            modele_en_marche[i].z = MathF.Sin(angle + 4.5f) * 20;
                         }
                     }
                     break;
@@ -367,37 +377,45 @@ namespace Dysgenesis
                 case TypeEnnemi.PATRA:
                 case TypeEnnemi.PATRA_DUR:
 
-                    float ang14 = (timer / 20f) % (float)(2 * MathF.PI);
-                    float profondeure = 20 * MathF.Pow(0.95f, position.z);
-                    float profondeure_prochain = (2 * MathF.PI) / 3;
-                    short centerX2, centerY2;
+                    angle = (timer / 20f) % MathF.Tau;
+                    float profondeure = MathF.Pow(0.95f, position.z);
+                    float profondeure_prochain = MathF.Tau / 3;
+
                     for (int i = 0; i < (int)statut - (int)StatusEnnemi.PATRA_0_RESTANT; i++)
                     {
-                        centerX2 = (short)(MathF.Cos(ang14) * 80 * MathF.Pow(0.95f, position.z) + position.x);
-                        centerY2 = (short)(MathF.Sin(ang14) * 80 * MathF.Pow(0.95f, position.z) + position.y);
-                        float subAng = (timer / -10f) % (float)(2 * MathF.PI);
+                        float subAng = (timer / -10f) % MathF.Tau;
+                        float centerX2 = MathF.Cos(angle) * 80 * profondeure + position.x;
+                        float centerY2 = MathF.Sin(angle) * 80 * profondeure + position.y;
                         for (int j = 0; j < 3; j++)
                         {
-                            SDL_RenderDrawLine(Program.render,
-                                (int)(centerX2 + MathF.Cos(subAng) * profondeure),
-                                (int)(centerY2 + MathF.Sin(subAng) * profondeure),
-                                (int)(centerX2 + MathF.Cos(subAng + profondeure_prochain) * profondeure),
-                                (int)(centerY2 + MathF.Sin(subAng + profondeure_prochain) * profondeure)
+                            SDL_RenderDrawLineF(Program.render,
+                                centerX2 + MathF.Cos(subAng) * profondeure * 20,
+                                centerY2 + MathF.Sin(subAng) * profondeure * 20,
+                                centerX2 + MathF.Cos(subAng + profondeure_prochain) * profondeure * 20,
+                                centerY2 + MathF.Sin(subAng + profondeure_prochain) * profondeure * 20
                             );
-                            subAng += (float)(2 * MathF.PI) / 3;
+                            subAng += MathF.Tau / 3.0f;
                         }
-                        ang14 += (float)(2 * MathF.PI) / 8;
+                        angle += MathF.Tau / 8.0f;
                     }
                     break;
             }
         }
 
-        void Enemy15()
+        // gère les animations du boss.
+        // retourne vrai si le boss est en train de faire une animation
+        bool CodeBoss()
         {
+            if (type != TypeEnnemi.BOSS || statut == StatusEnnemi.BOSS_NORMAL)
+            {
+                return false;
+            }
+
             switch (statut)
             {
+                // partie #1 de l'animation de mort, où le boss bouge vers le centre de l'écran avec des explosions
                 case StatusEnnemi.BOSS_MORT:
-                    Son.StopMusic();
+                    Son.StopMusic(); // TODO: n'éxecuter qu'une seule fois
 
                     if (Background.Distance(position.x, position.y, Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR) > 30)
                     {
@@ -422,6 +440,7 @@ namespace Dysgenesis
                     }
 
                     break;
+
                 case StatusEnnemi.BOSS_MORT_2:
                     position.x = Data.W_SEMI_LARGEUR + Program.RNG.Next(-2, 2);
                     position.y = Data.W_SEMI_HAUTEUR + Program.RNG.Next(-2, 2);
@@ -437,7 +456,7 @@ namespace Dysgenesis
                     break;
                 case StatusEnnemi.BOSS_MORT_3:
                     if (timer == 301)
-                        Son.JouerEffet(ListeAudio.EXPLOSION_JOUEUR);
+                        Son.JouerEffet(ListeAudioEffets.EXPLOSION_JOUEUR);
 
                     roll += 0.05f;
                     taille += 0.005f;
@@ -499,36 +518,35 @@ namespace Dysgenesis
                     {
                         statut = StatusEnnemi.BOSS_NORMAL;
                         BombePulsar.HP_bombe = BombePulsar.BOMBE_PULSAR_MAX_HP;
-                        Son.JouerMusique(ListeAudio.DOTV, true);
+                        Son.JouerMusique(ListeAudioMusique.DOTV, true);
                     }
 
                     if (timer == 886)
-                        Son.JouerMusique(ListeAudio.DOTV_ENTREE, false);
+                        Son.JouerEffet(ListeAudioEffets.DOTV_ENTREE);
 
                     break;
             }
+
+            return true;
         }
 
         // code de collision entre l'ennemi et un projectile.
         // retourne 1 si l'ennemi se fait tuer par l'attaque, sinon 0
         int ProjCollision(Projectile projectile)
         {
-            // si le projectile n'est pas actif ou le projectile est d'origine ennemie
             if (!afficher || projectile.proprietaire == ProprietaireProjectile.ENNEMI)
                 return 0;
 
             // vérifie si le projectile est à la bonne profondeur pour frapper, mais on ignore la profondeur si le joueur a un laser
-            if (MathF.Abs(projectile.position.z - position.z) > 2 && Program.player.powerup != TypeItem.LASER)
+            if (MathF.Abs(projectile.position.z - position.z) > 2 && !projectile.laser)
                 return 0;
 
-            // si c'est un laser, un ne vérifie qu'une fois au 10 frames
-            if (Program.player.powerup == TypeItem.LASER && Program.gTimer % 10 != 0)
+            // si laser, ne vérifie qu'une fois au 10 images
+            if (projectile.laser && Program.gTimer % 10 != 0)
                 return 0;
 
-            // les positions sur l'écran du projectile
             float[] proj_pos = projectile.PositionsSurEcran();
 
-            // si la distance est plus que la largeur de l'ennemi
             if (Background.Distance(position.x, position.y, proj_pos[0], proj_pos[1]) > damage_radius)
                 return 0;
 
@@ -536,17 +554,17 @@ namespace Dysgenesis
             HP--;
             new Explosion(position);
 
-            // désactive le projectile, sauf si c'est un laser
-            if (Program.player.powerup != TypeItem.LASER)
+            // désactive le projectile, sauf si laser
+            if (!projectile.laser)
                 Program.projectiles.Remove(projectile);
 
-            // code pour patra qui a toujours des minions
+            // code pour patra
             if (statut > StatusEnnemi.PATRA_0_RESTANT && statut <= StatusEnnemi.PATRA_8_RESTANT)
             {
                 HP++;
                 statut--;
 
-                new Ennemi(type == TypeEnnemi.PATRA ? TypeEnnemi.PATRA_MINION : TypeEnnemi.PATRA_MINION_DUR, StatusEnnemi.NORMAL, this);
+                new Ennemi(type == TypeEnnemi.PATRA ? TypeEnnemi.PATRA_MINION : TypeEnnemi.PATRA_MINION_DUR, StatusEnnemi.INITIALIZATION, this);
             }
 
             // le reste du code est pour ceux qui viennent de mourrir
@@ -555,46 +573,46 @@ namespace Dysgenesis
                 return 0;
             }
 
-            // code pour minion patron
-            if (type == TypeEnnemi.PATRA_MINION || type == TypeEnnemi.PATRA_MINION_DUR)
-            {
-                statut = StatusEnnemi.MORT;
-                Program.enemies.Remove(this);
-                return 1;
-            }
+            statut = StatusEnnemi.MORT;
 
-            // code pour boss
             if (type == TypeEnnemi.BOSS)
             {
                 statut = StatusEnnemi.BOSS_MORT;
                 return 1;
             }
 
+            Program.enemies.Remove(this);
+
+            if (type == TypeEnnemi.PATRA_MINION || type == TypeEnnemi.PATRA_MINION_DUR)
+            {
+                return 1;
+            }
+
             // code pour dupliqueur avec des dupliquations restantes
             if (statut > StatusEnnemi.DUPLIQUEUR_0_RESTANT && statut <= StatusEnnemi.DUPLIQUEUR_2_RESTANT)
             {
-                position.x += 30;
-                new Ennemi(type, statut - 1, this);
-                position.x -= 60;
-                new Ennemi(type, statut - 1, this);
+                // déplace le parent pourque les enfants soient séparés physiquement
+                const int DUPLIQUEUR_DISTANCE_SEPARATION_ENFANT = 30;
+                StatusEnnemi nouveau_status = statut - 1;
 
-                statut = StatusEnnemi.MORT;
-                Program.enemies.Remove(this);
+                position.x += DUPLIQUEUR_DISTANCE_SEPARATION_ENFANT;
+                new Ennemi(type, nouveau_status, this);
+                position.x -= DUPLIQUEUR_DISTANCE_SEPARATION_ENFANT * 2;
+                new Ennemi(type, nouveau_status, this);
+
                 return 1;
             }
 
             // code pour les ennemis normaux qui peuvent lâcher un item
             Program.ens_killed++;
             new Item(this);
-            statut = StatusEnnemi.MORT;
-            Program.enemies.Remove(this);
             return 1;
         }
 
-        // code pour détecter si un ennemi touche le joueur. retourne 1 si touché, 0 sinon.
+        // code pour détecter si un ennemi touche le joueur.
+        // retourne 1 si touché, 0 sinon.
         int PlayerCollision()
         {
-            // si ennemi n'est pas à la profondeure du joueur ou l'ennemi est trop loin du joueur, quitte
             if (position.z != 0)
                 return 0;
 
@@ -603,18 +621,16 @@ namespace Dysgenesis
 
             // touché
             new Explosion(position);
-            Program.player.HP -= 3;
+            Program.player.HP -= 3; // TODO: const
 
-            byte ajout = 1;
             // ces ennemis ci-dessous ne comptent pas pour le total, alors on demande un nouveau ennemi si ce n'est pas un ci-dessous qui vient de mourrir
             if (type == TypeEnnemi.PATRA_MINION
                 || type == TypeEnnemi.PATRA_MINION_DUR
                 || (statut >= StatusEnnemi.DUPLIQUEUR_0_RESTANT && statut <= StatusEnnemi.DUPLIQUEUR_1_RESTANT)
                 || (statut >= StatusEnnemi.PATRA_1_RESTANT && statut <= StatusEnnemi.PATRA_8_RESTANT))
             {
-                ajout = 0;
+                Program.ens_needed++;
             }
-            Program.ens_needed += ajout;
 
             // tue l'ennemi
             statut = StatusEnnemi.MORT;
@@ -627,25 +643,24 @@ namespace Dysgenesis
             if (position.z == 0)
                 return new Vector2(Program.player.position.x, Program.player.position.y);
 
-            short dist_enemy_target = Background.Distance(target.x, target.y, position.x, position.y);
+            int dist_enemy_target = Background.Distance(target.x, target.y, position.x, position.y);
 
             if (dist_enemy_target > 30)
             {
                 return target;
             }
 
-            short dist_player_target = Background.Distance(target.x, target.y, Program.player.position.x, Program.player.position.y);
+            int dist_player_target = Background.Distance(target.x, target.y, Program.player.position.x, Program.player.position.y);
+            float num1, num2;
 
-            if (dist_player_target < 205 * (position.z / Data.G_DEPTH_LAYERS))
+            if (dist_player_target < 200 * (position.z / Data.G_DEPTH_LAYERS))
             {
-                float num1 = Program.RNG.Next(100, Data.W_LARGEUR - 100);
-                float num2 = Program.RNG.Next(100, Data.W_HAUTEUR - 400);
-
-                while (Background.Distance(num1, num2, Program.player.position.x, Program.player.position.y) < 800)
+                do
                 {
                     num1 = Program.RNG.Next(100, Data.W_LARGEUR - 100);
                     num2 = Program.RNG.Next(100, Data.W_HAUTEUR - 400);
                 }
+                while (Background.Distance(num1, num2, Program.player.position.x, Program.player.position.y) < 800);
 
                 return new Vector2(num1, num2);
             }
@@ -654,19 +669,15 @@ namespace Dysgenesis
             {
                 return new Vector2(Program.player.position.x, Program.player.position.y - 300 * (position.z / Data.G_DEPTH_LAYERS));
             }
-            else
+
+            do
             {
-                float num1 = Program.RNG.Next(100, Data.W_LARGEUR - 100);
-                float num2 = Program.RNG.Next(100, Data.W_HAUTEUR - 400);
-
-                while (Background.Distance(num1, num2, Program.player.position.x, Program.player.position.y) > 800)
-                {
-                    num1 = Program.RNG.Next(100, Data.W_LARGEUR - 100);
-                    num2 = Program.RNG.Next(100, Data.W_HAUTEUR - 400);
-                }
-
-                return new Vector2(num1, num2);
+                num1 = Program.RNG.Next(100, Data.W_LARGEUR - 100);
+                num2 = Program.RNG.Next(100, Data.W_HAUTEUR - 400);
             }
+            while (Background.Distance(num1, num2, Program.player.position.x, Program.player.position.y) > 800);
+
+            return new Vector2(num1, num2);
         }
 
         void Move()
@@ -681,8 +692,6 @@ namespace Dysgenesis
 
             if (speed != 0)
             {
-                target = UpdateTarget();
-
                 if (position.x < target.x)
                     velocite.x += speed;
                 else if (position.x > target.x)
@@ -720,21 +729,18 @@ namespace Dysgenesis
                 return;
 
             float[] line_data;
-            if (timer % (int)(fire_cooldown * Data.G_FPS) == 0)
+            for (byte i = 0; i < indexs_de_tir.Length; i++)
             {
-                for (byte i = 0; i < indexs_de_tir.Length; i++)
-                {
-                    if (indexs_de_tir[i] == -1)
-                        break;
+                if (indexs_de_tir[i] < 0)
+                    break;
 
-                    line_data = RenderLineData(indexs_de_tir[i]);
-                    new Projectile(
-                        new Vector3(line_data[0], line_data[1], position.z),
-                        Program.player.position,
-                        ProprietaireProjectile.ENNEMI,
-                        i
-                    );
-                }
+                line_data = RenderLineData(indexs_de_tir[i]);
+                new Projectile(
+                    new Vector3(line_data[0], line_data[1], position.z),
+                    Program.player.position,
+                    ProprietaireProjectile.ENNEMI,
+                    i
+                );
             }
         }
 

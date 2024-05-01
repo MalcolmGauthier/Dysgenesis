@@ -34,41 +34,55 @@ namespace Dysgenesis
             TypeEnnemi.OCTAHEDRON, TypeEnnemi.DIAMANT, TypeEnnemi.TOURNANT, TypeEnnemi.ENERGIE, TypeEnnemi.CROISSANT, TypeEnnemi.DUPLIQUEUR, TypeEnnemi.PATRA,
             TypeEnnemi.OCTAHEDRON_DUR, TypeEnnemi.DIAMANT_DUR, TypeEnnemi.TOURNANT_DUR, TypeEnnemi.ENERGIE_DUR, TypeEnnemi.CROISSANT_DUR, TypeEnnemi.DUPLIQUEUR_DUR, TypeEnnemi.PATRA_DUR
         };
-        public static TypeEnnemi[] arcade_ens = new TypeEnnemi[0];
-        static int timer;
-        static void GenererListeArcade()
-        {
-            arcade_ens = new TypeEnnemi[(int)MathF.Sqrt(Program.level * 10) + 2];
+        public static TypeEnnemi[] arcade_ens = Array.Empty<TypeEnnemi>();
 
+        static int timer;
+
+        // Générer la liste d'ennemis pour le prochain niveau d'arcade. Créé avec du hasard.
+        // retourne la longeure de la liste crée
+        static int GenererListeArcade()
+        {
+            if (Program.level < 0)
+                return 0;
+
+            // nb d'ennemis à tuer pour le prochain niveau
+            arcade_ens = new TypeEnnemi[(int)MathF.Sqrt(Program.level * 10) + 2]; // overflow à niveau 214748365
+
+            // i = index ennemi à créér
+            int next_entry;
             for (int i = 0; i < arcade_ens.Length; i++)
             {
-                int enemy_rng = Program.RNG.Next(100);
-                // j = ID type ennemi
-                for (int j = 0; j < ennemis_valides_arcade.Length; j++)
-                {
-                    // todo: expliquer wtf c'est quoi ça
-                    if (Program.level > (j * j) / 10f && i < (j * j) / 5 && enemy_rng < -1.5f * j + 50)
-                    {
-                        arcade_ens[i] = ennemis_valides_arcade[j];
-                        break;
-                    }
-                }
+                next_entry = (int)(ennemis_valides_arcade.Length * Program.level / (Program.level + 5.0f));
+                next_entry += Program.RNG.Next(-3, 3);
+
+                next_entry = Math.Clamp(next_entry, 0, ennemis_valides_arcade.Length);
+
+                arcade_ens[i] = (TypeEnnemi)next_entry;
             }
+
+            return arcade_ens.Length;
         }
-        public static void Level_Change()
+
+        // animation pour changement de niveau + mise à jours des nb d'ennemis pour le prochain
+        public static void ChangerNiveau()
         {
-            if (Program.gamemode == Gamemode.ARCADE && timer < 200)
-                timer = 200;
+            const int TEMPS_AVANT_TEXTE = (int)(3.33f * Data.G_FPS);
+            const int TEMPS_TEXTE_SUR_ECRAN = (int)(2.0f * Data.G_FPS) + TEMPS_AVANT_TEXTE;
+            const int TEMPS_APRES_TEXTE_PARTI = (int)(0.5f  + Data.G_FPS) + TEMPS_TEXTE_SUR_ECRAN;
 
-            if (timer == 200)
-                Son.JouerEffet(ListeAudio.NIVEAU);
+            // en mode arcade, l'animation commence dès que le dernier ennemi est tué.
+            if (Program.gamemode == Gamemode.ARCADE && timer < TEMPS_AVANT_TEXTE)
+                timer = TEMPS_AVANT_TEXTE;
 
-            if (timer > 200 && timer < 320)
+            if (timer == TEMPS_AVANT_TEXTE)
+                Son.JouerEffet(ListeAudioEffets.NIVEAU);
+
+            if (timer > TEMPS_AVANT_TEXTE && timer < TEMPS_TEXTE_SUR_ECRAN)
             {
                 Text.DisplayText("niveau " + (Program.level + 1), new Vector2(Text.CENTRE, Text.CENTRE), 5);
             }
 
-            if (timer >= 350)
+            if (timer >= TEMPS_APRES_TEXTE_PARTI)
             {
                 Program.level++;
                 timer = 0;
@@ -79,9 +93,9 @@ namespace Dysgenesis
                 }
                 else
                 {
-                    GenererListeArcade();
-                    Program.ens_needed = arcade_ens.Length;
+                    Program.ens_needed = GenererListeArcade();
                 }
+
                 Program.ens_killed = 0;
             }
 

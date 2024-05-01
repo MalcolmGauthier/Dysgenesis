@@ -67,17 +67,17 @@ namespace Dysgenesis
         static SDL_Event e;
         public static SDL_Color couleure_fond_ecran = new SDL_Color() { r = 0, g = 0, b = 0, a = 255 };
 
-        public static Player player = new Player();
-        public static Curseur curseur = new Curseur();
-        public static List<Ennemi> enemies = new List<Ennemi>(30);
-        public static List<Item> items = new List<Item>(10);
-        public static List<Projectile> projectiles = new List<Projectile>(50);
-        public static List<Explosion> explosions = new List<Explosion>(10);
-        public static Random RNG = new Random();
+        public static Player player = new();
+        public static Curseur curseur = new();
+        public static List<Ennemi> enemies = new(30);
+        public static List<Item> items = new(10);
+        public static List<Projectile> projectiles = new(50);
+        public static List<Explosion> explosions = new(10);
+        public static Random RNG = new();
 
         public static Gamemode gamemode = Gamemode.CUTSCENE_INTRO;
-        public static ushort level;
-        public static ushort nv_continue = 1;
+        public static int level;
+        public static int nv_continue = 1;
         public static int gTimer = 0;
         public static int ens_killed = 0;
         public static int ens_needed = 0;
@@ -89,12 +89,13 @@ namespace Dysgenesis
         static byte arcade_steps = 0;
         static int touches_peses = 0;
         static int timer_generique = 0;
+        static long temps_entre_60_images_todo_enlever = 10000000;
 
         // DEBUG VARS
         static byte debug_count = 0, debug_count_display = 0;
         static long debug_time = DateTime.Now.Ticks;
         public static bool mute_sound = false, free_items = false, cutscene_skip = false,
-                           show_fps = false, monologue_skip = false, lvl_select = false,
+                           show_fps = true, monologue_skip = false, lvl_select = false,
                            fps_unlock = false, crashtest = false, fullscreen = true;
         static void Main()
         {
@@ -112,14 +113,14 @@ namespace Dysgenesis
                 Code();
                 Render();
                 if (!fps_unlock)
-                    while (frame_time > DateTime.Now.Ticks - 10000000 / Data.G_FPS) { }
+                    while (frame_time > DateTime.Now.Ticks - temps_entre_60_images_todo_enlever / Data.G_FPS) ;
                 frame_time = DateTime.Now.Ticks;
                 gTimer++;
 
                 if (GamemodeAction() || gamemode == Gamemode.TITLESCREEN) //todo: wtf
-                    Data.G_FPS = 60;
+                    temps_entre_60_images_todo_enlever = TimeSpan.TicksPerSecond;
                 else
-                    Data.G_FPS = 30;
+                    temps_entre_60_images_todo_enlever = TimeSpan.TicksPerSecond * 2;
             }
 
             SDL_DestroyWindow(window);
@@ -128,17 +129,26 @@ namespace Dysgenesis
         }
         static int Init()
         {
-            if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) return 1;
+            if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+                return 1;
+
             window = SDL_CreateWindow(Data.W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Data.W_LARGEUR, Data.W_HAUTEUR,
                 fullscreen ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP : 0 | SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
             render = SDL_CreateRenderer(window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
             SDL_PollEvent(out e);
-            if (SDL_SetRenderDrawBlendMode(render, SDL_BlendMode.SDL_BLENDMODE_BLEND) != 0) return 2;
+
+            if (SDL_SetRenderDrawBlendMode(render, SDL_BlendMode.SDL_BLENDMODE_BLEND) != 0)
+                return 2;
+
             SDL_SetRenderDrawColor(render, couleure_fond_ecran.r, couleure_fond_ecran.g, couleure_fond_ecran.b, couleure_fond_ecran.a);
             SDL_RenderPresent(render);
+
             Etoiles.Spawn(new SDL_Rect() { x = 0, y = 0, w = Data.W_LARGEUR, h = Data.W_HAUTEUR });
             frame_time = DateTime.Now.Ticks;
-            if (Son.InitSDLMixer() != 0) return 3;
+
+            if (Son.InitSDLMixer() != 0)
+                return 3;
+
             SaveLoad.Load();
             SDL_ShowCursor(0);
             return 0;
@@ -310,6 +320,7 @@ namespace Dysgenesis
                     new Ennemi(Level_Data.lvl_list[level][ens_needed - 1], StatusEnnemi.INITIALIZATION);
                 else
                     new Ennemi(Level_Data.arcade_ens[ens_needed - 1], StatusEnnemi.INITIALIZATION);
+
                 if (enemies.Count > verif)
                     ens_needed--;
             }
@@ -319,7 +330,7 @@ namespace Dysgenesis
                 if ((gamemode == Gamemode.GAMEPLAY && ens_killed >= Level_Data.lvl_list[level].Length) ||
                     (gamemode == Gamemode.ARCADE && ens_killed >= Level_Data.arcade_ens.Length))
                 {
-                    Level_Data.Level_Change();
+                    Level_Data.ChangerNiveau();
                 }
             }
 
@@ -452,7 +463,7 @@ namespace Dysgenesis
                     if (!TouchePesee((Touches)code_arcade[arcade_steps]) && TouchePesee((Touches)code_arcade[arcade_steps + 1]))
                     {
                         arcade_steps++;
-                        Son.JouerEffet(ListeAudio.EXPLOSION_ENNEMI);
+                        Son.JouerEffet(ListeAudioEffets.EXPLOSION_ENNEMI);
                         if (arcade_steps >= code_arcade.Length - 1)
                         {
                             arcade_unlock = true;
@@ -475,7 +486,7 @@ namespace Dysgenesis
                     "j pour sélectionner\n\ncontroles globaux: esc. pour quitter, " +
                     "+/- pour monter ou baisser le volume",
                     new Vector2(10, Data.W_HAUTEUR - 40), 1);
-                Text.DisplayText("v 0.2 (beta)",
+                Text.DisplayText("v 0.3 (beta)",
                     new Vector2(Text.CENTRE, Data.W_HAUTEUR - 30), 2);
 
                 if (curseur.curseur_max_selection >= 2)
@@ -519,7 +530,7 @@ namespace Dysgenesis
                         level = 0;
                         player.Init();
                         player.afficher = true;
-                        Son.JouerMusique(ListeAudio.DCQBPM, true);
+                        Son.JouerMusique(ListeAudioMusique.DCQBPM, true);
                         gamemode = Gamemode.ARCADE;
                         break;
 
@@ -537,11 +548,11 @@ namespace Dysgenesis
                     case Gamemode.CUTSCENE_START:
                         Cutscene.Cut_1();
                         break;
-                    case Gamemode.CUTSCENE_BAD_END:
-                        Cutscene.Cut_3();
-                        break;
                     case Gamemode.CUTSCENE_GOOD_END:
                         Cutscene.Cut_2();
+                        break;
+                    case Gamemode.CUTSCENE_BAD_END:
+                        Cutscene.Cut_3();
                         break;
                     case Gamemode.CREDITS:
                         Cutscene.Cut_4();
@@ -553,7 +564,7 @@ namespace Dysgenesis
 
             if (show_fps)
             {
-                if (debug_time < DateTime.Now.Ticks - 10000000) // fps
+                if (debug_time < DateTime.Now.Ticks - TimeSpan.TicksPerSecond) // fps
                 {
                     debug_count++;
                     debug_count_display = debug_count;
@@ -588,28 +599,37 @@ namespace Dysgenesis
 
             return enemies[0].type == TypeEnnemi.BOSS;
         }
+
+        // écran à montrer si le jeu plante. ce code-ci ne devrait jamais donner d'erreure.
         public static void CrashReport(Exception e)
         {
-            Son.StopMusic();
-            SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
-            SDL_RenderClear(render);
-            Text.DisplayText("erreure fatale!\n\n"
-                + e.Message + "\n"
-                + e.StackTrace + "\n" +
-                "\n\ntapez sur escape pour quitter l'application.", new Vector2(10, 10), 1
-            );
-            SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
-            SDL_RenderPresent(render);
-            while (!exit)
+            try
             {
-                SDL_PollEvent(out Program.e);
-                if (Program.e.type == SDL_EventType.SDL_KEYDOWN)
-                    if (Program.e.key.keysym.sym == SDL_Keycode.SDLK_ESCAPE)
-                        exit = true;
+                Son.StopMusic();
+                SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+                SDL_RenderClear(render);
+                Text.DisplayText("erreure fatale!\n\n"
+                    + e.Message + "\n"
+                    + e.StackTrace + "\n" +
+                    "\n\ntapez sur escape pour quitter l'application.", new Vector2(10, 10), 1
+                );
+                SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+                SDL_RenderPresent(render);
+                while (!exit)
+                {
+                    SDL_PollEvent(out Program.e);
+                    if (Program.e.type == SDL_EventType.SDL_KEYDOWN)
+                        if (Program.e.key.keysym.sym == SDL_Keycode.SDLK_ESCAPE)
+                            exit = true;
+                }
             }
-            SDL_DestroyRenderer(render);
-            SDL_DestroyWindow(window);
-            SDL_Quit();
+            finally
+            {
+                SDL_DestroyRenderer(render);
+                SDL_DestroyWindow(window);
+                SDL_Quit();
+                Environment.Exit(-1);
+            }
         }
     }
 }

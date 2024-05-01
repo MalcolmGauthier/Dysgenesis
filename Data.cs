@@ -11,22 +11,12 @@ namespace Dysgenesis
         public static short W_SEMI_HAUTEUR = 540;
         public static short W_SEMI_LARGEUR = 960;
 
-        public static short G_FPS = 60;
+        public const short G_FPS = 60;
         public const byte G_DEPTH_LAYERS = 50;
 
-        public const float P_FRICTION = 0.9f;
-        public const float P_PITCH_FRICTION = 0.95f;
-        public const float P_ROLL_FRICTION = 0.95f;
-        public const float P_SPEED = 1f;
-        public const float P_ROLL_SPEED = 0.05f;
-        public const float P_PITCH_SPEED = 0.05f;
-        public const float P_MAX_PITCH = 0.5f;
-        public const float P_MAX_ROLL = 1f;
         public const byte P_WIDTH = 50;
-        public const byte P_HEIGHT = 20;
         public const float P_PERMA_PITCH = 0.3f;
         public const float P_PROJ_SPEED = 0.9f;
-        public const byte P_SHOOTING_COOLDOWN = 25;
 
         public const short S_DENSITY = 100;
         public const byte S_SPAWN_RADIUS = 100;
@@ -39,7 +29,6 @@ namespace Dysgenesis
 
         public const byte BP_MAX_HP = 50;
 
-        // Y INVERSE, pas x, z: + = vers caméra
         public static readonly Vector3[] MODELE_P =
         {
             new Vector3(-50,0,0), // rouge
@@ -116,6 +105,7 @@ namespace Dysgenesis
             { -25, -10}
         };
 
+        // modèles ennemis
         static readonly Vector3[] MODELE_E1 =
         {
             new Vector3( 0, 0, -20 ),
@@ -138,10 +128,7 @@ namespace Dysgenesis
             new Vector3( 0, 5, 0 ),
             new Vector3( 0, 5, 0 )
         };
-        static readonly int[] MODELE_E1_SAUTS =
-        {
-            12, 17, -1
-        };
+        static readonly int[] MODELE_E1_SAUTS = { 12, 17, -1 };
         static readonly Vector3[] MODELE_E2 =
         {
             new Vector3( -30, 0, 0 ),
@@ -212,10 +199,7 @@ namespace Dysgenesis
             new Vector3( 12, -10, 3 ),
             new Vector3( 12, -10, 21 )
         };
-        static readonly int[] MODELE_E2_SAUTS =
-        {
-            48, 50, -1
-        };
+        static readonly int[] MODELE_E2_SAUTS = { 48, 50, -1 };
         static readonly Vector3[] MODELE_E3 =
         {
             new Vector3( -50, 0, 0 ),
@@ -246,10 +230,7 @@ namespace Dysgenesis
             new Vector3( -20, 10, -10 ),
             new Vector3( -50, 0, 0 )
         };
-        static readonly int[] MODELE_E3_SAUTS =
-        {
-            -1
-        };
+        static readonly int[] MODELE_E3_SAUTS = { -1 };
         static readonly Vector3[] MODELE_E5 =
         {
             new Vector3( -15, 45, 10),
@@ -336,10 +317,7 @@ namespace Dysgenesis
             new Vector3( -50, 0, -10 ),
             new Vector3( -40, 30, -10 )
         };
-        static readonly int[] MODELE_E5_SAUTS =
-        {
-            -1
-        };
+        static readonly int[] MODELE_E5_SAUTS = { -1 };
         static readonly Vector3[] MODELE_E6 =
         {
             new Vector3( -25, 0, 0 ),
@@ -350,10 +328,7 @@ namespace Dysgenesis
             new Vector3( 0, -10, -30 ),
             new Vector3( -25, 0, 0 )
         };
-        static readonly int[] MODELE_E6_SAUTS =
-        {
-            -1
-        };
+        static readonly int[] MODELE_E6_SAUTS = { -1 };
         static readonly Vector3[] MODELE_E7 =
         {
             new Vector3( 0, 20, 0),
@@ -366,10 +341,7 @@ namespace Dysgenesis
             new Vector3( -10, 0, 0 ),
             new Vector3( 0, 20, 0 )
         };
-        static readonly int[] MODELE_E7_SAUTS =
-        {
-            -1
-        };
+        static readonly int[] MODELE_E7_SAUTS = { -1 };
         static readonly Vector3[] MODELE_E7_1 =
         {
             new Vector3( 0, 10, 0 ),
@@ -377,10 +349,7 @@ namespace Dysgenesis
             new Vector3( 8, -6, 0 ),
             new Vector3( 0, 10, 0 )
         };
-        static readonly int[] MODELE_E7_1_SAUTS =
-        {
-            -1
-        };
+        static readonly int[] MODELE_E7_1_SAUTS = { -1 };
         public static readonly Vector3[][] modeles_ennemis =
         {
             MODELE_E1, MODELE_E2, MODELE_E3, new Vector3[]{ }, MODELE_E5,
@@ -396,6 +365,7 @@ namespace Dysgenesis
             MODELE_E7_1_SAUTS, MODELE_E7_1_SAUTS
         };
 
+        // modèles items
         static readonly Vector3[] MODELE_I1 =
         {
             new Vector3(-5, -10, 0 ),
@@ -605,207 +575,6 @@ namespace Dysgenesis
             MODELE_I3_SAUTS, MODELE_I4_SAUTS, MODELE_I5_SAUTS,
             MODELE_I6_SAUTS, MODELE_I7_SAUTS, MODELE_I1_SAUTS, new int[0]
         };
-
-        //public static sbyte[,] MODELE_I1 = new sbyte[31, 2] {
-        //    { -5, -10 },
-        //    { -15, -10 },
-        //    { -20, -5 },
-        //    { -5, -5 },
-        //    { -5, -20 },
-        //    { 0, -25 },
-        //    { 10, -25 },
-        //    { 5, -20 },
-        //    { -5, -20 },
-        //    { 5, -20 },
-        //    { 5, -5 },
-        //    { 20, -5 },
-        //    { 25, -10 },
-        //    { 10, -10 },
-        //    { 10, -25 },
-        //    { 10, -10 },
-        //    { 25, -10 },
-        //    { 25, 0 },
-        //    { 20, 5 },
-        //    { 20, -5 },
-        //    { 20, 5 },
-        //    { 5, 5 },
-        //    { 5, 20 },
-        //    { 10, 15 },
-        //    { 10, 5 },
-        //    { 10, 15 },
-        //    { 5, 20 },
-        //    { -5, 20 },
-        //    { -5, 5 },
-        //    { -20, 5 },
-        //    { -20, -5 }
-        //};
-
-        //public static sbyte[,] MODELE_I3 = new sbyte[28, 2] {
-        //    { -19, 22},
-        //    { -70, 0},
-        //    { -19, -22 },
-        //    { -19, 22 },
-        //    { -30, 12 },
-        //    { -30, -12 },
-        //    { -12, -30 },
-        //    { 12, -30 },
-        //    { 19, -22 },
-        //    { 70, 0 },
-        //    { 19, 22 },
-        //    { 70, 0 },
-        //    { 19, -22 },
-        //    { 30, -12 },
-        //    { 30, 12 },
-        //    { 12, 30 },
-        //    { -12, 30 },
-        //    { -19, 22 },
-        //    { -14, -6 },
-        //    { -8, 6 },
-        //    { -8, -6 },
-        //    { -14, 6 },
-        //    { -4, -12 },
-        //    { 10, -12 },
-        //    { 10, 0 },
-        //    { -4, 0 },
-        //    { -4, 12 },
-        //    { 10, 12 }
-        //};
-
-        //public static sbyte[,] MODELE_I4 = new sbyte[29, 2] { 
-        //    { -19, 22 },
-        //    { -70, 0 },
-        //    { -19, -22 },
-        //    { -19, 22 },
-        //    { -30, 12 },
-        //    { -30, -12 },
-        //    { -12, -30 },
-        //    { 12, -30 },
-        //    { 19, -22 },
-        //    { 70, 0 },
-        //    { 19, 22 },
-        //    { 70, 0 },
-        //    { 19, -22 },
-        //    { 30, -12 },
-        //    { 30, 12 },
-        //    { 12, 30 },
-        //    { -12, 30 },
-        //    { -19, 22 },
-        //    { -14, -6 },
-        //    { -8, 6 },
-        //    { -8, -6 },
-        //    { -14, 6 },
-        //    { -4, -12 },
-        //    { 10, -12 },
-        //    { 10, 0 },
-        //    { -4, 0 },
-        //    { 10, 0 },
-        //    { 10, 12 },
-        //    { -4, 12 }
-        //};
-
-        //public static sbyte[,] MODELE_I5 = new sbyte[32, 2] { 
-        //    { -19, 22 },
-        //    { -70, 0 },
-        //    { -19, -22 },
-        //    { -70, 0 },
-        //    { -19, 22 },
-        //    { -30, 12 },
-        //    { -30, -12 },
-        //    { -12, -30 },
-        //    { 12, -30 },
-        //    { 19, -22 },
-        //    { 70, 0 },
-        //    { 19, 22 },
-        //    { 70, 0 },
-        //    { 19, -22 },
-        //    { 30, -12 },
-        //    { 30, 12 },
-        //    { 12, 30 },
-        //    { -12, 30 },
-        //    { -19, 22 },
-        //    { -16, 0 },
-        //    { -4, 0 },
-        //    { 0, -4 },
-        //    { 0, -16 },
-        //    { 16, 0 },
-        //    { 4, 0 },
-        //    { 0, 4 },
-        //    { 0, 16 },
-        //    { 0, 10 },
-        //    { -10, 0 },
-        //    { 0, -10 },
-        //    { 10, 0 },
-        //    { 0, 10 }
-        //};
-
-        //public static sbyte[,] MODELE_I6 = new sbyte[29, 2] {
-        //    { -19, 22 },
-        //    { -70, 0 },
-        //    { -19, -22 },
-        //    { -70, 0 },
-        //    { -19, 22 },
-        //    { -30, 12 },
-        //    { -30, -12 },
-        //    { -12, -30 },
-        //    { 12, -30 },
-        //    { 19, -22 },
-        //    { 70, 0 },
-        //    { 19, 22 },
-        //    { 70, 0 },
-        //    { 19, -22 },
-        //    { 30, -12 },
-        //    { 30, 12 },
-        //    { 12, 30 },
-        //    { -12, 30 },
-        //    { -19, 22 },
-        //    { -16, -10 },
-        //    { -10, 10 },
-        //    { -4, -10 },
-        //    { -10, -10 },
-        //    { -10, 10 },
-        //    { 4, -10 },
-        //    { 10, 10 },
-        //    { 16, -10 },
-        //    { 10, -10 },
-        //    { 10, 10 },
-        //};
-
-        //public static sbyte[,] MODELE_I7 = new sbyte[25, 2] { 
-        //    { -19, 22 },
-        //    { -70, 0 },
-        //    { -19, -22 },
-        //    { -70, 0 },
-        //    { -19, 22 },
-        //    { -30, 12 },
-        //    { -30, -12 },
-        //    { -12, -30 },
-        //    { 12, -30 },
-        //    { 19, -22 },
-        //    { 70, 0 },
-        //    { 19, 22 },
-        //    { 70, 0 },
-        //    { 19, -22 },
-        //    { 30, -12 },
-        //    { 30, 12 },
-        //    { 12, 30 },
-        //    { -12, 30 },
-        //    { -19, 22 },
-        //    { -6, 20 },
-        //    { 6, 12 },
-        //    { -6, 4 },
-        //    { 6, -4 },
-        //    { -6, -12 },
-        //    { 6, -20 },
-        //};
-
-        //public static void TailleEcran()
-        //{
-        //    SDL_GetWindowDisplayMode(Program.window, out SDL_DisplayMode mode);
-        //    W_HAUTEUR = (short)mode.h;
-        //    W_LARGEUR = (short)mode.w;
-        //    W_SEMI_HAUTEUR = (short)(W_HAUTEUR / 2);
-        //    W_SEMI_LARGEUR = (short)(W_LARGEUR / 2);
-        //}
     }
 
     public static class SaveLoad
@@ -822,7 +591,12 @@ namespace Dysgenesis
         public static void Load()
         {
             string read = File.ReadAllText(@"save.txt");
-            uint.TryParse(read, out uint num);
+
+            if (!uint.TryParse(read, out uint num))
+            {
+                return;
+            }
+
             if (num.ToString() == read && read != "0")
             {
                 double check = (num - 395248) / 824593;
@@ -835,6 +609,7 @@ namespace Dysgenesis
             {
                 return;
             }
+
             Program.nv_continue = (ushort)((num - 395248) / 842593);
         }
     }

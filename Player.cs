@@ -170,7 +170,7 @@ namespace Dysgenesis
             {
                 if (timer == 1)
                 {
-                    Son.JouerEffet(ListeAudio.EXPLOSION_JOUEUR);
+                    Son.JouerEffet(ListeAudioEffets.EXPLOSION_JOUEUR);
                     indexs_lignes_sauter = new int[0];
                     for (int i = 0; i < modele.Length; i++)
                     {
@@ -202,7 +202,7 @@ namespace Dysgenesis
                 {
                     afficher = false;
                     indexs_lignes_sauter = Data.MODELE_P_SAUTS;
-                    Son.JouerMusique(ListeAudio.DYSGENESIS, true);
+                    Son.JouerMusique(ListeAudioMusique.DYSGENESIS, true);
                     Program.bouger_etoiles = true;
                     Program.enemies.Clear();
                     Program.gamemode = Gamemode.TITLESCREEN;

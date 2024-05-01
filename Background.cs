@@ -5,24 +5,27 @@ using static System.MathF;
 
 namespace Dysgenesis
 {
-    public enum ListeAudio
+    public enum ListeAudioEffets
     {
-        CRTP,
         PRESENTE,
-        DYSGENESIS,
-        ATW,
         NIVEAU,
         TIR,
         EXPLOSION_ENNEMI,
         EXPLOSION_JOUEUR,
         POWERUP,
         VAGUE,
+        DOTV_ENTREE,
+    };
+    public enum ListeAudioMusique
+    {
+        ATW,
+        CRTP,
+        DYSGENESIS,
         TBOT,
         DOTV,
-        DOTV_ENTREE,
         EUGENESIS,
         DCQBPM
-    };
+    }
     public enum CutsceneIndex
     {
         STARTUP,
@@ -36,18 +39,31 @@ namespace Dysgenesis
     {
         public static void DessinerCercle(Vector2 position, int size, byte sides)
         {
+            int demi_sides = sides / 2;
+            float ang, next_ang;
+
             for (int i = 0; i < sides; i++)
             {
-                SDL_RenderDrawLine(Program.render,
-                    (int)(position.x + size * Sin(i * PI / (sides / 2))),
-                    (int)(position.y + size * Cos(i * PI / (sides / 2))),
-                    (int)(position.x + size * Sin((i + 1) * PI / (sides / 2))),
-                    (int)(position.y + size * Cos((i + 1) * PI / (sides / 2))));
+                ang = i * PI / demi_sides;
+                next_ang = (i + 1) * PI / demi_sides;
+
+                SDL_RenderDrawLineF(Program.render,
+                    position.x + size * Sin(ang),
+                    position.y + size * Cos(ang),
+                    position.x + size * Sin(next_ang),
+                    position.y + size * Cos(next_ang)
+                );
             }
         }
-        public static short Distance(float x1, float y1, float x2, float y2, float mult_x = 1, float mult_y = 1)
-        { // c = +sqrt(w(a²)+h(b²))
-            return (short)Sqrt(mult_x * Pow(Abs(x1 - x2), 2) + mult_y * Pow(Abs(y1 - y2), 2));
+
+        // = +sqrt(w(a²)+h(b²))
+        public static int Distance(float x1, float y1, float x2, float y2, float mult_x = 1, float mult_y = 1)
+        {
+            return (int)Sqrt(mult_x * Pow(Abs(x1 - x2), 2) + mult_y * Pow(Abs(y1 - y2), 2));
+        }
+        public static int Distance(float x1, float y1, float x2, float y2)
+        {
+            return Distance(x1, y1, x2, y2, 1, 1);
         }
     }
     public static class BombePulsar
@@ -143,7 +159,7 @@ namespace Dysgenesis
                 if (lTimer == 0)
                 {
                     Mix_HaltMusic();
-                    Son.JouerEffet(ListeAudio.EXPLOSION_JOUEUR);
+                    Son.JouerEffet(ListeAudioEffets.EXPLOSION_JOUEUR);
                     if (Program.player.HP <= 0)
                         Program.player.HP = 1;
                 }
@@ -646,7 +662,7 @@ namespace Dysgenesis
                 Program.gTimer = 451;
             if (Program.gTimer == 75)
             {
-                Son.JouerMusique(ListeAudio.PRESENTE, false);
+                Son.JouerEffet(ListeAudioEffets.PRESENTE);
             }
 
             if (Program.gTimer >= 75 && Program.gTimer < 150)
@@ -664,7 +680,7 @@ namespace Dysgenesis
             if (Program.gTimer > 225)
             {
                 Program.gamemode = Gamemode.TITLESCREEN;
-                Son.JouerMusique(ListeAudio.DYSGENESIS, true);
+                Son.JouerMusique(ListeAudioMusique.DYSGENESIS, true);
             }
         }
         public static void Cut_1() // new game
@@ -674,7 +690,7 @@ namespace Dysgenesis
 
             if (Program.gTimer == 60)
             {
-                Son.JouerMusique(ListeAudio.CRTP, false);
+                Son.JouerMusique(ListeAudioMusique.CRTP, false);
                 Program.player.afficher = true;
             }
 
@@ -1217,7 +1233,7 @@ namespace Dysgenesis
 
             if (Program.gTimer == 60)
             {
-                Son.JouerMusique(ListeAudio.ATW, false);
+                Son.JouerMusique(ListeAudioMusique.ATW, false);
                 Program.gTimer = 120;
                 //Program.player.dead = false;
                 //Program.gTimer = 1740;//
@@ -2082,7 +2098,7 @@ namespace Dysgenesis
 
             if (Program.gTimer == 60)
             {
-                Son.JouerMusique(ListeAudio.TBOT, false);
+                Son.JouerMusique(ListeAudioMusique.TBOT, false);
                 //Program.player.dead = false;
                 //Program.gTimer = 780;//
             }
@@ -2937,7 +2953,7 @@ namespace Dysgenesis
 
             if (Program.gTimer == 60)
             {
-                Son.JouerMusique(ListeAudio.EUGENESIS, false);
+                Son.JouerMusique(ListeAudioMusique.EUGENESIS, false);
                 Program.player.HP = 1;
                 Program.player.afficher = true;
                 //Program.gTimer = 1620;//
@@ -3311,7 +3327,7 @@ namespace Dysgenesis
             if (Program.gTimer > 2600)
             {
                 Program.gamemode = Gamemode.TITLESCREEN;
-                Son.JouerMusique(ListeAudio.DYSGENESIS, true);
+                Son.JouerMusique(ListeAudioMusique.DYSGENESIS, true);
                 Program.player.Init();
                 Program.player.afficher = true;
                 gFade = 0;
@@ -3393,7 +3409,7 @@ namespace Dysgenesis
             this.position.z = Data.G_DEPTH_LAYERS - position.z;
 
             if (Program.GamemodeAction())
-                Son.JouerEffet(ListeAudio.EXPLOSION_ENNEMI);
+                Son.JouerEffet(ListeAudioEffets.EXPLOSION_ENNEMI);
 
             Program.explosions.Add(this);
         }
@@ -3434,41 +3450,43 @@ namespace Dysgenesis
     }
     public static class Son
     {
-        const int NB_CHAINES_SFX = 20;
         /*const*/
-        static int VOLUME_TEMPS_AFFICHAGE = Data.G_FPS / 2;
+        const int VOLUME_TEMPS_AFFICHAGE = Data.G_FPS / 2;
+        const int NB_CHAINES_SFX = 20;
         const int VOLUME_DAS = 5;
         const int ALL_CHUNKS = -1;
         const int FIRST_FREE_CHANNEL = -1;
 
-        static SDL_Rect boite_volume = new SDL_Rect() // ne peut pas être readonly, RenderRect n'aime pas ca
+        static SDL_Rect boite_volume = new SDL_Rect()
         {
             x = Data.W_LARGEUR - 360,
             y = 10,
             w = Data.W_HAUTEUR - 730,
             h = 100
-        };
-        static readonly string[] chemins_pour_sons =
+        }; // ne peut pas être readonly, RenderRect n'aime pas ca
+        static readonly Dictionary<ListeAudioEffets, string> chemins_pour_effets = new()
         {
-            @"audio\cant remove the pain.wav",
-            @"audio\presents.wav",
-            @"audio\titlescreen.wav",
-            @"audio\around the world.wav",
-            @"audio\sfx1.wav",
-            @"audio\laserShoot.wav",
-            @"audio\explosion_enemy.wav",
-            @"audio\explosion.wav",
-            @"audio\powerup.wav",
-            @"audio\synth.wav",
-            @"audio\the beginning of Time.wav",
-            @"audio\Dance of the Violins.wav",
-            @"audio\tone.wav",
-            @"audio\eugenesis.wav",
-            @"audio\240 Bits Per Mile.wav"
+            { ListeAudioEffets.PRESENTE, @"audio\presents.wav" },
+            { ListeAudioEffets.NIVEAU, @"audio\sfx1.wav" },
+            { ListeAudioEffets.TIR, @"audio\laserShoot.wav" },
+            { ListeAudioEffets.EXPLOSION_ENNEMI, @"audio\explosion_enemy.wav" },
+            { ListeAudioEffets.EXPLOSION_JOUEUR, @"audio\explosion.wav" },
+            { ListeAudioEffets.POWERUP, @"audio\powerup.wav" },
+            { ListeAudioEffets.VAGUE, @"audio\synth.wav" },
+            { ListeAudioEffets.DOTV_ENTREE, @"audio\tone.wav" },
+        };
+        static readonly Dictionary<ListeAudioMusique, string> chemins_pour_musique = new()
+        {
+            { ListeAudioMusique.CRTP, @"audio\cant remove the pain.wav" },
+            { ListeAudioMusique.DYSGENESIS, @"audio\titlescreen.wav" },
+            { ListeAudioMusique.ATW, @"audio\around the world.wav" },
+            { ListeAudioMusique.TBOT, @"audio\the beginning of Time.wav" },
+            { ListeAudioMusique.DOTV, @"audio\Dance of the Violins.wav" },
+            { ListeAudioMusique.EUGENESIS, @"audio\eugenesis.wav" },
+            { ListeAudioMusique.DCQBPM, @"audio\240 Bits Per Mile.wav" }
         };
 
         static IntPtr musique = IntPtr.Zero;
-        //static List<IntPtr> effets_sonnores = new List<IntPtr>();
         static IntPtr[] effets_sonnores = new IntPtr[NB_CHAINES_SFX];
         static int timer = 0;
         static int prochain_chunk = 0;
@@ -3476,17 +3494,16 @@ namespace Dysgenesis
 
         public static int InitSDLMixer()
         {
-            if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 2048) != 0) return -1;
+            if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 2048) != 0)
+                return -1;
             Mix_AllocateChannels(NB_CHAINES_SFX);
-            //ChannelFinishedDelegate free_chunk = FreeChunk;
-            //Mix_ChannelFinished(free_chunk);
             return 0;
         }
         public static void StopMusic()
         {
             Mix_PauseMusic();
         }
-        public static int JouerMusique(ListeAudio musique_a_jouer, bool boucle)
+        public static int JouerMusique(ListeAudioMusique musique_a_jouer, bool boucle)
         {
             if (Program.mute_sound)
                 return 0;
@@ -3496,27 +3513,31 @@ namespace Dysgenesis
                 loupes = -1;
 
             Mix_FreeMusic(musique);
-            musique = Mix_LoadMUS(chemins_pour_sons[(int)musique_a_jouer]);
+            chemins_pour_musique.TryGetValue(musique_a_jouer, out string? chemin);
+
+            if (chemin == null)
+                return -3;
+
+            musique = Mix_LoadMUS(chemin);
             if (musique == IntPtr.Zero) return -1;
+
             Mix_VolumeMusic(volume * 8);
             if (Mix_PlayMusic(musique, loupes) != 0) return -2;
 
             return 0;
         }
-        public static int JouerEffet(ListeAudio effet_a_jouer)
+        public static int JouerEffet(ListeAudioEffets effet_a_jouer)
         {
             if (Program.mute_sound)
                 return 0;
 
-            //Mix_FreeChunk(effets_sonnores[prochain_chunk]);
-            //IntPtr chunk = Mix_LoadWAV(chemins_pour_sons[(int)effet_a_jouer]);
-            //effets_sonnores.Add(chunk);
-            //if (effets_sonnores[effets_sonnores.Count - 1] == IntPtr.Zero) return -2;
-            //Mix_Volume(ALL_CHUNKS, volume * 8);
-            //if (Mix_PlayChannel(prochain_chunk + 1, chunk, 0) < 0) return -3;
-
             Mix_FreeChunk(effets_sonnores[prochain_chunk]);
-            effets_sonnores[prochain_chunk] = Mix_LoadWAV(chemins_pour_sons[(int)effet_a_jouer]);
+            chemins_pour_effets.TryGetValue(effet_a_jouer, out string? chemin);
+
+            if (chemin == null)
+                return -1;
+
+            effets_sonnores[prochain_chunk] = Mix_LoadWAV(chemin);
             if (effets_sonnores[prochain_chunk] == IntPtr.Zero) return -2;
             Mix_Volume(ALL_CHUNKS, volume * 8);
             if (Mix_PlayChannel(prochain_chunk + 1, effets_sonnores[prochain_chunk], 0) < 0) return -3;
@@ -3526,20 +3547,9 @@ namespace Dysgenesis
 
             return 0;
         }
-        //static void FreeChunk(int channel)
-        //{
-        //    if (!effets_sonnores.Remove(effets_sonnores.Find(x => x == Mix_GetChunk(channel))))
-        //    {
-        //        Program.CrashReport(new Exception("pointeur non trouvé dans liste"));
-        //    }
 
-        //    Mix_FreeChunk(Mix_GetChunk(channel));
-        //}
-        public static int ChangerVolume()
+        public static void ChangerVolume()
         {
-            if (timer > 0)
-                timer--;
-
             if (Program.TouchePesee(Touches.PLUS) || Program.TouchePesee(Touches.MINUS))
             {
                 if (timer < VOLUME_TEMPS_AFFICHAGE - VOLUME_DAS)
@@ -3551,15 +3561,20 @@ namespace Dysgenesis
                     else if (Program.TouchePesee(Touches.MINUS) && volume > 0)
                         volume--;
 
+                    if (musique == IntPtr.Zero)
+                        return;
+
+                    // le jeu utilise 0 à 16, SDL utilise 0 à 128
                     int nouveau_volume = volume * 8;
-                    if (musique != IntPtr.Zero)
-                        Mix_VolumeMusic(nouveau_volume);
-                    Mix_Volume(-1, volume);
+                    Mix_VolumeMusic(nouveau_volume);
+                    Mix_Volume(ALL_CHUNKS, volume);
                 }
             }
 
             if (timer > 0)
             {
+                timer--;
+
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 0, 255);
                 SDL_RenderFillRect(Program.render, ref boite_volume);
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
@@ -3568,7 +3583,7 @@ namespace Dysgenesis
                 Text.DisplayText("volume: " + volume, new Vector2(1600, 40), 3);
             }
 
-            return 0;
+            return;
         }
     }
 }

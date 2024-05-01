@@ -143,7 +143,7 @@ namespace Dysgenesis
                 }
 
                 Program.items.Remove(this);
-                Son.JouerEffet(ListeAudio.POWERUP);
+                Son.JouerEffet(ListeAudioEffets.POWERUP);
                 return 1;
             }
 
