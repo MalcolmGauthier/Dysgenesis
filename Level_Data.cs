@@ -42,17 +42,17 @@ namespace Dysgenesis
         // retourne la longeure de la liste crée
         static int GenererListeArcade()
         {
-            if (Program.level < 0)
+            if (Program.niveau < 0)
                 return 0;
 
             // nb d'ennemis à tuer pour le prochain niveau
-            arcade_ens = new TypeEnnemi[(int)MathF.Sqrt(Program.level * 10) + 2]; // overflow à niveau 214748365
+            arcade_ens = new TypeEnnemi[(int)MathF.Sqrt(Program.niveau * 10) + 2]; // overflow à niveau 214748365
 
             // i = index ennemi à créér
             int next_entry;
             for (int i = 0; i < arcade_ens.Length; i++)
             {
-                next_entry = (int)(ennemis_valides_arcade.Length * Program.level / (Program.level + 5.0f));
+                next_entry = (int)(ennemis_valides_arcade.Length * Program.niveau / (Program.niveau + 5.0f));
                 next_entry += Program.RNG.Next(-3, 3);
 
                 next_entry = Math.Clamp(next_entry, 0, ennemis_valides_arcade.Length);
@@ -71,7 +71,7 @@ namespace Dysgenesis
             const int TEMPS_APRES_TEXTE_PARTI = (int)(0.5f  + Data.G_FPS) + TEMPS_TEXTE_SUR_ECRAN;
 
             // en mode arcade, l'animation commence dès que le dernier ennemi est tué.
-            if (Program.gamemode == Gamemode.ARCADE && timer < TEMPS_AVANT_TEXTE)
+            if (Program.Gamemode == Gamemode.ARCADE && timer < TEMPS_AVANT_TEXTE)
                 timer = TEMPS_AVANT_TEXTE;
 
             if (timer == TEMPS_AVANT_TEXTE)
@@ -79,17 +79,17 @@ namespace Dysgenesis
 
             if (timer > TEMPS_AVANT_TEXTE && timer < TEMPS_TEXTE_SUR_ECRAN)
             {
-                Text.DisplayText("niveau " + (Program.level + 1), new Vector2(Text.CENTRE, Text.CENTRE), 5);
+                Text.DisplayText("niveau " + (Program.niveau + 1), new Vector2(Text.CENTRE, Text.CENTRE), 5);
             }
 
             if (timer >= TEMPS_APRES_TEXTE_PARTI)
             {
-                Program.level++;
+                Program.niveau++;
                 timer = 0;
 
-                if (Program.gamemode == Gamemode.GAMEPLAY)
+                if (Program.Gamemode == Gamemode.GAMEPLAY)
                 {
-                    Program.ens_needed = lvl_list[Program.level].Length;
+                    Program.ens_needed = lvl_list[Program.niveau].Length;
                 }
                 else
                 {

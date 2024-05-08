@@ -177,7 +177,7 @@ namespace Dysgenesis
                 position = new Vector3(
                     Program.RNG.Next(DISTANCE_DE_BORD_EVITER_INIT, Data.W_LARGEUR - DISTANCE_DE_BORD_EVITER_INIT),
                     Program.RNG.Next(DISTANCE_DE_BORD_EVITER_INIT, Data.W_HAUTEUR - DISTANCE_DE_BORD_EVITER_INIT),
-                    Data.G_DEPTH_LAYERS
+                    Data.G_MAX_DEPTH
                 );
             }
 
@@ -474,8 +474,8 @@ namespace Dysgenesis
 
                     if (timer > 550)
                     {
-                        Program.gamemode = Gamemode.CUTSCENE_BAD_END;
-                        Program.gTimer = 0;
+                        Program.Gamemode = Gamemode.CUTSCENE_BAD_END;
+                        
                         Program.enemies.Clear();
                         Program.explosions.Clear();
                     }
@@ -653,7 +653,7 @@ namespace Dysgenesis
             int dist_player_target = Background.Distance(target.x, target.y, Program.player.position.x, Program.player.position.y);
             float num1, num2;
 
-            if (dist_player_target < 200 * (position.z / Data.G_DEPTH_LAYERS))
+            if (dist_player_target < 200 * (position.z / Data.G_MAX_DEPTH))
             {
                 do
                 {
@@ -667,7 +667,7 @@ namespace Dysgenesis
 
             if (dist_player_target < 800)
             {
-                return new Vector2(Program.player.position.x, Program.player.position.y - 300 * (position.z / Data.G_DEPTH_LAYERS));
+                return new Vector2(Program.player.position.x, Program.player.position.y - 300 * (position.z / Data.G_MAX_DEPTH));
             }
 
             do

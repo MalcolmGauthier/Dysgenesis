@@ -164,8 +164,8 @@ namespace Dysgenesis
             // code pour option continuer sur menu
             if (Program.curseur.curseur_max_selection < 2)
                 Program.curseur.curseur_max_selection = 2;
-            if (Program.gamemode == Gamemode.GAMEPLAY)
-                Program.nv_continue = Program.level;
+            if (Program.Gamemode == Gamemode.GAMEPLAY)
+                Program.nv_continue = Program.niveau;
 
             return 3;
         }
@@ -211,7 +211,7 @@ namespace Dysgenesis
                 position.x = positions[0];
                 position.y = positions[1];
 
-                for (byte i = 0; i < Data.G_DEPTH_LAYERS; i++)
+                for (byte i = 0; i < Data.G_MAX_DEPTH; i++)
                 {
                     positions = PositionsSurEcran(i);
                     SDL_RenderDrawLineF(Program.render,

@@ -36,10 +36,10 @@ namespace Dysgenesis
             float roll = Program.RNG.Next(100);
 
             byte facteur = 30;
-            if (Program.gamemode != Gamemode.GAMEPLAY)
+            if (Program.Gamemode != Gamemode.GAMEPLAY)
                 facteur = 40;
 
-            roll -= facteur * MathF.Pow(0.8f, Program.level);
+            roll -= facteur * MathF.Pow(0.8f, Program.niveau);
 
             if (Program.free_items)
                 roll = roll * 0.4f + 60;

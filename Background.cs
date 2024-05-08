@@ -1,7 +1,7 @@
-﻿using System;
-using static SDL2.SDL;
+﻿using static SDL2.SDL;
 using static SDL2.SDL_mixer;
 using static System.MathF;
+#pragma warning disable CA1806 // c# me demande de regarder le résultat de SDL_RenderDrawLine lolololololol
 
 namespace Dysgenesis
 {
@@ -35,28 +35,33 @@ namespace Dysgenesis
         CREDITS
     }
 
+    // fonction générales. avant était une classe pour encapsuler tout dans ce fichier
+    // todo: se débarrasser de cette classe en mettant les fonctions dans program ou qqc d'autre
     public static class Background
     {
-        public static void DessinerCercle(Vector2 position, int size, byte sides)
+        // Dessine un polygone avec X côtés pour créér une approximation de cercle.
+        public static void DessinerCercle(Vector2 position, int taille, byte cotes)
         {
-            int demi_sides = sides / 2;
-            float ang, next_ang;
+            float ang;
+            float next_ang;
 
-            for (int i = 0; i < sides; i++)
+            for (int i = 0; i < cotes; i++)
             {
-                ang = i * PI / demi_sides;
-                next_ang = (i + 1) * PI / demi_sides;
+                // Tau = 2*Pi
+                ang = (i * Tau) / cotes;
+                next_ang = ((i + 1) * Tau) / cotes;
 
                 SDL_RenderDrawLineF(Program.render,
-                    position.x + size * Sin(ang),
-                    position.y + size * Cos(ang),
-                    position.x + size * Sin(next_ang),
-                    position.y + size * Cos(next_ang)
+                    position.x + taille * Sin(ang),
+                    position.y + taille * Cos(ang),
+                    position.x + taille * Sin(next_ang),
+                    position.y + taille * Cos(next_ang)
                 );
             }
         }
 
         // = +sqrt(w(a²)+h(b²))
+        // todo: déplacer dans vector2
         public static int Distance(float x1, float y1, float x2, float y2, float mult_x = 1, float mult_y = 1)
         {
             return (int)Sqrt(mult_x * Pow(Abs(x1 - x2), 2) + mult_y * Pow(Abs(y1 - y2), 2));
@@ -66,57 +71,64 @@ namespace Dysgenesis
             return Distance(x1, y1, x2, y2, 1, 1);
         }
     }
-    public static class BombePulsar
+
+    // classe statique qui gère la bombe pulsar, ou n'importe quoi qui à a faire avec
+    // la bombe pulsar
+    // TODO: rendre un sprite
+    public class BombePulsar : Sprite
     {
         const byte QUANTITE_RAYONS_BOMBE_PULSAR = 50;
-        public const int BOMBE_PULSAR_MAX_HP = 1;
-        public static readonly SDL_Color COULEUR_BOMBE = new SDL_Color() { r = 200, g = 255, b = 255, a = 255 };
-        public static short HP_bombe = BOMBE_PULSAR_MAX_HP;
-        static ushort lTimer = 0;
-
-        readonly static sbyte[] hyperbole_bleue_bombe_pulsar_data = new sbyte[72] {
-                -7, -19,  -8, -31,
-                -8, -31, -12, -43,
-                -12, -43, -18, -47,
-                4, -20,   5, -31,
-                5, -31,   7, -45,
-                7, -45,  12, -49,
-                -3, -23,  -3, -36,
-                0, -35,   4, -45,
-                -5, -45,  -8, -49,
-                -6,  19,  -9,  30,
-                -9,  30, -13,  39,
-                -13,  39, -20,  44,
-                5,  19,   6,  30,
-                6,  30,  10,  40,
-                10,  40,  20,  46,
-                0,  24,   1,  36,
-                -2,  31,  -3,  39,
-                -8,  35,  -5,  26
+        public const int BOMBE_PULSAR_MAX_HP = 50;
+        public static readonly SDL_Color COULEUR_BOMBE = new SDL_Color() { r = 150, g = 255, b = 255, a = 255 };
+        readonly static float[] hyperbole_bleue_bombe_pulsar_data = new float[72] {
+            -0.35f, -0.95f, -0.4f, -1.55f,
+            -0.4f, -1.55f, -0.6f, -2.15f,
+            -0.6f, -2.15f, -0.9f, -2.35f,
+            0.2f, -1.0f, 0.25f, -1.55f,
+            0.25f, -1.55f, 0.35f, -2.25f,
+            0.35f, -2.25f, 0.6f, -2.45f,
+            -0.15f, -1.15f, -0.15f, -1.8f,
+            0.0f, -1.75f, 0.2f, -2.25f,
+            -0.25f, -2.25f, -0.4f, -2.45f,
+            -0.3f, 0.95f, -0.45f, 1.5f,
+            -0.45f, 1.5f, -0.65f, 1.95f,
+            -0.65f, 1.95f, -1.0f, 2.2f,
+            0.25f, 0.95f, 0.3f, 1.5f,
+            0.3f, 1.5f, 0.5f, 2.0f,
+            0.5f, 2.0f, 1.0f, 2.3f,
+            0.0f, 1.2f, 0.05f, 1.8f,
+            -0.1f, 1.55f, -0.15f, 1.95f,
+            -0.4f, 1.75f, -0.25f, 1.3f
         };
 
-        public static void DessinerBombePulsar(Vector2 position, byte rayon, SDL_Color couleure, bool hyperbole_bleue, Vector2[]? lignes_prefaites = null)
+        public short HP_bombe = BOMBE_PULSAR_MAX_HP;
+
+        // Dessine la forme de la bombe à pulsar, qui est un cercle avec des lignes qui sortent au hasard
+        // de son centre. est utilisé par la bombe, des ennemis, et autres
+        public static void DessinerBombePulsar(Vector2 position, byte rayon, SDL_Color couleure, bool hyperbole_bleue, Vector2[]? lignes_prefaites)
         {
-            SDL_SetRenderDrawColor(Program.render, couleure.r, couleure.g, couleure.b, couleure.a);
-            Background.DessinerCercle(position, rayon, 50);
-
-            if (lignes_prefaites == null)
+            // dessine les lignes bleues en haut et en bas de la bombe qui ont l'air d'une hyperboloide
+            if (hyperbole_bleue)
             {
-                float angle;
-                int diametre = 2 * rayon;
+                SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
 
-                for (int i = 0; i < QUANTITE_RAYONS_BOMBE_PULSAR; i++)
+                for (int i = 0; i < hyperbole_bleue_bombe_pulsar_data.Length; i += 4)
                 {
-                    angle = Program.RNG.NextSingle() * PI;
                     SDL_RenderDrawLine(Program.render,
-                        (int)(Program.RNG.Next(-rayon, rayon) * Cos(angle) + position.x),
-                        (int)(Program.RNG.Next(-rayon, rayon) * Sin(angle) + position.y),
-                        (int)position.x,
-                        (int)position.y
+                        (int)(hyperbole_bleue_bombe_pulsar_data[i + 0] * rayon + position.x),
+                        (int)(hyperbole_bleue_bombe_pulsar_data[i + 1] * rayon + position.y),
+                        (int)(hyperbole_bleue_bombe_pulsar_data[i + 2] * rayon + position.x),
+                        (int)(hyperbole_bleue_bombe_pulsar_data[i + 3] * rayon + position.y)
                     );
                 }
             }
-            else
+
+            SDL_SetRenderDrawColor(Program.render, couleure.r, couleure.g, couleure.b, couleure.a);
+            Background.DessinerCercle(position, rayon, 50);
+
+            // dans une des scènes, la bombe doit ralentir puis s'éteindre, et
+            // c'est la seule fois que cette section est utilisée
+            if (lignes_prefaites != null)
             {
                 for (int i = 0; i < QUANTITE_RAYONS_BOMBE_PULSAR; i++)
                 {
@@ -127,76 +139,87 @@ namespace Dysgenesis
                         (int)position.y
                     );
                 }
+
+                return;
             }
 
-            if (hyperbole_bleue)
+            // dessine les lignes à l'intérieur du cercle au hasard
+            float angle;
+            for (int i = 0; i < QUANTITE_RAYONS_BOMBE_PULSAR; i++)
             {
-
-                SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-
-                float facteur = rayon / 20.0f;
-
-                for (int i = 0; i < hyperbole_bleue_bombe_pulsar_data.Length / 4; i++)
-                {
-
-                    SDL_RenderDrawLine(Program.render,
-                        (int)(hyperbole_bleue_bombe_pulsar_data[i * 4 + 0] * facteur + position.x),
-                        (int)(hyperbole_bleue_bombe_pulsar_data[i * 4 + 1] * facteur + position.y),
-                        (int)(hyperbole_bleue_bombe_pulsar_data[i * 4 + 2] * facteur + position.x),
-                        (int)(hyperbole_bleue_bombe_pulsar_data[i * 4 + 3] * facteur + position.y)
-                    );
-                }
+                angle = Program.RNG.NextSingle() * PI;
+                SDL_RenderDrawLineF(Program.render,
+                    Program.RNG.Next(-rayon, rayon) * Cos(angle) + position.x,
+                    Program.RNG.Next(-rayon, rayon) * Sin(angle) + position.y,
+                    position.x,
+                    position.y
+                );
             }
         }
-        public static void VerifCollision()
+        public static void DessinerBombePulsar(Vector2 position, byte rayon, SDL_Color couleure, bool hyperbole_bleue)
+        {
+            DessinerBombePulsar(position, rayon, couleure, hyperbole_bleue, null);
+        }
+        public static void DessinerBombePulsar(Vector2 position, byte rayon, bool hyperbole_bleue)
+        {
+            DessinerBombePulsar(position, rayon, COULEUR_BOMBE, hyperbole_bleue, null);
+        }
+
+        // animation d'explosion de la bombe
+        // retourne 1 si animation en cours
+        public int AnimationExplosion()
+        {
+            if (HP_bombe > 0)
+                return 0;
+
+            timer++;
+
+            if (timer == 1)
+            {
+                Mix_HaltMusic();
+                Son.JouerEffet(ListeAudioEffets.EXPLOSION_JOUEUR);
+
+                // assure que le joueur est incapable de mourrir durant l'animation d'explosion
+                Program.projectiles.Clear();
+                if (Program.player.HP <= 0)
+                    Program.player.HP = 1;
+            }
+            else if (timer < 200)
+            {
+                // fade vers blanc
+                byte opacite = (byte)Math.Clamp(timer * 4, byte.MinValue, byte.MaxValue);
+
+                SDL_SetRenderDrawColor(Program.render, 255, 255, 255, opacite);
+                SDL_RenderFillRect(Program.render, IntPtr.Zero);
+            }
+            else
+            {
+                timer = 0;
+                Program.Gamemode = Gamemode.CUTSCENE_GOOD_END;
+                HP_bombe = BOMBE_PULSAR_MAX_HP;
+            }
+
+            return 1;
+        }
+
+        public void VerifCollision()
         {
             // ce code roule seulement si niveau 20 et monologue fini
             if (Program.enemies[0].statut != StatusEnnemi.BOSS_NORMAL)
                 return;
 
-            if (HP_bombe <= 0)
-            {
-                if (lTimer == 0)
-                {
-                    Mix_HaltMusic();
-                    Son.JouerEffet(ListeAudioEffets.EXPLOSION_JOUEUR);
-                    if (Program.player.HP <= 0)
-                        Program.player.HP = 1;
-                }
-                else if (lTimer < 200)
-                {
-                    int opacite = lTimer * 4;
-
-                    if (opacite > byte.MaxValue)
-                        opacite = byte.MaxValue;
-
-                    SDL_SetRenderDrawColor(Program.render, 255, 255, 255, (byte)opacite);
-                    SDL_RenderFillRect(Program.render, IntPtr.Zero);
-                    Program.projectiles.Clear();
-                }
-                else
-                {
-                    lTimer = 0;
-                    Program.gTimer = 0;
-                    Program.gamemode = Gamemode.CUTSCENE_GOOD_END;
-                    return;
-                }
-
-                lTimer++;
-
-                return;
-            }
-
             for (int i = 0; i < Program.projectiles.Count; i++)
             {
-                if (Program.projectiles[i].position.z != Data.G_DEPTH_LAYERS - 1)
+                if (Program.projectiles[i].position.z < Data.G_MAX_DEPTH - 1)
                     continue;
 
                 float[] positions = Program.projectiles[i].PositionsSurEcran();
                 if (Background.Distance(positions[2], positions[3], Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR / 2) < 20)
                 {
                     HP_bombe--;
-                    new Explosion(new Vector3(positions[2], positions[3], Data.G_DEPTH_LAYERS / 4));
+                    new Explosion(new Vector3(positions[2], positions[3], Data.G_MAX_DEPTH / 4));
+                    // TODO: séparer code render de code logique
+                    // rend la bombe rouge pour 1 image quand elle est frappée
                     DessinerBombePulsar(
                         new Vector2(Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR / 2),
                         20,
@@ -205,6 +228,14 @@ namespace Dysgenesis
                     );
                 }
             }
+        }
+
+        public override bool Exist()
+        {
+            if (AnimationExplosion() != 0)
+                VerifCollision();
+
+            return false;
         }
     }
     public static class Etoiles
@@ -679,7 +710,7 @@ namespace Dysgenesis
 
             if (Program.gTimer > 225)
             {
-                Program.gamemode = Gamemode.TITLESCREEN;
+                Program.Gamemode = Gamemode.TITLESCREEN;
                 Son.JouerMusique(ListeAudioMusique.DYSGENESIS, true);
             }
         }
@@ -822,7 +853,7 @@ namespace Dysgenesis
                         try_x = (short)Program.RNG.Next(160, 1760);
                         try_y = (short)Program.RNG.Next(240, 640);
                     }
-                    new Explosion(new Vector3(try_x, try_y, (byte)Program.RNG.Next(Data.G_DEPTH_LAYERS / 8, Data.G_DEPTH_LAYERS / 4)));
+                    new Explosion(new Vector3(try_x, try_y, (byte)Program.RNG.Next(Data.G_MAX_DEPTH / 8, Data.G_MAX_DEPTH / 4)));
                 }
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
@@ -1039,7 +1070,7 @@ namespace Dysgenesis
                                     "d'espace de l'ennemi, et de s'assurer qu'elle est neutralisée, ou sous \n" +
                                     "notre controle.\"", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 1260));
 
-                BombePulsar.DessinerBombePulsar(new Vector2(960, 330), 180, BombePulsar.COULEUR_BOMBE, false);
+                BombePulsar.DessinerBombePulsar(new Vector2(960, 330), 180, false);
 
                 if (Program.gTimer == 1261)
                 {
@@ -1219,9 +1250,9 @@ namespace Dysgenesis
             if (Program.gTimer > 2100)
             {
                 Program.player.Init();
-                Program.gamemode = Gamemode.GAMEPLAY;
-                Program.level = 0;
-                Program.ens_needed = (byte)Level_Data.lvl_list[Program.level].Length;
+                Program.Gamemode = Gamemode.GAMEPLAY;
+                Program.niveau = 0;
+                Program.ens_needed = (byte)Level_Data.lvl_list[Program.niveau].Length;
                 Program.ens_killed = 0;
                 Program.explosions.Clear();
             }
@@ -1293,7 +1324,7 @@ namespace Dysgenesis
 
                 #region bombe pulsar
                 BombePulsar.DessinerBombePulsar(new Vector2(1522 + Program.RNG.Next(-5, 5), 264 + Program.RNG.Next(-5, 5)),
-                    133, BombePulsar.COULEUR_BOMBE, false);
+                    133, false);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
                 SDL_RenderDrawLine(Program.render, 1463, 144, 1445, 97);
@@ -1457,7 +1488,7 @@ namespace Dysgenesis
                 if (Program.gTimer < 480)
                 {
                     if (Program.gTimer % Program.RNG.Next(8, 12) == 0)
-                        new Explosion(new Vector3(Program.RNG.Next(500, 1400), Program.RNG.Next(100, 550), Data.G_DEPTH_LAYERS / 2));
+                        new Explosion(new Vector3(Program.RNG.Next(500, 1400), Program.RNG.Next(100, 550), Data.G_MAX_DEPTH / 2));
                 }
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
@@ -2084,8 +2115,7 @@ namespace Dysgenesis
 
             if (Program.gTimer > 2400)
             {
-                Program.gamemode = Gamemode.CREDITS;
-                Program.gTimer = 0;
+                Program.Gamemode = Gamemode.CREDITS;
                 Program.player.Init();
                 //Program.gFade = 0;
                 Program.enemies.Clear();
@@ -2162,7 +2192,7 @@ namespace Dysgenesis
                 #endregion
 
                 #region pulsar bomb
-                BombePulsar.DessinerBombePulsar(new Vector2(1522, 264), 133, BombePulsar.COULEUR_BOMBE, true);
+                BombePulsar.DessinerBombePulsar(new Vector2(1522, 264), 133, true);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
                 SDL_RenderDrawLine(Program.render, 1463, 144, 1445, 97);
@@ -2215,7 +2245,7 @@ namespace Dysgenesis
 
                 #region pulsar bomb
                 if (Program.gTimer < 300)
-                    BombePulsar.DessinerBombePulsar(new Vector2(956, 336), 224, BombePulsar.COULEUR_BOMBE, false);
+                    BombePulsar.DessinerBombePulsar(new Vector2(956, 336), 224, false);
                 else if (Program.gTimer >= 300 && Program.gTimer < 330)
                 {
                     SDL_SetRenderDrawColor(Program.render, 200, 255, 255, 255);
@@ -2939,8 +2969,7 @@ namespace Dysgenesis
 
             if (Program.gTimer > 1860)
             {
-                Program.gamemode = Gamemode.CREDITS;
-                Program.gTimer = 0;
+                Program.Gamemode = Gamemode.CREDITS;
                 Program.player.Init();
                 Program.enemies.Clear();
                 Program.explosions.Clear();
@@ -3219,7 +3248,7 @@ namespace Dysgenesis
                             new Vector3(
                                 Program.player.position.x + 10 + i % 2 * 2 * -10,
                                 Program.player.position.y - 200,
-                                Data.G_DEPTH_LAYERS
+                                Data.G_MAX_DEPTH
                             ),
                             ProprietaireProjectile.JOUEUR,
                             (byte)(i % 2)
@@ -3326,35 +3355,43 @@ namespace Dysgenesis
 
             if (Program.gTimer > 2600)
             {
-                Program.gamemode = Gamemode.TITLESCREEN;
+                Program.Gamemode = Gamemode.TITLESCREEN;
                 Son.JouerMusique(ListeAudioMusique.DYSGENESIS, true);
                 Program.player.Init();
                 Program.player.afficher = true;
                 gFade = 0;
-                BombePulsar.HP_bombe = Data.BP_MAX_HP;
+                Program.bombe.HP_bombe = BombePulsar.BOMBE_PULSAR_MAX_HP;
             }
         }
     }
-    public class Curseur
+
+    // classe qui s'occupe du curseur sur le menu principal
+    // TODO: rendre plus général
+    public class Curseur : Sprite
     {
-        const int CURSEUR_DAS = 15;
+        const int CURSEUR_DAS = Data.G_FPS / 4;
         const int CURSEUR_X_INIT = 810;
         const int CURSEUR_Y_INIT = 625;
         const int CURSEUR_ESPACE = 50;
-        readonly sbyte[] curseur_data =
+        readonly Vector3[] curseur_data =
         {
-            -15, -15, 15, 0,
-            15, 0, -15, 15,
-            -15, 15, -12, 0,
-            -12, 0, -15, -15
-        };
+            new(-15, -15, 0),
+            new(15, 0, 0),
+            new(-15, 15, 0),
+            new(-12, 0, 0),
+            new(-15, -15, 0)
+        }; // modèle du curseur
 
-        public int selection = -1;
         public int curseur_max_selection = 0;
-        int timer = 0;
+        public int selection = -1;
         byte curseur_option_selectionnee = 0;
 
-        public int Selection()
+        public Curseur()
+        {
+            modele = curseur_data;
+        }
+
+        public override bool Exist()
         {
             if (timer > CURSEUR_DAS)
             {
@@ -3362,7 +3399,7 @@ namespace Dysgenesis
                 {
                     timer = 0;
                     selection = curseur_option_selectionnee;
-                    return selection;
+                    return true;
                 }
 
                 if (Program.TouchePesee(Touches.W) && curseur_option_selectionnee > 0)
@@ -3384,51 +3421,73 @@ namespace Dysgenesis
                 }
             }
 
-            SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-            for (int i = 0; i < curseur_data.Length; i += 4)
-            {
-                SDL_RenderDrawLine(Program.render,
-                    CURSEUR_X_INIT + curseur_data[i],
-                    CURSEUR_Y_INIT + curseur_data[i + 1] + CURSEUR_ESPACE * curseur_option_selectionnee,
-                    CURSEUR_X_INIT + curseur_data[i + 2],
-                    CURSEUR_Y_INIT + curseur_data[i + 3] + CURSEUR_ESPACE * curseur_option_selectionnee
-                );
-            }
-
             timer++;
             selection = -1;
-            return selection;
+            return false;
+        }
+
+        public override void RenderObject()
+        {
+            SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
+            for (int i = 0; i < curseur_data.Length - 1; i ++)
+            {
+                SDL_RenderDrawLineF(Program.render,
+                    CURSEUR_X_INIT + curseur_data[i].x,
+                    CURSEUR_Y_INIT + curseur_data[i].y + CURSEUR_ESPACE * curseur_option_selectionnee,
+                    CURSEUR_X_INIT + curseur_data[i + 1].x,
+                    CURSEUR_Y_INIT + curseur_data[i + 1].y + CURSEUR_ESPACE * curseur_option_selectionnee
+                );
+            }
         }
     }
+
+    // Classe pour les explosions
     public class Explosion : Sprite
     {
-        const int DENSITE_EXPLOSION = 50;
+        const int DENSITE_EXPLOSION = 50; // nb de lignes dessiné par l'explosion
+
+        // la position Z est utilisée pour déterminer la taille de l'explosion
         public Explosion(Vector3 position)
         {
             this.position = position;
-            this.position.z = Data.G_DEPTH_LAYERS - position.z;
 
+            // évite une division par zéro dans le code rendering
+            Math.Clamp(this.position.z, 0f, Data.G_MAX_DEPTH - 1);
+
+            // les explosions utilisés dans les scènes ne doivent pas faire de bruit
             if (Program.GamemodeAction())
                 Son.JouerEffet(ListeAudioEffets.EXPLOSION_ENNEMI);
 
             Program.explosions.Add(this);
         }
+
+        // Continue la vie de l'objet explosion
+        // retourne vrai si l'explosion est terminée, et n'existe plus
         public override bool Exist()
         {
-            if (position.z < 0)
+            if (timer <= 0)
             {
                 Program.explosions.Remove(this);
                 return true;
             }
 
-            byte rayon = (byte)(100.0f / (Data.G_DEPTH_LAYERS - position.z + 1) + 5);
+            timer--;
+            return false;
+        }
 
-            for (int j = 0; j < DENSITE_EXPLOSION; j++)
+        // dessine l'explosion à l'écran
+        public override void RenderObject()
+        {
+            // division par zéro évitée dans le constructeur
+            byte rayon = (byte)(100.0f / (Data.G_MAX_DEPTH - position.z) + 5);
+
+            for (int i = 0; i < DENSITE_EXPLOSION; i++)
             {
                 float angle = Program.RNG.NextSingle() * PI;
                 float sin_ang = Sin(angle);
                 float cos_ang = Cos(angle);
 
+                // couleure rouge-orange-jaune au hasard
                 SDL_SetRenderDrawColor(Program.render,
                     (byte)Program.RNG.Next(128, 256),
                     (byte)Program.RNG.Next(0, 128),
@@ -3436,6 +3495,7 @@ namespace Dysgenesis
                     255
                 );
 
+                // dessine des lignes au hasard dans un cercle
                 SDL_RenderDrawLine(Program.render,
                     (int)(Program.RNG.Next(-rayon, rayon) * cos_ang + position.x),
                     (int)(Program.RNG.Next(-rayon, rayon) * sin_ang + position.y),
@@ -3443,20 +3503,14 @@ namespace Dysgenesis
                     (int)(Program.RNG.Next(-rayon, rayon) * sin_ang + position.y)
                 );
             }
-
-            position.z--;
-            return false;
         }
     }
+
+    // Classe qui s'occupe de la musique, les effets sonnores, et le volume
     public static class Son
     {
-        /*const*/
-        const int VOLUME_TEMPS_AFFICHAGE = Data.G_FPS / 2;
         const int NB_CHAINES_SFX = 20;
-        const int VOLUME_DAS = 5;
         const int ALL_CHUNKS = -1;
-        const int FIRST_FREE_CHANNEL = -1;
-
         static SDL_Rect boite_volume = new SDL_Rect()
         {
             x = Data.W_LARGEUR - 360,
@@ -3464,6 +3518,7 @@ namespace Dysgenesis
             w = Data.W_HAUTEUR - 730,
             h = 100
         }; // ne peut pas être readonly, RenderRect n'aime pas ca
+
         static readonly Dictionary<ListeAudioEffets, string> chemins_pour_effets = new()
         {
             { ListeAudioEffets.PRESENTE, @"audio\presents.wav" },
@@ -3488,102 +3543,142 @@ namespace Dysgenesis
 
         static IntPtr musique = IntPtr.Zero;
         static IntPtr[] effets_sonnores = new IntPtr[NB_CHAINES_SFX];
+
         static int timer = 0;
         static int prochain_chunk = 0;
         static byte volume = 8;
+        private static int volume_SDL = 64;
+        static bool render = false;
 
+        // initialize SDL mixer
         public static int InitSDLMixer()
         {
-            if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 2048) != 0)
+            // 44100 hz, format défaut, mono, chunk = 2kb
+            if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 1, 2048) != 0)
                 return -1;
+
             Mix_AllocateChannels(NB_CHAINES_SFX);
+
             return 0;
         }
+
+        // arrête la musique
         public static void StopMusic()
         {
             Mix_PauseMusic();
         }
+
+        // Change la musique pour une nouvelle dans la liste de musiques. Il ne peux seulement avoir
+        // une musique qui joue à la fois.
         public static int JouerMusique(ListeAudioMusique musique_a_jouer, bool boucle)
         {
             if (Program.mute_sound)
                 return 0;
 
-            int loupes = 1;
-            if (boucle)
-                loupes = -1;
+            // -1 boucles dit à SDL de jouer la musique à le plus possible
+            int loupes = boucle ? -1 : 1;
 
-            Mix_FreeMusic(musique);
             chemins_pour_musique.TryGetValue(musique_a_jouer, out string? chemin);
 
             if (chemin == null)
+                return -1;
+
+            Mix_FreeMusic(musique);
+            musique = Mix_LoadMUS(chemin);
+
+            if (musique == IntPtr.Zero)
+                return -2;
+            if (Mix_PlayMusic(musique, loupes) != 0)
                 return -3;
 
-            musique = Mix_LoadMUS(chemin);
-            if (musique == IntPtr.Zero) return -1;
-
-            Mix_VolumeMusic(volume * 8);
-            if (Mix_PlayMusic(musique, loupes) != 0) return -2;
+            Mix_VolumeMusic(volume_SDL);
 
             return 0;
         }
+
+        // Joue un effet sonnore de la liste d'effets sonnores dans le prochain "chunk" de la boucle
         public static int JouerEffet(ListeAudioEffets effet_a_jouer)
         {
             if (Program.mute_sound)
                 return 0;
 
-            Mix_FreeChunk(effets_sonnores[prochain_chunk]);
             chemins_pour_effets.TryGetValue(effet_a_jouer, out string? chemin);
 
+            // si objet effet_a_jouer n'a pas de chemin corrrespondant
             if (chemin == null)
                 return -1;
 
+            Mix_FreeChunk(effets_sonnores[prochain_chunk]);
             effets_sonnores[prochain_chunk] = Mix_LoadWAV(chemin);
-            if (effets_sonnores[prochain_chunk] == IntPtr.Zero) return -2;
-            Mix_Volume(ALL_CHUNKS, volume * 8);
-            if (Mix_PlayChannel(prochain_chunk + 1, effets_sonnores[prochain_chunk], 0) < 0) return -3;
 
+            // si chemin ou fichier invalide
+            if (effets_sonnores[prochain_chunk] == IntPtr.Zero)
+                return -2;
+
+            if (Mix_PlayChannel(prochain_chunk + 1, effets_sonnores[prochain_chunk], 0) < 0)
+                return -3;
+
+            Mix_Volume(ALL_CHUNKS, volume_SDL);
+
+            // cycle à travers la liste de "chunks" donnés. Ceci est la meilleure façon d'avoir ce
+            // système sans trous de mémoire
             prochain_chunk++;
             prochain_chunk %= NB_CHAINES_SFX;
 
             return 0;
         }
 
+        // vérifie les touches du joueur pour changer le volume, et puis indique si il faut afficher
+        // la boite de volume
         public static void ChangerVolume()
         {
+            const int MAX_VOLUME_GUI = 16;
+            const int VOLUME_TEMPS_AFFICHAGE = Data.G_FPS / 2; // nb d'images que la boite reste après que les touches soient lâchés
+            const int VOLUME_DAS = Data.G_FPS / 12; // nb d'images entre les incréments/décrements du volume
+
             if (Program.TouchePesee(Touches.PLUS) || Program.TouchePesee(Touches.MINUS))
             {
                 if (timer < VOLUME_TEMPS_AFFICHAGE - VOLUME_DAS)
                 {
                     timer = VOLUME_TEMPS_AFFICHAGE;
 
-                    if (Program.TouchePesee(Touches.PLUS) && volume < 16)
+                    if (Program.TouchePesee(Touches.PLUS) && volume < MAX_VOLUME_GUI)
                         volume++;
-                    else if (Program.TouchePesee(Touches.MINUS) && volume > 0)
+                    if (Program.TouchePesee(Touches.MINUS) && volume > 0)
                         volume--;
 
                     if (musique == IntPtr.Zero)
                         return;
 
-                    // le jeu utilise 0 à 16, SDL utilise 0 à 128
-                    int nouveau_volume = volume * 8;
-                    Mix_VolumeMusic(nouveau_volume);
-                    Mix_Volume(ALL_CHUNKS, volume);
+                    // le jeu utilise 0 à MAX_VOLUME_GUI, SDL utilise 0 à 128
+                    volume_SDL = (int)(MIX_MAX_VOLUME * (volume / (float)MAX_VOLUME_GUI));
+                    Mix_VolumeMusic(volume_SDL);
+                    Mix_Volume(ALL_CHUNKS, volume_SDL);
                 }
             }
 
+            render = false;
             if (timer > 0)
             {
                 timer--;
-
-                SDL_SetRenderDrawColor(Program.render, 0, 0, 0, 255);
-                SDL_RenderFillRect(Program.render, ref boite_volume);
-                SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawRect(Program.render, ref boite_volume);
-
-                Text.DisplayText("volume: " + volume, new Vector2(1600, 40), 3);
+                render = true;
             }
 
             return;
+        }
+
+        // affiche la boite volume à l'écran au besoin
+        public static void RenderVolume()
+        {
+            if (!render)
+                return;
+
+            SDL_SetRenderDrawColor(Program.render, 0, 0, 0, 255);
+            SDL_RenderFillRect(Program.render, ref boite_volume);
+            SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
+            SDL_RenderDrawRect(Program.render, ref boite_volume);
+
+            Text.DisplayText("volume: " + volume, new Vector2(boite_volume.x + 40, boite_volume.y + 30), 3);
         }
     }
 }

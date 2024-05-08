@@ -7,14 +7,14 @@ namespace Dysgenesis
         public const int POSITION_TIR_NON_EXISTANTE = -1;
 
         public Vector3 position;
-        public Vector3[] modele = new Vector3[0] { };
-        public SDL_Color couleure;
+        public Vector3[] modele = Array.Empty<Vector3>();
+        public SDL_Color couleure = new SDL_Color() { r = 255, g = 255, b = 255, a = 255 };
         public float taille = 1.0f;
         public float pitch = 0.0f;
         public float roll = 0.0f;
         public int[] indexs_lignes_sauter = new int[0];
         public int[] indexs_de_tir = new int[2];
-        public int timer;
+        public int timer = 0;
         public bool afficher = true;
 
         public float[] RenderLineData(int line_index, Vector3[] modele)
@@ -22,7 +22,6 @@ namespace Dysgenesis
             if (line_index >= modele.Length)
                 return new float[4];
 
-            float[] positions_ligne = new float[4];
             float sinroll = MathF.Sin(roll);
             float cosroll = MathF.Cos(roll);
 
@@ -32,17 +31,17 @@ namespace Dysgenesis
             {
                 return new float[2]
                 {
-                    grandeure_ligne * (cosroll * -(modele[line_index].x) - sinroll * -(modele[line_index].y)) + position.x,
-                    grandeure_ligne * (sinroll * -(modele[line_index].x) + cosroll * -(modele[line_index].y)) + position.y + modele[line_index].z * pitch,
+                    grandeure_ligne * (cosroll * -modele[line_index].x - sinroll * -modele[line_index].y) + position.x,
+                    grandeure_ligne * (sinroll * -modele[line_index].x + cosroll * -modele[line_index].y) + position.y + modele[line_index].z * pitch,
                 };
             }
 
             return new float[4]
             {
-                grandeure_ligne * (cosroll * -(modele[line_index    ].x) - sinroll * -(modele[line_index    ].y)) + position.x,
-                grandeure_ligne * (sinroll * -(modele[line_index    ].x) + cosroll * -(modele[line_index    ].y)) + position.y + modele[line_index    ].z * pitch,
-                grandeure_ligne * (cosroll * -(modele[line_index + 1].x) - sinroll * -(modele[line_index + 1].y)) + position.x,
-                grandeure_ligne * (sinroll * -(modele[line_index + 1].x) + cosroll * -(modele[line_index + 1].y)) + position.y + modele[line_index + 1].z * pitch
+                grandeure_ligne * (cosroll * -modele[line_index    ].x - sinroll * -modele[line_index]    .y) + position.x,
+                grandeure_ligne * (sinroll * -modele[line_index    ].x + cosroll * -modele[line_index]    .y) + position.y + modele[line_index    ].z * pitch,
+                grandeure_ligne * (cosroll * -modele[line_index + 1].x - sinroll * -modele[line_index + 1].y) + position.x,
+                grandeure_ligne * (sinroll * -modele[line_index + 1].x + cosroll * -modele[line_index + 1].y) + position.y + modele[line_index + 1].z * pitch
             };
         }
         public float[] RenderLineData(int line_index)
@@ -78,6 +77,13 @@ namespace Dysgenesis
             RenderObject(modele);
         }
 
+        /// <summary>
+        /// Cette fonction roule la logique pour le sprite. Il n'est pas applé automatiquement,
+        /// pourque l'ordre puisse être choisit manuellement.
+        /// </summary>
+        /// <returns>
+        /// Vrai si le sprite a été détruit pendant l'éxecution du code, faux sinon.
+        /// </returns>
         public abstract bool Exist();
     }
 }

@@ -103,7 +103,7 @@ namespace Dysgenesis
                     new Vector3(
                         position.x + DECAL_HORIZONTAL_TIR + i % 2 * 2 * -DECAL_HORIZONTAL_TIR,
                         position.y + DECAL_VERTICAL_TIR,
-                        Data.G_DEPTH_LAYERS
+                        Data.G_MAX_DEPTH
                     ),
                     ProprietaireProjectile.JOUEUR,
                     (byte)(i % 2)
@@ -156,8 +156,8 @@ namespace Dysgenesis
                 Son.StopMusic();
                 if (Program.curseur.curseur_max_selection < 2)
                     Program.curseur.curseur_max_selection = 2;
-                if (Program.gamemode == Gamemode.GAMEPLAY)
-                    Program.nv_continue = Program.level;
+                if (Program.Gamemode == Gamemode.GAMEPLAY)
+                    Program.nv_continue = Program.niveau;
 
                 return;
             }
@@ -193,8 +193,8 @@ namespace Dysgenesis
                     Text.DisplayText("game over",
                         new Vector2(Text.CENTRE, Text.CENTRE), 5, Text.BLANC, (short)(timer - 120), Text.NO_SCROLL);
 
-                    if (Program.gamemode == Gamemode.ARCADE)
-                        Text.DisplayText("score: " + Program.level,
+                    if (Program.Gamemode == Gamemode.ARCADE)
+                        Text.DisplayText("score: " + Program.niveau,
                             new Vector2(Text.CENTRE, Data.W_SEMI_HAUTEUR + 30), 2, Text.BLANC, (short)(timer - 120), Text.NO_SCROLL);
                 }
 
@@ -205,7 +205,7 @@ namespace Dysgenesis
                     Son.JouerMusique(ListeAudioMusique.DYSGENESIS, true);
                     Program.bouger_etoiles = true;
                     Program.enemies.Clear();
-                    Program.gamemode = Gamemode.TITLESCREEN;
+                    Program.Gamemode = Gamemode.TITLESCREEN;
                 }
 
                 timer++;

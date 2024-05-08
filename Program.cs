@@ -2,6 +2,7 @@
  Dysgenesis par Malcolm Gauthier
  Beta v0.2
  */
+using SDL2;
 using static SDL2.SDL;
 using static SDL2.SDL_mixer;
 
@@ -69,14 +70,24 @@ namespace Dysgenesis
 
         public static Player player = new();
         public static Curseur curseur = new();
+        public static BombePulsar bombe = new();
         public static List<Ennemi> enemies = new(30);
         public static List<Item> items = new(10);
         public static List<Projectile> projectiles = new(50);
         public static List<Explosion> explosions = new(10);
         public static Random RNG = new();
 
-        public static Gamemode gamemode = Gamemode.CUTSCENE_INTRO;
-        public static int level;
+        public static Gamemode Gamemode
+        {
+            get => _gamemode;
+            set
+            {
+                gTimer = 0;
+                _gamemode = value;
+            }
+        }
+        static Gamemode _gamemode = Gamemode.CUTSCENE_INTRO;
+        public static int niveau;
         public static int nv_continue = 1;
         public static int gTimer = 0;
         public static int ens_killed = 0;
@@ -94,7 +105,7 @@ namespace Dysgenesis
         // DEBUG VARS
         static byte debug_count = 0, debug_count_display = 0;
         static long debug_time = DateTime.Now.Ticks;
-        public static bool mute_sound = false, free_items = false, cutscene_skip = false,
+        public static bool mute_sound = false, free_items = false, cutscene_skip = true,
                            show_fps = true, monologue_skip = false, lvl_select = false,
                            fps_unlock = false, crashtest = false, fullscreen = true;
         static void Main()
@@ -107,17 +118,29 @@ namespace Dysgenesis
                 CrashReport(new Exception("crash test. disable crashtest debug flag to play the game."));
             }
 
+            // main loop:
+            // étape 1: mettre à jour les valeures pour quelles touches sont pesées
+            // étape 2: éxecuter la logique pour faire avancer le jeu
+            // étape 3: dessiner à l'objet render tout les objets actifs
+            // étape 4: afficher l'objet render à l'écran
+            // étape 5: attendre pour le reste du 60e de seconde au besoin
+            // étape 7: incrémenter le global timer
             while (!exit)
             {
                 Controlls();
                 Code();
                 Render();
+                SDLRender();
+
                 if (!fps_unlock)
                     while (frame_time > DateTime.Now.Ticks - temps_entre_60_images_todo_enlever / Data.G_FPS) ;
                 frame_time = DateTime.Now.Ticks;
+
                 gTimer++;
 
-                if (GamemodeAction() || gamemode == Gamemode.TITLESCREEN) //todo: wtf
+                // bug: si le jeu ne roule pas assez vite sur un ordinateur pour faire 60fps,
+                // les scènes sont désynchronisées de la musique
+                if (GamemodeAction() || Gamemode == Gamemode.TITLESCREEN) //todo: wtf
                     temps_entre_60_images_todo_enlever = TimeSpan.TicksPerSecond;
                 else
                     temps_entre_60_images_todo_enlever = TimeSpan.TicksPerSecond * 2;
@@ -127,6 +150,8 @@ namespace Dysgenesis
             SDL_DestroyRenderer(render);
             SDL_Quit();
         }
+
+        // initializer SDL et tout les objets
         static int Init()
         {
             if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
@@ -150,9 +175,11 @@ namespace Dysgenesis
                 return 3;
 
             SaveLoad.Load();
-            SDL_ShowCursor(0);
+            SDL_ShowCursor((int)SDL_bool.SDL_FALSE);
             return 0;
         }
+
+        // mettre à jour les valeures pour touches pesées
         static void Controlls()
         {
             while (SDL_PollEvent(out e) == 1)
@@ -278,24 +305,91 @@ namespace Dysgenesis
                 }
             }
         }
+
+        // logique du jeu
         static void Code()
         {
             if (bouger_etoiles)
                 Etoiles.Move();
 
-            if (gamemode == Gamemode.TITLESCREEN)
+            if (Gamemode == Gamemode.TITLESCREEN)
             {
-                if (TouchePesee(Touches.M))
-                    timer_generique++;
-                else
-                    timer_generique = 0;
-
-                if (timer_generique >= 120)
+                if (!arcade_unlock)
                 {
-                    gTimer = 0;
-                    Son.StopMusic();
-                    gamemode = Gamemode.CREDITS;
-                    return;
+                    if (!TouchePesee((Touches)code_arcade[arcade_steps]) && TouchePesee((Touches)code_arcade[arcade_steps + 1]))
+                    {
+                        arcade_steps++;
+                        Son.JouerEffet(ListeAudioEffets.EXPLOSION_ENNEMI);
+                        if (arcade_steps >= code_arcade.Length - 1)
+                        {
+                            arcade_unlock = true;
+                            curseur.curseur_max_selection = 3;
+                        }
+                    }
+                    else if (TouchePesee((Touches)touches_arcade - code_arcade[arcade_steps] - code_arcade[arcade_steps + 1]))
+                    {
+                        arcade_steps = 0;
+                    }
+                }
+
+                if (lvl_select && gTimer % 10 == 0)
+                {
+                    if (TouchePesee(Touches.A) && nv_continue > 1)
+                        nv_continue--;
+                    else if (TouchePesee(Touches.D) && nv_continue < 20)
+                        nv_continue++;
+                }
+
+                if (curseur.Exist())
+                    switch (curseur.selection)
+                    {
+                        case 0:
+                            Son.StopMusic();
+                            niveau = 0;
+                            player.Init();
+                            
+                            Gamemode = Gamemode.CUTSCENE_START;
+                            break;
+
+                        case 1:
+                            Son.StopMusic();
+                            niveau = (byte)(nv_continue - 1);
+                            ens_killed = Level_Data.lvl_list[niveau].Length;
+                            ens_needed = 0;
+                            player.Init();
+                            player.HP = 50;
+                            player.shockwaves = 0;
+                            player.afficher = true;
+                            Gamemode = Gamemode.GAMEPLAY;
+                            break;
+
+                        case 2:
+                            niveau = 0;
+                            player.Init();
+                            player.afficher = true;
+                            Son.JouerMusique(ListeAudioMusique.DCQBPM, true);
+                            Gamemode = Gamemode.ARCADE;
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                // la scène du générique peut être activée en appuyant sur M pendant 2 secondes au menu
+                if (TouchePesee(Touches.M))
+                {
+                    timer_generique++;
+
+                    if (timer_generique >= 120)
+                    {
+                        Son.StopMusic();
+                        Gamemode = Gamemode.CREDITS;
+                        return;
+                    }
+                }
+                else
+                {
+                    timer_generique = 0;
                 }
             }
 
@@ -304,48 +398,53 @@ namespace Dysgenesis
 
             player.Exist();
 
-            for (int i = 0; i < projectiles.Count; i++)
-            {
-                if (projectiles[i].Exist())
-                    i--;
-            }
+            if (TouchePesee(Touches.K))
+                Shockwave.Spawn();
 
-            if (gTimer % (400 / (level + 1)) == (399 / (level + 1)) - 1 &&
-                ens_needed > 0 &&
-                !player.Mort())
+            // évite div/0, mais ne devrait jamais être frappé
+            if (niveau == -1)
+                niveau = 0;
+
+            // les ennemis apparaîssent plus vite dépandant du niveau
+            int timer_enemy_spawn = 400 / (niveau + 1);
+            if (gTimer % timer_enemy_spawn == timer_enemy_spawn - 1 &&
+                ens_needed > 0 && !player.Mort())
             {
                 int verif = enemies.Count;
 
-                if (gamemode == Gamemode.GAMEPLAY)
-                    new Ennemi(Level_Data.lvl_list[level][ens_needed - 1], StatusEnnemi.INITIALIZATION);
+                if (Gamemode == Gamemode.GAMEPLAY)
+                    new Ennemi(Level_Data.lvl_list[niveau][ens_needed - 1], StatusEnnemi.INITIALIZATION);
                 else
                     new Ennemi(Level_Data.arcade_ens[ens_needed - 1], StatusEnnemi.INITIALIZATION);
 
+                // vérifie si un ennemi a bien été créé avent de décrementer le nb d'ennemis à créér
                 if (enemies.Count > verif)
                     ens_needed--;
             }
 
+            // vérifie si niveau complété
             if (enemies.Count == 0)
             {
-                if ((gamemode == Gamemode.GAMEPLAY && ens_killed >= Level_Data.lvl_list[level].Length) ||
-                    (gamemode == Gamemode.ARCADE && ens_killed >= Level_Data.arcade_ens.Length))
+                if ((Gamemode == Gamemode.GAMEPLAY && ens_killed >= Level_Data.lvl_list[niveau].Length) ||
+                    (Gamemode == Gamemode.ARCADE && ens_killed >= Level_Data.arcade_ens.Length))
                 {
                     Level_Data.ChangerNiveau();
                 }
             }
 
-            for (int i = 0; i < enemies.Count; i++)
-            {
-                if (enemies[i].Exist())
-                    i--;
-            }
+            ExecuterLogique(projectiles.Cast<Sprite>().ToList());
+            ExecuterLogique(enemies.Cast<Sprite>().ToList());
+            ExecuterLogique(items.Cast<Sprite>().ToList());
+            ExecuterLogique(explosions.Cast<Sprite>().ToList());
 
-            for (int i = 0; i < items.Count; i++)
-            {
-                if (items[i].Exist())
-                    i--;
-            }
+            if (player.HP > Player.JOUEUR_MAX_HP)
+                player.HP = Player.JOUEUR_MAX_HP;
+
+            if (player.shockwaves > Player.JOUEUR_MAX_VAGUES)
+                player.shockwaves = Player.JOUEUR_MAX_VAGUES;
         }
+
+        // dessiner tout à l'objet render
         static void Render()
         {
             if (GamemodeAction())
@@ -357,10 +456,9 @@ namespace Dysgenesis
                     BombePulsar.DessinerBombePulsar(
                         new Vector2(Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR / 2),
                         (byte)(25 - enemies[0].position.z / 4),
-                        BombePulsar.COULEUR_BOMBE,
                         true
                     );
-                    BombePulsar.VerifCollision();
+                    bombe.Exist();//todo: bouger à code
                 }
 
                 foreach (Ennemi e in enemies)
@@ -374,25 +472,10 @@ namespace Dysgenesis
 
                 player.RenderObject();
 
-                if (BombePulsar.HP_bombe <= 0)//todo: enlver goto, peux pas faire return car ça ne render pas
-                    goto render;
-
-                if (TouchePesee(Touches.K))
-                    Shockwave.Spawn();
+                if (bombe.HP_bombe <= 0)
+                    return;
 
                 Shockwave.Display();
-
-                for (int i = 0; i < explosions.Count; i++)
-                {
-                    if (explosions[i].Exist())
-                        i--;
-                }
-
-                if (player.HP > Player.JOUEUR_MAX_HP)
-                    player.HP = Player.JOUEUR_MAX_HP;
-
-                if (player.shockwaves > Player.JOUEUR_MAX_VAGUES)
-                    player.shockwaves = Player.JOUEUR_MAX_VAGUES;
 
                 SDL_Rect barre_hud = BARRE_HP;
                 for (int i = 0; i < player.HP; i++)
@@ -444,7 +527,8 @@ namespace Dysgenesis
                     }
                 }
 
-                if (gamemode == Gamemode.GAMEPLAY && level < 2)
+                // est affiché pour niveau 0 et 1
+                if (Gamemode == Gamemode.GAMEPLAY && niveau < 2)
                 {
                     Text.DisplayText(
                         "controles:\n" +
@@ -456,26 +540,8 @@ namespace Dysgenesis
                     );
                 }
             }
-            else if (gamemode == Gamemode.TITLESCREEN)
+            else if (Gamemode == Gamemode.TITLESCREEN)
             {
-                if (!arcade_unlock)
-                {
-                    if (!TouchePesee((Touches)code_arcade[arcade_steps]) && TouchePesee((Touches)code_arcade[arcade_steps + 1]))
-                    {
-                        arcade_steps++;
-                        Son.JouerEffet(ListeAudioEffets.EXPLOSION_ENNEMI);
-                        if (arcade_steps >= code_arcade.Length - 1)
-                        {
-                            arcade_unlock = true;
-                            curseur.curseur_max_selection = 3;
-                        }
-                    }
-                    else if (TouchePesee((Touches)touches_arcade - code_arcade[arcade_steps] - code_arcade[arcade_steps + 1]))
-                    {
-                        arcade_steps = 0;
-                    }
-                }
-
                 Etoiles.Render(Data.S_DENSITY);
 
                 Text.DisplayText("dysgenesis",
@@ -496,51 +562,11 @@ namespace Dysgenesis
                     Text.DisplayText("arcade",
                     new Vector2(Data.W_SEMI_LARGEUR - 114, Data.W_SEMI_HAUTEUR + 175), 2);
 
-                if (lvl_select && gTimer % 10 == 0)
-                {
-                    if (TouchePesee(Touches.A) && nv_continue > 1)
-                        nv_continue--;
-                    else if (TouchePesee(Touches.D) && nv_continue < 20)
-                        nv_continue++;
-                }
-
-                switch (curseur.Selection())
-                {
-                    case 0:
-                        Son.StopMusic();
-                        level = 0;
-                        player.Init();
-                        gTimer = 0;
-                        gamemode = Gamemode.CUTSCENE_START;
-                        break;
-
-                    case 1:
-                        Son.StopMusic();
-                        level = (byte)(nv_continue - 1);
-                        ens_killed = Level_Data.lvl_list[level].Length;
-                        ens_needed = 0;
-                        player.Init();
-                        player.HP = 50;
-                        player.shockwaves = 0;
-                        player.afficher = true;
-                        gamemode = Gamemode.GAMEPLAY;
-                        break;
-
-                    case 2:
-                        level = 0;
-                        player.Init();
-                        player.afficher = true;
-                        Son.JouerMusique(ListeAudioMusique.DCQBPM, true);
-                        gamemode = Gamemode.ARCADE;
-                        break;
-
-                    default:
-                        break;
-                }
+                curseur.RenderObject();
             }
             else
             {
-                switch (gamemode)
+                switch (Gamemode)
                 {
                     case Gamemode.CUTSCENE_INTRO:
                         Cutscene.Cut_0();
@@ -558,10 +584,10 @@ namespace Dysgenesis
                         Cutscene.Cut_4();
                         break;
                 }
-            }
-
-        render:
-
+            }            
+        }
+        public static void SDLRender()
+        {
             if (show_fps)
             {
                 if (debug_time < DateTime.Now.Ticks - TimeSpan.TicksPerSecond) // fps
@@ -576,7 +602,6 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
                 Text.DisplayText(debug_count_display.ToString(), new Vector2(1828, 52), 3);
             }
-            //Text.DisplayText(gTimer + "", short.MinValue, 40, 2); // afficher gTimer à l'écran
 
             Son.ChangerVolume();
 
@@ -584,20 +609,31 @@ namespace Dysgenesis
             SDL_RenderPresent(render);
             SDL_RenderClear(render);
         }
+
         public static bool GamemodeAction()
         {
-            return gamemode == Gamemode.GAMEPLAY || gamemode == Gamemode.ARCADE;
+            return Gamemode == Gamemode.GAMEPLAY || Gamemode == Gamemode.ARCADE;
         }
         public static bool TouchePesee(Touches touche)
         {
             return (touches_peses & (int)touche) != 0;
         }
-        public static bool VerifBoss()
+        static bool VerifBoss()
         {
             if (enemies.Count != 1)
                 return false;
 
             return enemies[0].type == TypeEnnemi.BOSS;
+        }
+
+        // éxecute .Exist dans une liste de sprites, en tenant compte de ceux qui se font enlever
+        static void ExecuterLogique(List<Sprite> sprites)
+        {
+            for (int i = 0; i < sprites.Count; i++)
+            {
+                if (sprites[i].Exist())
+                    i--;
+            }
         }
 
         // écran à montrer si le jeu plante. ce code-ci ne devrait jamais donner d'erreure.
