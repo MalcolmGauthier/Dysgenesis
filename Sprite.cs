@@ -19,7 +19,7 @@ namespace Dysgenesis
 
         public float[] RenderLineData(int line_index, Vector3[] modele)
         {
-            if (line_index >= modele.Length)
+            if (line_index >= modele.Length || line_index < 0)
                 return new float[4];
 
             float sinroll = MathF.Sin(roll);
@@ -77,13 +77,9 @@ namespace Dysgenesis
             RenderObject(modele);
         }
 
-        /// <summary>
-        /// Cette fonction roule la logique pour le sprite. Il n'est pas applé automatiquement,
-        /// pourque l'ordre puisse être choisit manuellement.
-        /// </summary>
-        /// <returns>
-        /// Vrai si le sprite a été détruit pendant l'éxecution du code, faux sinon.
-        /// </returns>
+        // Cette fonction roule la logique pour le sprite. Il n'est pas applé automatiquement,
+        // pourque l'ordre puisse être choisit manuellement.
+        // Normalement, il retourne vrai si le sprite a été détruit pendant l'éxecution du code, faux sinon.
         public abstract bool Exist();
     }
 }

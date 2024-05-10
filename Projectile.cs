@@ -245,7 +245,8 @@ namespace Dysgenesis
         static bool shown = false;
         static uint cooldown;
 
-        public static void Spawn()
+        // affiche une nouvelle vague electrique si possible
+        public static void AttemptSpawn()
         {
             if (shown || Program.player.Mort() || Program.player.shockwaves < 1.0f)
                 return;

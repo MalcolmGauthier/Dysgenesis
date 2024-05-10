@@ -106,7 +106,7 @@ namespace Dysgenesis
         static byte debug_count = 0, debug_count_display = 0;
         static long debug_time = DateTime.Now.Ticks;
         public static bool mute_sound = false, free_items = false, cutscene_skip = true,
-                           show_fps = true, monologue_skip = false, lvl_select = false,
+                           show_fps = false, monologue_skip = false, lvl_select = false,
                            fps_unlock = false, crashtest = false, fullscreen = true;
         static void Main()
         {
@@ -174,7 +174,7 @@ namespace Dysgenesis
             if (Son.InitSDLMixer() != 0)
                 return 3;
 
-            SaveLoad.Load();
+            //SaveLoad.Load();
             SDL_ShowCursor((int)SDL_bool.SDL_FALSE);
             return 0;
         }
@@ -316,6 +316,7 @@ namespace Dysgenesis
             {
                 if (!arcade_unlock)
                 {
+                    // vérifie si la prochaine touche requise pour débloquer arcade est pesée, et pas la dernière
                     if (!TouchePesee((Touches)code_arcade[arcade_steps]) && TouchePesee((Touches)code_arcade[arcade_steps + 1]))
                     {
                         arcade_steps++;
@@ -326,12 +327,14 @@ namespace Dysgenesis
                             curseur.curseur_max_selection = 3;
                         }
                     }
+                    // vérifie si une touche autre que la prochaine requise ou la dernière est pesée
                     else if (TouchePesee((Touches)touches_arcade - code_arcade[arcade_steps] - code_arcade[arcade_steps + 1]))
                     {
                         arcade_steps = 0;
                     }
                 }
 
+                // debug level select
                 if (lvl_select && gTimer % 10 == 0)
                 {
                     if (TouchePesee(Touches.A) && nv_continue > 1)
@@ -340,10 +343,12 @@ namespace Dysgenesis
                         nv_continue++;
                 }
 
+                // retourne vrai si option sélectionnée
                 if (curseur.Exist())
+                {
                     switch (curseur.selection)
                     {
-                        case 0:
+                        case Curseur.OptionsCurseur.NOUVELLE_PARTIE:
                             Son.StopMusic();
                             niveau = 0;
                             player.Init();
@@ -351,19 +356,27 @@ namespace Dysgenesis
                             Gamemode = Gamemode.CUTSCENE_START;
                             break;
 
-                        case 1:
+                        case Curseur.OptionsCurseur.CONTINUER:
                             Son.StopMusic();
-                            niveau = (byte)(nv_continue - 1);
+
+                            // on place le joueur au niveau avant celui qui l'a tué, mais on
+                            // ment au jeu en dissant que tout les ennemis sont morts pour pouvoir
+                            // rejouer l'animation qui dit le niveau
+                            niveau = nv_continue - 1;
                             ens_killed = Level_Data.lvl_list[niveau].Length;
                             ens_needed = 0;
+
                             player.Init();
+                            player.afficher = true;
+
+                            // conséquences pour avoir sélectionné l'option
                             player.HP = 50;
                             player.shockwaves = 0;
-                            player.afficher = true;
+
                             Gamemode = Gamemode.GAMEPLAY;
                             break;
 
-                        case 2:
+                        case Curseur.OptionsCurseur.ARCADE:
                             niveau = 0;
                             player.Init();
                             player.afficher = true;
@@ -374,6 +387,7 @@ namespace Dysgenesis
                         default:
                             break;
                     }
+                }
 
                 // la scène du générique peut être activée en appuyant sur M pendant 2 secondes au menu
                 if (TouchePesee(Touches.M))
@@ -393,13 +407,16 @@ namespace Dysgenesis
                 }
             }
 
+            // le reste du code est pour gamemodes GAMEPLAY et ARCADE
             if (!GamemodeAction())
                 return;
 
-            player.Exist();
+            // si joueur mort, fait rien d'autre
+            if (player.Exist())
+                return;
 
             if (TouchePesee(Touches.K))
-                Shockwave.Spawn();
+                Shockwave.AttemptSpawn();
 
             // évite div/0, mais ne devrait jamais être frappé
             if (niveau == -1)
@@ -437,14 +454,11 @@ namespace Dysgenesis
             ExecuterLogique(items.Cast<Sprite>().ToList());
             ExecuterLogique(explosions.Cast<Sprite>().ToList());
 
-            if (player.HP > Player.JOUEUR_MAX_HP)
-                player.HP = Player.JOUEUR_MAX_HP;
-
-            if (player.shockwaves > Player.JOUEUR_MAX_VAGUES)
-                player.shockwaves = Player.JOUEUR_MAX_VAGUES;
+            player.HP = Math.Clamp(player.HP, 0, Player.JOUEUR_MAX_HP);
+            player.shockwaves = Math.Clamp(player.shockwaves, 0, Player.JOUEUR_MAX_VAGUES);
         }
 
-        // dessiner tout à l'objet render
+        // dessiner tout à l'objet SDL_Renderer
         static void Render()
         {
             if (GamemodeAction())
@@ -494,23 +508,21 @@ namespace Dysgenesis
 
                 barre_hud = BARRE_VAGUE;
                 int vagues_entiers = (int)MathF.Floor(player.shockwaves);
-                float vagues_reste = player.shockwaves % 1.0f;
                 SDL_SetRenderDrawColor(render, 0, 255, 255, 255);
                 for (int i = vagues_entiers; i > 0; i--)
                 {
                     SDL_RenderFillRect(render, ref barre_hud);
                     barre_hud.x += barre_hud.w + 5;
                 }
-                for (int i = (int)((vagues_reste - (vagues_reste % 0.01f)) * 100); i > 0; i--)
-                {
-                    int posx = vagues_entiers * 105 + BARRE_VAGUE.x + i;
-                    SDL_RenderDrawLine(render, posx, 40, posx, 59);
-                }
+
+                float vagues_reste = player.shockwaves % 1.0f;
+                barre_hud.w = (int)(MathF.Round(vagues_reste, 2) * 100);
+                SDL_RenderFillRect(render, ref barre_hud);
 
                 Text.DisplayText("    hp:\nvagues:", new Vector2(10, 15), 2);
 
                 if (VerifBoss())
-                {//todo: fonction dessiner hp/barres
+                {
                     Text.DisplayText("    hp:\nennemi", new Vector2(10, 85), 2);
                     barre_hud = BARRE_HP;
                     barre_hud.y += 70;
@@ -522,6 +534,7 @@ namespace Dysgenesis
                             SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
                         else
                             SDL_SetRenderDrawColor(render, 64, 255, 64, 255);
+
                         SDL_RenderFillRect(render, ref barre_hud);
                         barre_hud.x += barre_hud.w + 1;
                     }
@@ -632,7 +645,10 @@ namespace Dysgenesis
             for (int i = 0; i < sprites.Count; i++)
             {
                 if (sprites[i].Exist())
+                {
+                    sprites.RemoveAt(i);
                     i--;
+                }
             }
         }
 

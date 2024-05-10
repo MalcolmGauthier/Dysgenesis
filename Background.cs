@@ -602,7 +602,7 @@ namespace Dysgenesis
                 return 0;
         }
         public static void DisplayText(string text, Vector2 position, float size,
-            int color = BLANC, short alpha = OPAQUE, int scroll = NO_SCROLL)
+            int color = BLANC, int alpha = OPAQUE, int scroll = NO_SCROLL)
         {
             if (scroll <= 0)
                 return;
@@ -614,16 +614,15 @@ namespace Dysgenesis
 
             short extra_y = 0;
             int return_length = 0;
-            int text_length = text.Length;
 
-            if (scroll > text_length)
-                scroll = text_length;
+            scroll = Math.Clamp(scroll, 0, text.Length);
+            if (scroll > text.Length)
+                scroll = text.Length;
 
-            if (alpha > 255)
-                alpha = 255;
+            alpha = Math.Clamp(alpha, 0, byte.MaxValue);
 
             if (position.x == CENTRE)
-                position.x = Data.W_SEMI_LARGEUR - ((LARGEUR_DEFAUT + ESPACE_DEFAUT) * size * text_length - 1) / 2;
+                position.x = Data.W_SEMI_LARGEUR - ((LARGEUR_DEFAUT + ESPACE_DEFAUT) * size * text.Length - 1) / 2;
 
             if (position.y == CENTRE)
                 position.y = Data.W_SEMI_HAUTEUR - (HAUTEUR_DEFAUT * size) / 2;
@@ -3369,10 +3368,19 @@ namespace Dysgenesis
     // TODO: rendre plus général
     public class Curseur : Sprite
     {
+        public enum OptionsCurseur
+        {
+            NOUVELLE_PARTIE,
+            CONTINUER,
+            ARCADE,
+            AUCUN,
+        }
+
         const int CURSEUR_DAS = Data.G_FPS / 4;
         const int CURSEUR_X_INIT = 810;
         const int CURSEUR_Y_INIT = 625;
         const int CURSEUR_ESPACE = 50;
+        readonly int NB_OPTIONS = Enum.GetNames(typeof(OptionsCurseur)).Length;
         readonly Vector3[] curseur_data =
         {
             new(-15, -15, 0),
@@ -3383,14 +3391,15 @@ namespace Dysgenesis
         }; // modèle du curseur
 
         public int curseur_max_selection = 0;
-        public int selection = -1;
-        byte curseur_option_selectionnee = 0;
+        public OptionsCurseur selection = OptionsCurseur.AUCUN;
+        OptionsCurseur curseur_option_selectionnee = 0;
 
         public Curseur()
         {
             modele = curseur_data;
         }
 
+        // code curseur, retourne vrai si option sélectionnée
         public override bool Exist()
         {
             if (timer > CURSEUR_DAS)
@@ -3407,7 +3416,7 @@ namespace Dysgenesis
                     timer = 0;
                     curseur_option_selectionnee--;
                 }
-                if (Program.TouchePesee(Touches.S) && curseur_option_selectionnee < curseur_max_selection - 1)
+                if (Program.TouchePesee(Touches.S) && (int)curseur_option_selectionnee < curseur_max_selection - 1)
                 {
                     timer = 0;
                     curseur_option_selectionnee++;
@@ -3422,7 +3431,7 @@ namespace Dysgenesis
             }
 
             timer++;
-            selection = -1;
+            selection = OptionsCurseur.AUCUN;
             return false;
         }
 
@@ -3433,9 +3442,9 @@ namespace Dysgenesis
             {
                 SDL_RenderDrawLineF(Program.render,
                     CURSEUR_X_INIT + curseur_data[i].x,
-                    CURSEUR_Y_INIT + curseur_data[i].y + CURSEUR_ESPACE * curseur_option_selectionnee,
+                    CURSEUR_Y_INIT + curseur_data[i].y + CURSEUR_ESPACE * (int)curseur_option_selectionnee,
                     CURSEUR_X_INIT + curseur_data[i + 1].x,
-                    CURSEUR_Y_INIT + curseur_data[i + 1].y + CURSEUR_ESPACE * curseur_option_selectionnee
+                    CURSEUR_Y_INIT + curseur_data[i + 1].y + CURSEUR_ESPACE * (int)curseur_option_selectionnee
                 );
             }
         }

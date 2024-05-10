@@ -87,10 +87,7 @@ namespace Dysgenesis
             new(-10,5,10), // -bleu
             new(-50,0,0) // rouge
         };
-        public static readonly int[] MODELE_P_SAUTS =
-        {
-            -1
-        };
+        public static readonly int[] MODELE_P_SAUTS = { -1 };
 
         public static sbyte[,] MODELE_A = new sbyte[7, 2]
         {
