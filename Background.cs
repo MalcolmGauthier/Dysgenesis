@@ -70,6 +70,18 @@ namespace Dysgenesis
         {
             return Distance(x1, y1, x2, y2, 1, 1);
         }
+
+        // convertit une valeure couleure hex en SDLColor
+        public static SDL_Color RGBAtoSDLColor(uint RGBA)
+        {
+            return new SDL_Color()
+            {
+                r = (byte)((RGBA >> 24) & 0xFF),
+                g = (byte)((RGBA >> 16) & 0xFF),
+                b = (byte)((RGBA >> 8) & 0xFF),
+                a = (byte)((RGBA >> 0) & 0xFF),
+            };
+        }
     }
 
     // classe statique qui gère la bombe pulsar, ou n'importe quoi qui à a faire avec

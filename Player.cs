@@ -4,11 +4,13 @@ using static SDL2.SDL;
 
 namespace Dysgenesis
 {
+    // classe pour le joueur
     public class Player : Sprite
     {
         public const float JOUEUR_MAX_VAGUES = 3.0f;
         public const int JOUEUR_VITESSE_TIR = 25;
         public const int JOUEUR_MAX_HP = 150;
+        public const int JOUEUR_DEFAULT_HP = 100;
         const float VAGUE_ELECTRIQUE_REGENERATION = 1.0f / (30f * Data.G_FPS); // ~1/1800, 1 par 30 secondes
         const int JOUEUR_VITESSE = 1;
         const int JOUEUR_LARGEUR = 50;
@@ -18,13 +20,14 @@ namespace Dysgenesis
         public TypeItem powerup = TypeItem.NONE;
 
         public float shockwaves = 0;
-        public int HP = 100;
+        public int HP = JOUEUR_DEFAULT_HP;
         public int fire_rate = JOUEUR_VITESSE_TIR;
         int fire_timer = 0;
 
-        public SDL_Rect HP_BAR = new SDL_Rect { x = 10, y = 15, w = 10, h = 20 };
-        public SDL_Rect SHOCK_BAR = new SDL_Rect { x = 10, y = 40, w = 100, h = 20 };
+        public readonly SDL_Rect HP_BAR = new SDL_Rect { x = 10, y = 15, w = 10, h = 20 };
+        public readonly SDL_Rect SHOCK_BAR = new SDL_Rect { x = 10, y = 40, w = 100, h = 20 };
 
+        // assigne les valeures théoriquement constantes + init
         public Player()
         {
             indexs_de_tir = new int[] { 1, 16 };
@@ -32,6 +35,8 @@ namespace Dysgenesis
             indexs_lignes_sauter = Data.MODELE_P_SAUTS;
             Init();
         }
+
+        // code logique joueur
         public override bool Exist()
         {
             if (Program.TouchePesee(Touches.R))//DEBUG
@@ -62,9 +67,9 @@ namespace Dysgenesis
         // retourne le joueur à son état de départ
         public void Init()
         {
-            HP = 100;
+            HP = JOUEUR_DEFAULT_HP;
             powerup = TypeItem.NONE;
-            shockwaves = 3;
+            shockwaves = JOUEUR_MAX_VAGUES;
             // ces deux lignes sont fait pourque le joueur commence le jeu en volant très vite du bas de l'écran, comme si il arrivait
             position = new Vector3(Data.W_SEMI_LARGEUR, Data.W_HAUTEUR, 0);
             velocity = new Vector2(0, -30);
@@ -209,7 +214,7 @@ namespace Dysgenesis
             // inutile de bouger le joueuru si il est invisible
             if (timer <= byte.MaxValue)
             {
-                couleure.a = (byte)(255 - timer);
+                couleure.a = (byte)(byte.MaxValue - timer);
                 position.x += JOUEUR_MORT_VITESSE_X;
                 position.y += JOUEUR_MORT_VITESSE_Y;
                 roll += JOUEUR_MORT_VITESSE_ROLL;
