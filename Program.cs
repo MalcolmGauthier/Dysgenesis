@@ -56,12 +56,14 @@ namespace Dysgenesis
         PLUS = 2048,
         M = 4096,
     }
+
+    // Classe Main. contient les variables importantes
     public static class Program
     {
         static readonly SDL_Rect BARRE_HP = new SDL_Rect() { x = 125, y = 15, w = 10, h = 20 };
         static readonly SDL_Rect BARRE_VAGUE = new SDL_Rect() { x = 125, y = 40, w = 100, h = 20 };
-        static readonly int[] code_arcade = { 0, (int)Touches.A, (int)Touches.R, (int)Touches.C, (int)Touches.A, (int)Touches.D, (int)Touches.E };
-        const int touches_arcade = (int)Touches.A | (int)Touches.R | (int)Touches.C | (int)Touches.A | (int)Touches.D | (int)Touches.E;
+        static readonly int[] CODE_ARCADE = { 0, (int)Touches.A, (int)Touches.R, (int)Touches.C, (int)Touches.A, (int)Touches.D, (int)Touches.E };
+        const int TOUCHES_VALIDES_ARCADE = (int)Touches.A | (int)Touches.R | (int)Touches.C | (int)Touches.A | (int)Touches.D | (int)Touches.E;
 
         static IntPtr window;
         public static IntPtr render;
@@ -87,6 +89,7 @@ namespace Dysgenesis
             }
         }
         static Gamemode _gamemode = Gamemode.CUTSCENE_INTRO;
+
         public static int niveau;
         public static int nv_continue = 1;
         public static int gTimer = 0;
@@ -100,11 +103,11 @@ namespace Dysgenesis
         static byte arcade_steps = 0;
         static int touches_peses = 0;
         static int timer_generique = 0;
-        static long temps_entre_60_images_todo_enlever = 10000000;
+        static long temps_entre_60_images_todo_enlever = TimeSpan.TicksPerSecond;
 
         // DEBUG VARS
-        static byte debug_count = 0, debug_count_display = 0;
-        static long debug_time = DateTime.Now.Ticks;
+        static byte debug_fps_count = 0, debug_fps_count_display = 0;
+        static long debug_fps_time = DateTime.Now.Ticks;
         public static bool mute_sound = false, free_items = false, cutscene_skip = true,
                            show_fps = false, monologue_skip = false, lvl_select = false,
                            fps_unlock = false, crashtest = false, fullscreen = true;
@@ -317,18 +320,18 @@ namespace Dysgenesis
                 if (!arcade_unlock)
                 {
                     // vérifie si la prochaine touche requise pour débloquer arcade est pesée, et pas la dernière
-                    if (!TouchePesee((Touches)code_arcade[arcade_steps]) && TouchePesee((Touches)code_arcade[arcade_steps + 1]))
+                    if (!TouchePesee((Touches)CODE_ARCADE[arcade_steps]) && TouchePesee((Touches)CODE_ARCADE[arcade_steps + 1]))
                     {
                         arcade_steps++;
                         Son.JouerEffet(ListeAudioEffets.EXPLOSION_ENNEMI);
-                        if (arcade_steps >= code_arcade.Length - 1)
+                        if (arcade_steps >= CODE_ARCADE.Length - 1)
                         {
                             arcade_unlock = true;
                             curseur.curseur_max_selection = 3;
                         }
                     }
                     // vérifie si une touche autre que la prochaine requise ou la dernière est pesée
-                    else if (TouchePesee((Touches)touches_arcade - code_arcade[arcade_steps] - code_arcade[arcade_steps + 1]))
+                    else if (TouchePesee((Touches)TOUCHES_VALIDES_ARCADE - CODE_ARCADE[arcade_steps] - CODE_ARCADE[arcade_steps + 1]))
                     {
                         arcade_steps = 0;
                     }
@@ -463,7 +466,7 @@ namespace Dysgenesis
         {
             if (GamemodeAction())
             {
-                Etoiles.Render(Data.S_DENSITY);
+                Etoiles.Render(Etoiles.DENSITE_ETOILES);
 
                 if (VerifBoss())
                 {
@@ -555,7 +558,7 @@ namespace Dysgenesis
             }
             else if (Gamemode == Gamemode.TITLESCREEN)
             {
-                Etoiles.Render(Data.S_DENSITY);
+                Etoiles.Render(Etoiles.DENSITE_ETOILES);
 
                 Text.DisplayText("dysgenesis",
                     new Vector2(Text.CENTRE, Text.CENTRE), 5);
@@ -599,21 +602,26 @@ namespace Dysgenesis
                 }
             }            
         }
+
+        // portion render qui devrait toujours rouler, de quoi que ce soit
         public static void SDLRender()
         {
             if (show_fps)
             {
-                if (debug_time < DateTime.Now.Ticks - TimeSpan.TicksPerSecond) // fps
+                if (debug_fps_time < DateTime.Now.Ticks - TimeSpan.TicksPerSecond) // fps
                 {
-                    debug_count++;
-                    debug_count_display = debug_count;
-                    debug_count = 0;
-                    debug_time = DateTime.Now.Ticks;
+                    debug_fps_count++;
+                    debug_fps_count_display = debug_fps_count;
+                    debug_fps_count = 0;
+                    debug_fps_time = DateTime.Now.Ticks;
                 }
                 else
-                    debug_count++;
+                {
+                    debug_fps_count++;
+                }
+
                 SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-                Text.DisplayText(debug_count_display.ToString(), new Vector2(1828, 52), 3);
+                Text.DisplayText(debug_fps_count_display.ToString(), new Vector2(1828, 52), 3);
             }
 
             Son.ChangerVolume();

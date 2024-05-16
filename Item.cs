@@ -30,6 +30,217 @@ namespace Dysgenesis
             new SDL_Color(){ r=0, g=255, b=255, a=255 } // bleu pâle, vague
         };
 
+        // modèles items
+        static readonly Vector3[] MODELE_I1 =
+        {
+            new(-5, -10, 0 ),
+            new(-15, -10, 0),
+            new(-20, -5, 0),
+            new(-5, -5, 0),
+            new(-5, -20, 0),
+            new(0, -25, 0),
+            new(10, -25, 0),
+            new(5, -20, 0),
+            new(-5, -20, 0),
+            new(5, -20, 0),
+            new(5, -5, 0),
+            new(20, -5, 0),
+            new(25, -10, 0),
+            new(10, -10, 0),
+            new(10, -25, 0),
+            new(10, -10, 0),
+            new( 25, -10, 0),
+            new( 25, 0, 0),
+            new( 20, 5, 0),
+            new( 20, -5, 0),
+            new(20, 5, 0),
+            new(5, 5, 0),
+            new(5, 20, 0),
+            new(10, 15, 0),
+            new(10, 5, 0),
+            new(10, 15, 0),
+            new(5, 20, 0),
+            new(-5, 20, 0),
+            new(-5, 5, 0),
+            new(-20, 5, 0),
+            new(-20, -5, 0)
+        };
+        static readonly int[] MODELE_I1_SAUTS = { -1 };
+        static readonly Vector3[] MODELE_I3 =
+        {
+            new(-19, 22,0),
+            new(-70, 0,0),
+            new(-19, -22 ,0),
+            new(-19, 22 ,0),
+            new(-30, 12 ,0),
+            new(-30, -12 ,0),
+            new(-12, -30 ,0),
+            new(12, -30 ,0),
+            new(19, -22 ,0),
+            new(70, 0 ,0),
+            new(19, 22 ,0),
+            new(70, 0 ,0),
+            new(19, -22 ,0),
+            new(30, -12 ,0),
+            new(30, 12 ,0),
+            new(12, 30 ,0),
+            new(-12, 30 ,0),
+            new(-19, 22 ,0),
+            new(-14, -6 ,0),
+            new(-8, 6 ,0),
+            new(-8, -6 ,0),
+            new(-14, 6 ,0),
+            new(-4, -12 ,0),
+            new(10, -12 ,0),
+            new(10, 0 ,0),
+            new(-4, 0 ,0),
+            new(-4, 12 ,0),
+            new(10, 12 ,0)
+        };
+        static readonly int[] MODELE_I3_SAUTS = { 3, 18, 20, 22, -1 };
+        static readonly Vector3[] MODELE_I4 =
+        {
+            new(19, 22 ,0),
+            new(70, 0 ,0),
+            new(19, -22 ,0),
+            new(19, 22 ,0),
+            new(30, 12 ,0),
+            new(30, -12 ,0),
+            new(12, -30 ,0),
+            new(-12, -30 ,0),
+            new(-19, -22 ,0),
+            new(-70, 0 ,0),
+            new(-19, 22 ,0),
+            new(-70, 0 ,0),
+            new(-19, -22 ,0),
+            new(-30, -12 ,0),
+            new(-30, 12 ,0),
+            new(-12, 30 ,0),
+            new(12, 30 ,0),
+            new(19, 22 ,0),
+            new(14, -6 ,0),
+            new(8, 6 ,0),
+            new(8, -6 ,0),
+            new(14, 6 ,0),
+            new(4, -12 ,0),
+            new(-10, -12 ,0),
+            new(-10, 0 ,0),
+            new(4, 0 ,0),
+            new(-10, 0 ,0),
+            new(-10, 12 ,0),
+            new(4, 12 ,0)
+        };
+        static readonly int[] MODELE_I4_SAUTS = { 3, 18, 20, 22, -1 };
+        static readonly Vector3[] MODELE_I5 =
+        {
+            new(-19, 22 ,0),
+            new(-70, 0 ,0),
+            new(-19, -22 ,0),
+            new(-70, 0 ,0),
+            new(-19, 22 ,0),
+            new(-30, 12 ,0),
+            new(-30, -12 ,0),
+            new(-12, -30 ,0),
+            new(12, -30 ,0),
+            new(19, -22 ,0),
+            new(70, 0 ,0),
+            new(19, 22 ,0),
+            new(70, 0 ,0),
+            new(19, -22 ,0),
+            new(30, -12 ,0),
+            new(30, 12 ,0),
+            new(12, 30 ,0),
+            new(-12, 30 ,0),
+            new(-19, 22 ,0),
+            new(-16, 0 ,0),
+            new(-4, 0 ,0),
+            new(0, -4 ,0),
+            new(0, -16 ,0),
+            new(16, 0 ,0),
+            new(4, 0 ,0),
+            new(0, 4 ,0),
+            new(0, 16 ,0),
+            new(0, 10 ,0),
+            new(-10, 0 ,0),
+            new(0, -10 ,0),
+            new(10, 0 ,0),
+            new(0, 10  ,0),
+            new(0, 0, 0),
+            new(0, 0, 0)
+        };
+        static readonly int[] MODELE_I5_SAUTS = { 19, 21, 23, 25, 32, -1 };
+        static readonly Vector3[] MODELE_I6 =
+        {
+            new(-19, -22 ,0),
+            new(-70, 0 ,0),
+            new(-19, 22 ,0),
+            new(-70, 0 ,0),
+            new(-19, -22 ,0),
+            new(-30, -12 ,0),
+            new(-30, 12 ,0),
+            new(-12, 30 ,0),
+            new(12, 30 ,0),
+            new(19, 22 ,0),
+            new(70, 0 ,0),
+            new(19, -22 ,0),
+            new(70, 0 ,0),
+            new(19, 22 ,0),
+            new(30, 12 ,0),
+            new(30, -12 ,0),
+            new(12, -30 ,0),
+            new(-12, -30 ,0),
+            new(-19, -22 ,0),
+            new(-16, 10 ,0),
+            new(-10, -10 ,0),
+            new(-4, 10 ,0),
+            new(-10, 10 ,0),
+            new(-10, -10 ,0),
+            new(4, 10 ,0),
+            new(10, -10 ,0),
+            new(16, 10 ,0),
+            new(10, 10 ,0),
+            new(10, -10 , 0)
+        };
+        static readonly int[] MODELE_I6_SAUTS = { 19, 22, 24, 27, -1 };
+        static readonly Vector3[] MODELE_I7 =
+        {
+            new(-19, 22 ,0),
+            new(-70, 0 ,0),
+            new(-19, -22 ,0),
+            new(-70, 0 ,0),
+            new(-19, 22 ,0),
+            new(-30, 12 ,0),
+            new(-30, -12 ,0),
+            new(-12, -30 ,0),
+            new(12, -30 ,0),
+            new(19, -22 ,0),
+            new(70, 0 ,0),
+            new(19, 22 ,0),
+            new(70, 0 ,0),
+            new(19, -22 ,0),
+            new(30, -12 ,0),
+            new(30, 12 ,0),
+            new(12, 30 ,0),
+            new(-12, 30 ,0),
+            new(-19, 22 ,0),
+            new(-6, 20 ,0),
+            new(6, 12 ,0),
+            new(-6, 4 ,0),
+            new(6, -4 ,0),
+            new(-6, -12 ,0),
+            new(6, -20 , 0)
+        };
+        static readonly int[] MODELE_I7_SAUTS = { 19, -1 };
+        static readonly Vector3[][] modeles_items =
+        {
+            MODELE_I3, MODELE_I4, MODELE_I5, MODELE_I6, MODELE_I7, MODELE_I1, new Vector3[0]
+        };
+        static readonly int[][] lignes_a_sauter_items =
+        {
+            MODELE_I3_SAUTS, MODELE_I4_SAUTS, MODELE_I5_SAUTS,
+            MODELE_I6_SAUTS, MODELE_I7_SAUTS, MODELE_I1_SAUTS, new int[0]
+        };
+
         public TypeItem type;
         public Item(Ennemi parent)
         {
@@ -72,8 +283,8 @@ namespace Dysgenesis
 
             int index_data = (int)type - 1;
             couleure = couleures_items[index_data];
-            modele = Data.modeles_items[index_data];
-            indexs_lignes_sauter = Data.lignes_a_sauter_items[index_data];
+            modele = modeles_items[index_data];
+            indexs_lignes_sauter = lignes_a_sauter_items[index_data];
 
             Program.items.Add(this);
         }

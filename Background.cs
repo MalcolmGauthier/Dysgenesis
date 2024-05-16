@@ -252,11 +252,12 @@ namespace Dysgenesis
     }
     public static class Etoiles
     {
-        const int DENSITE_ETOILES = 100;
+        public const int DENSITE_ETOILES = 100;
         const int RAYON_DEBUTE_ETOILES = 100;
         const float VITESSE_ETOILES = 1.02f;
 
-        public static Vector2[] star_positions = new Vector2[DENSITE_ETOILES];
+        // todo: enlever limite avec liste
+        public static Vector2[] etoiles_positions = new Vector2[DENSITE_ETOILES];
         public static void Spawn(SDL_Rect bounds, short limite = DENSITE_ETOILES)
         {
             if (limite > DENSITE_ETOILES)
@@ -264,36 +265,36 @@ namespace Dysgenesis
 
             for (int i = 0; i < limite; i++)
             {
-                star_positions[i].x = Program.RNG.Next(bounds.x, bounds.x + bounds.w);
-                star_positions[i].y = Program.RNG.Next(bounds.y, bounds.y + bounds.h);
+                etoiles_positions[i].x = Program.RNG.Next(bounds.x, bounds.x + bounds.w);
+                etoiles_positions[i].y = Program.RNG.Next(bounds.y, bounds.y + bounds.h);
             }
         }
         public static void Move()
         {
             for (int i = 0; i < DENSITE_ETOILES; i++)
             {
-                star_positions[i].x = (star_positions[i].x - Data.W_SEMI_LARGEUR) * VITESSE_ETOILES + Data.W_SEMI_LARGEUR;
-                star_positions[i].y = (star_positions[i].y - Data.W_SEMI_HAUTEUR) * VITESSE_ETOILES + Data.W_SEMI_HAUTEUR;
+                etoiles_positions[i].x = (etoiles_positions[i].x - Data.W_SEMI_LARGEUR) * VITESSE_ETOILES + Data.W_SEMI_LARGEUR;
+                etoiles_positions[i].y = (etoiles_positions[i].y - Data.W_SEMI_HAUTEUR) * VITESSE_ETOILES + Data.W_SEMI_HAUTEUR;
 
-                if (star_positions[i].x >= Data.W_LARGEUR || star_positions[i].x <= 0 || star_positions[i].y >= Data.W_HAUTEUR || star_positions[i].y <= 0)
+                if (etoiles_positions[i].x >= Data.W_LARGEUR || etoiles_positions[i].x <= 0 || etoiles_positions[i].y >= Data.W_HAUTEUR || etoiles_positions[i].y <= 0)
                 {
-                    star_positions[i].x = Program.RNG.Next(Data.W_SEMI_LARGEUR - RAYON_DEBUTE_ETOILES, Data.W_SEMI_LARGEUR + RAYON_DEBUTE_ETOILES);
-                    star_positions[i].y = Program.RNG.Next(Data.W_SEMI_HAUTEUR - RAYON_DEBUTE_ETOILES, Data.W_SEMI_HAUTEUR + RAYON_DEBUTE_ETOILES);
+                    etoiles_positions[i].x = Program.RNG.Next(Data.W_SEMI_LARGEUR - RAYON_DEBUTE_ETOILES, Data.W_SEMI_LARGEUR + RAYON_DEBUTE_ETOILES);
+                    etoiles_positions[i].y = Program.RNG.Next(Data.W_SEMI_HAUTEUR - RAYON_DEBUTE_ETOILES, Data.W_SEMI_HAUTEUR + RAYON_DEBUTE_ETOILES);
 
-                    if (star_positions[i].x == Data.W_SEMI_LARGEUR && star_positions[i].y == Data.W_SEMI_HAUTEUR)
-                        star_positions[i].x++;
+                    if (etoiles_positions[i].x == Data.W_SEMI_LARGEUR && etoiles_positions[i].y == Data.W_SEMI_HAUTEUR)
+                        etoiles_positions[i].x++;
                 }
             }
         }
         public static void Render(short limite)
         {
-            if (limite > Data.S_DENSITY)
-                limite = Data.S_DENSITY;
+            if (limite > DENSITE_ETOILES)
+                limite = DENSITE_ETOILES;
 
             SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
 
             for (int i = 0; i < limite; i++)
-                SDL_RenderDrawPointF(Program.render, star_positions[i].x, star_positions[i].y);
+                SDL_RenderDrawPointF(Program.render, etoiles_positions[i].x, etoiles_positions[i].y);
         }
     }
     public static class Text
@@ -685,13 +686,25 @@ namespace Dysgenesis
 
         }
     }
+
+    // facilement la pire classe dans le jeu. le code est terrible et illisible. je n'ai pas envie de le documenter et encore moins le réparer.
+    // tout est hard-codé, c'est terrible. désolé en avence.
     public static class Cutscene
     {
         public static SDL_Rect rect = new SDL_Rect();
         static short[,] stars = new short[50, 2];
         static short[,] stars_glx = new short[300, 2];
         static Vector2[] neutron_slowdown = new Vector2[50];
-        static sbyte[,] f_model = Data.MODELE_A;
+        static sbyte[,] f_model = new sbyte[7, 2]
+        {
+            { -25, -10},
+            { 0, 30},
+            { 25, -10},
+            { 0, 0},
+            { 0, 30},
+            { 0, 0},
+            { -25, -10}
+        };
         static float[,] f_model_pos = new float[7, 3];
         static byte lTimer = 10;
         static short temp = 0;
@@ -1319,7 +1332,7 @@ namespace Dysgenesis
                 Program.player.roll = 0.5f;
                 double sinroll = Sin(Program.player.roll);
                 double cosroll = Cos(Program.player.roll);
-                float pitchconst = Program.player.pitch + Data.P_PERMA_PITCH;
+                float pitchconst = Program.player.pitch + 0.3f;//permapitch du joueur
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
                 for (int i = 0; i < Program.player.modele.Length - 1; i++)
                 {
@@ -1590,7 +1603,7 @@ namespace Dysgenesis
                 #endregion
 
                 #region vaisseaux
-                Vector3[] model = Data.modeles_ennemis[(int)TypeEnnemi.DUPLIQUEUR];
+                Vector3[] model = Ennemi.modeles_ennemis[(int)TypeEnnemi.DUPLIQUEUR];
                 short x, y;
                 sbyte depth = -15;
                 float pitch = -1f;
@@ -2185,7 +2198,7 @@ namespace Dysgenesis
                 Program.player.roll = death_timer / 250;
                 double sinroll = Sin(Program.player.roll);
                 double cosroll = Cos(Program.player.roll);
-                float pitchconst = Program.player.pitch + Data.P_PERMA_PITCH;
+                float pitchconst = Program.player.pitch + 0.3f;//joueur permapitch
                 for (int i = 0; i < Program.player.modele.Length - 1; i++)
                 {
                     if (i % 4 == 0)

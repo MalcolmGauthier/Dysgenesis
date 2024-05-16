@@ -4,6 +4,7 @@ using static SDL2.SDL;
 
 namespace Dysgenesis
 {
+    // enum pour tout les types d'ennemis dans le jeu.
     public enum TypeEnnemi
     {
         OCTAHEDRON,
@@ -24,17 +25,23 @@ namespace Dysgenesis
         PATRA_MINION,
         PATRA_MINION_DUR
     };
+
+    // enum pour tout les etats possible pour un ennemi dans le jeu.
+    // certains ennemis sont spéciaux et gardent leur data extra dans leur statut
     public enum StatusEnnemi
     {
+        // statuts par défaut
         VIDE = 0,
         INITIALIZATION,
         NORMAL,
         MORT,
 
+        // statuts pour DUPLIQUEUR et DUPLIQUEUR_DUR, leur nb. de duplications restantes
         DUPLIQUEUR_0_RESTANT = 60,
         DUPLIQUEUR_1_RESTANT,
         DUPLIQUEUR_2_RESTANT,
 
+        // statuts pour PATRA et PATRA_DUR, leur nb. de minions restant autour d'eux
         PATRA_0_RESTANT = 70,
         PATRA_1_RESTANT,
         PATRA_2_RESTANT,
@@ -45,6 +52,7 @@ namespace Dysgenesis
         PATRA_7_RESTANT,
         PATRA_8_RESTANT,
 
+        // statuts pour le BOSS. Ceci est pour les scènes avant et après son arrivée.
         BOSS_INIT = 150,
         BOSS_INIT_2,
         BOSS_INIT_3,
@@ -54,6 +62,7 @@ namespace Dysgenesis
         BOSS_MORT_3,
     }
 
+    // Data pour ennemi
     public struct EnnemiData
     {
         public float vitesse;
@@ -69,19 +78,21 @@ namespace Dysgenesis
     public class Ennemi : Sprite
     {
         // À MODIFIER SI ENNEMIS AJOUTÉS!!! Enum.GetNames n'est pas const, alors il ne peut pas être utilisé
-        public const int NB_TYPES_ENNEMIS = 17;
+        const int NB_TYPES_ENNEMIS = 17;
         const int BOSS_MAX_HP = 150;
         const int DISTANCE_DE_BORD_EVITER_INIT = 200;
-        const float VITESSE_MOYENNE_ENNEMI = 0.4f;
-        const float vit_z = 0.9995f;
+        const float VITESSE_MOYENNE_ENNEMI = 1f;
+        const float VITESSE_MOYENNE_Z_ENNEMI = 10f;
         const float ENNEMI_FRICTION = 0.8f;
 
-        Dictionary<TypeEnnemi, EnnemiData> DataEnnemi = new(NB_TYPES_ENNEMIS)
+        // le data pour tout les ennemis dans le jeu. Les ennemis sont trops simmilaires
+        // pour que ca vaut la peine de créér des classes individuelles pour chaque.
+        static readonly Dictionary<TypeEnnemi, EnnemiData> DataEnnemi = new()
         {
             { TypeEnnemi.OCTAHEDRON, new EnnemiData()
             {
-                vitesse = 0.125f,
-                vitesse_z = vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI / 8,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 0,
                 hp_max = 1,
                 largeur = 30,
@@ -91,8 +102,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.DIAMANT, new EnnemiData()
             {
-                vitesse = 0.5f,
-                vitesse_z = vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI / 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 2,
                 hp_max = 3,
                 largeur = 30,
@@ -102,8 +113,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.TOURNANT, new EnnemiData()
             {
-                vitesse = 0.5f,
-                vitesse_z = vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI / 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 2,
                 hp_max = 3,
                 largeur = 50,
@@ -113,8 +124,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.ENERGIE, new EnnemiData()
             {
-                vitesse = 0.125f,
-                vitesse_z = vit_z / 10 + 0.9f,
+                vitesse = 0,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 2,
                 vitesse_tir = 0,
                 hp_max = 10,
                 largeur = 50,
@@ -124,8 +135,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.CROISSANT, new EnnemiData()
             {
-                vitesse = 1.5f,
-                vitesse_z = vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 1.5f,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 4,
                 hp_max = 10,
                 largeur = 60,
@@ -135,8 +146,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.DUPLIQUEUR, new EnnemiData()
             {
-                vitesse = 0.5f,
-                vitesse_z = vit_z / 10 + 0.9f,
+                vitesse = VITESSE_MOYENNE_ENNEMI / 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 2,
                 vitesse_tir = 2,
                 hp_max = 7,
                 largeur = 40,
@@ -146,8 +157,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.PATRA, new EnnemiData()
             {
-                vitesse = 2f,
-                vitesse_z = 1,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse_z = 0,
                 vitesse_tir = 3,
                 hp_max = 10,
                 largeur = 100,
@@ -157,8 +168,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.OCTAHEDRON_DUR, new EnnemiData()
             {
-                vitesse = 1f,
-                vitesse_z = vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 1,
                 hp_max = 3,
                 largeur = 30,
@@ -168,8 +179,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.DIAMANT_DUR, new EnnemiData()
             {
-                vitesse = 2f,
-                vitesse_z = vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 2,
                 hp_max = 5,
                 largeur = 30,
@@ -179,8 +190,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.TOURNANT_DUR, new EnnemiData()
             {
-                vitesse = 2f,
-                vitesse_z = vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 2,
                 hp_max = 7,
                 largeur = 50,
@@ -190,8 +201,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.ENERGIE_DUR, new EnnemiData()
             {
-                vitesse = 1f,
-                vitesse_z = vit_z * vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
                 vitesse_tir = 1,
                 hp_max = 15,
                 largeur = 50,
@@ -201,8 +212,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.CROISSANT_DUR, new EnnemiData()
             {
-                vitesse = 2f,
-                vitesse_z = vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 3,
                 hp_max = 12,
                 largeur = 60,
@@ -212,8 +223,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.DUPLIQUEUR_DUR, new EnnemiData()
             {
-                vitesse = 2f,
-                vitesse_z = vit_z / 100 + 0.99f,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 4,
                 vitesse_tir = 1,
                 hp_max = 10,
                 largeur = 40,
@@ -223,8 +234,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.PATRA_DUR, new EnnemiData()
             {
-                vitesse = 1f,
-                vitesse_z = vit_z / 100 + 0.99f,
+                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 4,
                 vitesse_tir = 4,
                 hp_max = 15,
                 largeur = 100,
@@ -234,8 +245,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.BOSS, new EnnemiData()
             {
-                vitesse = 4f,
-                vitesse_z = vit_z / 1000 + 0.999f,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 4,
+                vitesse_z = 0,
                 vitesse_tir = 0.5f,
                 hp_max = BOSS_MAX_HP,
                 largeur = 100,
@@ -245,8 +256,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.PATRA_MINION, new EnnemiData()
             {
-                vitesse = 1f,
-                vitesse_z = vit_z * vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
                 vitesse_tir = 0,
                 hp_max = 1,
                 largeur = 30,
@@ -256,8 +267,8 @@ namespace Dysgenesis
 
             { TypeEnnemi.PATRA_MINION_DUR, new EnnemiData()
             {
-                vitesse = 1f,
-                vitesse_z = vit_z * vit_z,
+                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
                 vitesse_tir = 0,
                 hp_max = 1,
                 largeur = 30,
@@ -265,13 +276,272 @@ namespace Dysgenesis
                 indexs_tir = Array.Empty<int>()
             }},
         };
+        // modèles ennemis
+        static readonly Vector3[] MODELE_E1 =
+        {
+            new( 0, 0, -20 ),
+            new( -16, 0, 10 ),
+            new( 16, 0, 10 ),
+            new( 0, 0, -20 ),
+            new( 0, -30, 0 ),
+            new( -16, 0, 10 ),
+            new( 0, -30, 0 ),
+            new( 16, 0, 10 ),
+            new( 0, 30, 0 ),
+            new( 0, 0, -20 ),
+            new( -16, 0, 10 ),
+            new( 0, 30, 0 ),
+            new( -5, 5, 0 ),
+            new( 0, 2, 0 ),
+            new( 5, 5, 0 ),
+            new( 0, 8, 0 ),
+            new( -5, 5, 0 ),
+            new( 0, 5, 0 ),
+            new( 0, 5, 0 )
+        };
+        static readonly int[] MODELE_E1_SAUTS = { 12, 17, -1 };
+        static readonly Vector3[] MODELE_E2 =
+        {
+            new( -30, 0, 0 ),
+            new( -15, 0, 26 ),
+            new( 0, 50, 0 ),
+            new( -30, 0, 0 ),
+            new( -15, 0, -26 ),
+            new( 0, 50, 0 ),
+            new( 15, 0, -26 ),
+            new( -15, 0, -26 ),
+            new( 15, 0, -26 ),
+            new( 30, 0, 0 ),
+            new( 0, 50, 0 ),
+            new( 15, 0, 26 ),
+            new( 30, 0, 0 ),
+            new( 15, 0, 26 ),
+            new( -15, 0, 26 ),
+            new( -12, -10, 21 ),
+            new( -25, -10, 0 ),
+            new( -30, 0, 0 ),
+            new( -25, -10, 0 ),
+            new( -12, -10, -21 ),
+            new( -15, 0, -26 ),
+            new( -12, -10, -21 ),
+            new( 12, -10, -21 ),
+            new( 15, 0, -26 ),
+            new( 12, -10, -21 ),
+            new( 25, -10, 0 ),
+            new( 30, 0, 0 ),
+            new( 25, -10, 0 ),
+            new( 12, -10, 21 ),
+            new( 15, 0, 26 ),
+            new( 12, -10, 21 ),
+            new( -12, -10, 21 ),
+            new( -12, -10, 3 ),
+            new( -12, -10, -3 ),
+            new( -17, -10, 0 ),
+            new( -20, -18, 0 ),
+            new( -15, -18, 3 ),
+            new( -12, -10, 3 ),
+            new( -15, -18, 3 ),
+            new( -15, -18, -3 ),
+            new( -12, -10, -3 ),
+            new( -15, -18, -3 ),
+            new( -20, -18, 0 ),
+            new( -5, -23, 0 ),
+            new( -15, -18, -3 ),
+            new( -5, -23, 0 ),
+            new( -15, -18, 3 ),
+            new( -12, -10, 3 ),
+            new( -12, -10, 21 ),
+            new( 12, -10, 21 ),
+            new( 12, -10, 3 ),
+            new( 12, -10, -3 ),
+            new( 17, -10, 0 ),
+            new( 20, -18, 0 ),
+            new( 15, -18, 3 ),
+            new( 12, -10, 3 ),
+            new( 15, -18, 3 ),
+            new( 15, -18, -3 ),
+            new( 12, -10, -3 ),
+            new( 15, -18, -3 ),
+            new( 20, -18, 0 ),
+            new( 5, -23, 0 ),
+            new( 15, -18, -3 ),
+            new( 5, -23, 0 ),
+            new( 15, -18, 3 ),
+            new( 12, -10, 3 ),
+            new( 12, -10, 21 )
+        };
+        static readonly int[] MODELE_E2_SAUTS = { 48, 50, -1 };
+        static readonly Vector3[] MODELE_E3 =
+        {
+            new( -50, 0, 0 ),
+            new( -50, -10, 40 ),
+            new( -45, 0, 0 ),
+            new( -50, 0, 0 ),
+            new( -20, -10, -10 ),
+            new( -20, 10, -10 ),
+            new( 20, 10, -10 ),
+            new( 20, 10, 10 ),
+            new( 50, 0, 0 ),
+            new( 50, -10, 40 ),
+            new( 45, 0, 0 ),
+            new( 50, 0, 0 ),
+            new( 20, 10, -10 ),
+            new( 20, -10, -10 ),
+            new( -20, -10, -10 ),
+            new( -20, -10, 10 ),
+            new( 20, -10, 10 ),
+            new( 20, -10, -10 ),
+            new( 50, 0, 0 ),
+            new( 20, -10, 10 ),
+            new( 20, 10, 10 ),
+            new( -20, 10, 10 ),
+            new( -50, 0, 0 ),
+            new( -20, -10, 10 ),
+            new( -20, 10, 10 ),
+            new( -20, 10, -10 ),
+            new( -50, 0, 0 )
+        };
+        static readonly int[] MODELE_E3_SAUTS = { -1 };
+        static readonly Vector3[] MODELE_E5 =
+        {
+            new( -15, 45, 10),
+            new( -10, 30, 10),
+            new( -25, 30, 50),
+            new( -15, 45, 10 ),
+            new( -40, 30, 10 ),
+            new( -25, 30, 50 ),
+            new( -25, 20, 10 ),
+            new( -10, 30, 10 ),
+            new( -25, 20, 10 ),
+            new( -40, 30, 10 ),
+            new( -50, 0, 10 ),
+            new( -40, -30, 10 ),
+            new( -15, -50, 10 ),
+            new( 15, -50, 10 ),
+            new( 40, -30, 10 ),
+            new( 50, 0, 10 ),
+            new( 40, 25, 10 ),
+            new( 15, 45, 10 ),
+            new( 25, 30, 50 ),
+            new( 40, 25, 10 ),
+            new( 25, 20, 10 ),
+            new( 25, 30, 50 ),
+            new( 10, 30, 10 ),
+            new( 15, 45, 10 ),
+            new( 10, 30, 10 ),
+            new( 25, 20, 10 ),
+            new( 35, 0, 10 ),
+            new( 25, -20, 10 ),
+            new( 10, -30, 10 ),
+            new( 0, -10, 0 ),
+            new( -10, -30, 10 ),
+            new( -25, -20, 10 ),
+            new( -35, 0, 10 ),
+            new( -25, 20, 10 ),
+            new( -25, 20, -10 ),
+            new( -10, 30, -10 ),
+            new( -10, 30, 10 ),
+            new( -10, 30, -10 ),
+            new( -15, 45, -10 ),
+            new( -15, 45, 10 ),
+            new( -15, 45, -10 ),
+            new( -40, 30, -10 ),
+            new( -40, 30, 10 ),
+            new( -40, 30, -10 ),
+            new( -25, 20, -10 ),
+            new( -35, 0, -10 ),
+            new( -25, -20, -10 ),
+            new( -10, -30, -10 ),
+            new( 0, -10, 0 ),
+            new( -15, 10, -15 ),
+            new( 15, 10, -15 ),
+            new( 0, -10, 0 ),
+            new( 15, 10, 15 ),
+            new( 15, 10, -15 ),
+            new( 15, 10, 15 ),
+            new( -15, 10, 15 ),
+            new( -15, 10, -15 ),
+            new( -15, 10, 15 ),
+            new( 0, -10, 0 ),
+            new( 10, -30, -10 ),
+            new( 25, -20, -10 ),
+            new( 35, 0, -10 ),
+            new( 25, 20, -10 ),
+            new( 40, 30, -10 ),
+            new( 25, 20, -10 ),
+            new( 25, 20, 10 ),
+            new( 25, 20, -10 ),
+            new( 10, 30, -10 ),
+            new( 10, 30, 10 ),
+            new( 10, 30, -10 ),
+            new( 15, 45, -10 ),
+            new( 15, 45, 10 ),
+            new( 15, 45, -10 ),
+            new( 40, 30, -10 ),
+            new( 40, 30, 10 ),
+            new( 40, 30, -10 ),
+            new( 50, 0, -10 ),
+            new( 40, -30, -10 ),
+            new( 15, -50, -10 ),
+            new( -15, -50, -10 ),
+            new( -40, -30, -10 ),
+            new( -50, 0, -10 ),
+            new( -40, 30, -10 )
+        };
+        static readonly int[] MODELE_E5_SAUTS = { -1 };
+        static readonly Vector3[] MODELE_E6 =
+        {
+            new( -25, 0, 0 ),
+            new( 0, -10, 0 ),
+            new( 25, 0, 0 ),
+            new( 0, -10, -30 ),
+            new( 0, -10, 0 ),
+            new( 0, -10, -30 ),
+            new( -25, 0, 0 )
+        };
+        static readonly int[] MODELE_E6_SAUTS = { -1 };
+        static readonly Vector3[] MODELE_E7 =
+        {
+            new( 0, 20, 0),
+            new( 40, 0, 0),
+            new( 0, -20, 0),
+            new( -40, 0, 0 ),
+            new( 0, 20, 0 ),
+            new( 10, 0, 0 ),
+            new( 0, -20, 0 ),
+            new( -10, 0, 0 ),
+            new( 0, 20, 0 )
+        };
+        static readonly int[] MODELE_E7_SAUTS = { -1 };
+        static readonly Vector3[] MODELE_E7_1 =
+        {
+            new( 0, 10, 0 ),
+            new( -8, -6, 0 ),
+            new( 8, -6, 0 ),
+            new( 0, 10, 0 )
+        };
+        static readonly int[] MODELE_E7_1_SAUTS = { -1 };
+        public static readonly Vector3[][] modeles_ennemis =
+        {
+            MODELE_E1, MODELE_E2, MODELE_E3, new Vector3[]{ }, MODELE_E5,
+            MODELE_E6, MODELE_E7, MODELE_E1, MODELE_E2, MODELE_E3,
+            new Vector3[]{ }, MODELE_E5, MODELE_E6, MODELE_E7, MODELE_P,
+            MODELE_E7_1, MODELE_E7_1
+        };
+        public static readonly int[][] lignes_a_sauter_ennemis =
+        {
+            MODELE_E1_SAUTS, MODELE_E2_SAUTS, MODELE_E3_SAUTS, new int[1]{-1}, MODELE_E5_SAUTS,
+            MODELE_E6_SAUTS, MODELE_E7_SAUTS, MODELE_E1_SAUTS, MODELE_E2_SAUTS, MODELE_E3_SAUTS,
+            new int[1]{-1}, MODELE_E5_SAUTS, MODELE_E6_SAUTS, MODELE_E7_SAUTS, MODELE_P_SAUTS,
+            MODELE_E7_1_SAUTS, MODELE_E7_1_SAUTS
+        };
 
-        public int damage_radius;
+        public int largeur;
         public int HP;
 
-        public float fire_cooldown;
-        public float speed;
-        public float z_speed;
+        float fire_cooldown;
+        float speed;
+        float z_speed;
 
         public TypeEnnemi type;
         public StatusEnnemi statut = StatusEnnemi.VIDE;
@@ -289,11 +559,10 @@ namespace Dysgenesis
             velocite = new Vector2();
             target = new Vector2(Program.player.position.x, Program.player.position.y);
 
-            EnnemiData data;
-            if (!DataEnnemi.TryGetValue(type, out data))
+            if (!DataEnnemi.TryGetValue(type, out EnnemiData data))
                 return;
 
-            damage_radius = data.largeur;
+            largeur = data.largeur;
             HP = data.hp_max;
             speed = data.vitesse;
             z_speed = data.vitesse_z;
@@ -301,8 +570,8 @@ namespace Dysgenesis
             fire_cooldown = data.vitesse_tir;
             couleure = data.couleure;
 
-            modele = Data.modeles_ennemis[(int)type];
-            indexs_lignes_sauter = Data.lignes_a_sauter_ennemis[(int)type];
+            modele = modeles_ennemis[(int)type];
+            indexs_lignes_sauter = lignes_a_sauter_ennemis[(int)type];
 
             // copie le tableau par valeur au lieu de par reference
             modele_en_marche = modele.ToArray();
@@ -707,7 +976,7 @@ namespace Dysgenesis
 
             float[] proj_pos = projectile.PositionsSurEcran();
 
-            if (Background.Distance(position.x, position.y, proj_pos[0], proj_pos[1]) > damage_radius)
+            if (Background.Distance(position.x, position.y, proj_pos[0], proj_pos[1]) > largeur)
                 return 0;
 
             // ennemi touché
@@ -776,7 +1045,7 @@ namespace Dysgenesis
             if (position.z != 0)
                 return 0;
 
-            if (Background.Distance(position.x, position.y, Program.player.position.x, Program.player.position.y) > Data.P_WIDTH)
+            if (Background.Distance(position.x, position.y, Program.player.position.x, Program.player.position.y) > Player.JOUEUR_LARGEUR)
                 return 0;
 
             // touché
@@ -852,13 +1121,15 @@ namespace Dysgenesis
         // bouge l'ennemi accordément
         void Move()
         {
-            // TODO: changer
+            const float LIM_MIN_Z_ENNEMI = 1.0f;
+            const float ACCELERATION_ENNEMI_Z0 = 1.01f;
+
             // mouvement avant/arrière
             if (z_speed != 0 && position.z != 0)
             {
-                position.z *= z_speed;
+                position.z -= z_speed / Data.G_FPS;
 
-                if (position.z < 1.0f)
+                if (position.z < LIM_MIN_Z_ENNEMI)
                     position.z = 0;
             }
 
@@ -884,8 +1155,9 @@ namespace Dysgenesis
             // quand les ennemis sont à la profondeur du joueur, ils accélèrent exponentiellement pour
             // rapidement et assurément frapper le joueur
             if (position.z == 0)
-                speed *= 1.01f;
+                speed *= ACCELERATION_ENNEMI_Z0;
 
+            // todo: ???
             pitch = (position.y - Data.W_SEMI_HAUTEUR) / Data.W_SEMI_HAUTEUR * 0.25f;
 
             // seulement ces ennemis sont capables de tourner leur modèle

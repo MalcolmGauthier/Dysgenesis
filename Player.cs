@@ -11,10 +11,73 @@ namespace Dysgenesis
         public const int JOUEUR_VITESSE_TIR = 25;
         public const int JOUEUR_MAX_HP = 150;
         public const int JOUEUR_DEFAULT_HP = 100;
+        public const int JOUEUR_LARGEUR = 50;
         const float VAGUE_ELECTRIQUE_REGENERATION = 1.0f / (30f * Data.G_FPS); // ~1/1800, 1 par 30 secondes
         const int JOUEUR_VITESSE = 1;
-        const int JOUEUR_LARGEUR = 50;
         const int JOUEUR_HAUTEUR = 20;
+
+        // modèle joueur
+        public static readonly Vector3[] MODELE_P =
+        {
+            new(-50,0,0), // rouge
+            new(-46,-2,-50), // orange
+            new(-46,0,-2), // vomi
+            new(-46,-4,-2), // -vomi
+            new(-46,0,-2), // vomi
+            new(-10,5,-5), // vert pâle
+            new(-10,-5,-5), // -vert pâle
+            new(-10,5,-5), // vert pâle
+            new(-5,5,-15), // rose
+            new(-5,0,-15), // -rose
+            new(-5,5,-15), // rose
+            new(5,5,-15), // rose
+            new(5,0,-15), // -rose
+            new(5,5,-15), // rose
+            new(10,5,-5), // vert pâle
+            new(46,0,-2), // vomi
+            new(46,-2,-50), // orange
+            new(50,0,0), // rouge
+            new(50,-5,0), // rouge 2
+            new(13,-10,10), // bleu
+            new(15,-9,20), // mauve
+            new(4,10,10), // vert foncé
+            new(13,-10,10), // bleu
+            new(15,-9,20), // mauve
+            new(0,-15,20), // bleh
+            new(-15,-9,20), // mauve
+            new(-4,10,10), // vert foncé
+            new(-13,-10,10), // bleu
+            new(-15,-9,20), // mauve
+            new(-13,-10,10), // bleu
+            new(-50,-5,0), // rouge 2
+            new(-50,0,0), // rouge
+            new(-50,-5,0), // rouge 2
+            new(-46,-2,-50), // orange
+            new(-46,-4,-2), // -vomi
+            new(-10,-5,-5), // -vert pâle
+            new(-5,0,-15), // -rose
+            new(5,0,-15), // -rose
+            new(10,-5,-5), // -vert pâle
+            new(46,-4,-2), // -vomi
+            new(46,-2,-50), // orange
+            new(50,-5,0), // rouge 2
+            new(50,0,0), // rouge
+            new(10,5,10), // -bleu
+            new(4,10,10), // vert foncé
+            new(2,10,10), // l'autre
+            new(1,15,10), // bleu pâle
+            new(-1,15,10), // bleu pâle
+            new(1,15,10), // bleu pâle
+            new(0,15,25), // jaune
+            new(0,-15,20), // bleh
+            new(0,15,25), // jaune
+            new(-1,15,10), // bleu pâle
+            new(-2,10,10), // l'autre
+            new(-4,10,10), // vert foncé
+            new(-10,5,10), // -bleu
+            new(-50,0,0) // rouge
+        };
+        public static readonly int[] MODELE_P_SAUTS = { -1 };
 
         public Vector2 velocity;
         public TypeItem powerup = TypeItem.NONE;
@@ -31,19 +94,19 @@ namespace Dysgenesis
         public Player()
         {
             indexs_de_tir = new int[] { 1, 16 };
-            modele = Data.MODELE_P;
-            indexs_lignes_sauter = Data.MODELE_P_SAUTS;
+            modele = MODELE_P;
+            indexs_lignes_sauter = MODELE_P_SAUTS;
             Init();
         }
 
         // code logique joueur
         public override bool Exist()
         {
-            if (Program.TouchePesee(Touches.R))//DEBUG
-            {
-                HP = 0;
-                timer = 0;
-            }
+            //if (Program.TouchePesee(Touches.R))//DEBUG
+            //{
+            //    HP = 0;
+            //    timer = 0;
+            //}
 
             if (Mort())
             {
@@ -238,7 +301,7 @@ namespace Dysgenesis
                 afficher = false;
                 timer = 0;
                 // défaire le truc qu'on a fait dans le if(timer==1)
-                indexs_lignes_sauter = Data.MODELE_P_SAUTS;
+                indexs_lignes_sauter = MODELE_P_SAUTS;
                 Son.JouerMusique(ListeAudioMusique.DYSGENESIS, true);
                 Program.bouger_etoiles = true;
                 Program.enemies.Clear();
@@ -253,8 +316,8 @@ namespace Dysgenesis
         void Move()
         {
             const float JOUEUR_FRICTION = 0.9f;
-            //const float JOUEUR_MAX_PITCH = 0.5f;
-            //const float JOUEUR_MAX_ROLL = 0.1f;
+            const float JOUEUR_MAX_PITCH = 0.5f;
+            const float JOUEUR_MAX_ROLL = 0.1f;
             const float JOUEUR_PITCH_ACCELERATION = 0.05f;
             const float JOUEUR_ROLL_ACCELERATION = 0.05f;
             const float JOUEUR_PITCH_FRICTION = 0.95f;

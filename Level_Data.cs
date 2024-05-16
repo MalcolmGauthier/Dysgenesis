@@ -42,18 +42,23 @@ namespace Dysgenesis
         // retourne la longeure de la liste crée
         static int GenererListeArcade()
         {
+            const int VARIABLITE_ENNEMI_CHOISI = 3;
+            const float RAPIDITE_DE_DIFFICULTE = 5.0f;
+
             if (Program.niveau < 0)
                 return 0;
 
             // nb d'ennemis à tuer pour le prochain niveau
+            // formule magique
             arcade_ens = new TypeEnnemi[(int)MathF.Sqrt(Program.niveau * 10) + 2]; // overflow à niveau 214748365
 
             // i = index ennemi à créér
             int next_entry;
+            // https://www.desmos.com/calculator/c7nlh1k17t
+            int formule = (int)(ennemis_valides_arcade.Length * Program.niveau / (Program.niveau + RAPIDITE_DE_DIFFICULTE));
             for (int i = 0; i < arcade_ens.Length; i++)
             {
-                next_entry = (int)(ennemis_valides_arcade.Length * Program.niveau / (Program.niveau + 5.0f));
-                next_entry += Program.RNG.Next(-3, 3);
+                next_entry = formule + Program.RNG.Next(-VARIABLITE_ENNEMI_CHOISI, VARIABLITE_ENNEMI_CHOISI + 1);
 
                 next_entry = Math.Clamp(next_entry, 0, ennemis_valides_arcade.Length);
 
