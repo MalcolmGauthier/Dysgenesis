@@ -3,17 +3,12 @@ using static SDL2.SDL;
 
 namespace Dysgenesis
 {
-    public static class Data
-    {
-        public const string W_TITLE = "Dysgenesis";
-        public static short W_HAUTEUR = 1080;
-        public static short W_LARGEUR = 1920;
-        public static short W_SEMI_HAUTEUR = 540;
-        public static short W_SEMI_LARGEUR = 960;
-
-        public const short G_FPS = 60;
-        public const byte G_MAX_DEPTH = 50;
-    }
+    // avant, cette classe ci contenait toutes les constantes du jeu, mais elles ont été distribués à
+    // leurs classes respectives
+    //public static class Data
+    //{
+        
+    //}
 
     public static class SaveLoad
     {

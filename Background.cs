@@ -222,18 +222,18 @@ namespace Dysgenesis
 
             for (int i = 0; i < Program.projectiles.Count; i++)
             {
-                if (Program.projectiles[i].position.z < Data.G_MAX_DEPTH - 1)
+                if (Program.projectiles[i].position.z < Program.G_MAX_DEPTH - 1)
                     continue;
 
                 float[] positions = Program.projectiles[i].PositionsSurEcran();
-                if (Background.Distance(positions[2], positions[3], Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR / 2) < 20)
+                if (Background.Distance(positions[2], positions[3], Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2) < 20)
                 {
                     HP_bombe--;
-                    new Explosion(new Vector3(positions[2], positions[3], Data.G_MAX_DEPTH / 4));
+                    new Explosion(new Vector3(positions[2], positions[3], Program.G_MAX_DEPTH / 4));
                     // TODO: séparer code render de code logique
                     // rend la bombe rouge pour 1 image quand elle est frappée
                     DessinerBombePulsar(
-                        new Vector2(Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR / 2),
+                        new Vector2(Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2),
                         20,
                         new SDL_Color() { r = 255, g = 0, b = 0, a = 255 },
                         false
@@ -273,15 +273,15 @@ namespace Dysgenesis
         {
             for (int i = 0; i < DENSITE_ETOILES; i++)
             {
-                etoiles_positions[i].x = (etoiles_positions[i].x - Data.W_SEMI_LARGEUR) * VITESSE_ETOILES + Data.W_SEMI_LARGEUR;
-                etoiles_positions[i].y = (etoiles_positions[i].y - Data.W_SEMI_HAUTEUR) * VITESSE_ETOILES + Data.W_SEMI_HAUTEUR;
+                etoiles_positions[i].x = (etoiles_positions[i].x - Program.W_SEMI_LARGEUR) * VITESSE_ETOILES + Program.W_SEMI_LARGEUR;
+                etoiles_positions[i].y = (etoiles_positions[i].y - Program.W_SEMI_HAUTEUR) * VITESSE_ETOILES + Program.W_SEMI_HAUTEUR;
 
-                if (etoiles_positions[i].x >= Data.W_LARGEUR || etoiles_positions[i].x <= 0 || etoiles_positions[i].y >= Data.W_HAUTEUR || etoiles_positions[i].y <= 0)
+                if (etoiles_positions[i].x >= Program.W_LARGEUR || etoiles_positions[i].x <= 0 || etoiles_positions[i].y >= Program.W_HAUTEUR || etoiles_positions[i].y <= 0)
                 {
-                    etoiles_positions[i].x = Program.RNG.Next(Data.W_SEMI_LARGEUR - RAYON_DEBUTE_ETOILES, Data.W_SEMI_LARGEUR + RAYON_DEBUTE_ETOILES);
-                    etoiles_positions[i].y = Program.RNG.Next(Data.W_SEMI_HAUTEUR - RAYON_DEBUTE_ETOILES, Data.W_SEMI_HAUTEUR + RAYON_DEBUTE_ETOILES);
+                    etoiles_positions[i].x = Program.RNG.Next(Program.W_SEMI_LARGEUR - RAYON_DEBUTE_ETOILES, Program.W_SEMI_LARGEUR + RAYON_DEBUTE_ETOILES);
+                    etoiles_positions[i].y = Program.RNG.Next(Program.W_SEMI_HAUTEUR - RAYON_DEBUTE_ETOILES, Program.W_SEMI_HAUTEUR + RAYON_DEBUTE_ETOILES);
 
-                    if (etoiles_positions[i].x == Data.W_SEMI_LARGEUR && etoiles_positions[i].y == Data.W_SEMI_HAUTEUR)
+                    if (etoiles_positions[i].x == Program.W_SEMI_LARGEUR && etoiles_positions[i].y == Program.W_SEMI_HAUTEUR)
                         etoiles_positions[i].x++;
                 }
             }
@@ -635,10 +635,10 @@ namespace Dysgenesis
             alpha = Math.Clamp(alpha, 0, byte.MaxValue);
 
             if (position.x == CENTRE)
-                position.x = Data.W_SEMI_LARGEUR - ((LARGEUR_DEFAUT + ESPACE_DEFAUT) * size * text.Length - 1) / 2;
+                position.x = Program.W_SEMI_LARGEUR - ((LARGEUR_DEFAUT + ESPACE_DEFAUT) * size * text.Length - 1) / 2;
 
             if (position.y == CENTRE)
-                position.y = Data.W_SEMI_HAUTEUR - (HAUTEUR_DEFAUT * size) / 2;
+                position.y = Program.W_SEMI_HAUTEUR - (HAUTEUR_DEFAUT * size) / 2;
 
             SDL_SetRenderDrawColor(Program.render, (byte)((color >> 16) & 0xFF), (byte)((color >> 8) & 0xFF), (byte)(color & 0xFF), (byte)alpha);
 
@@ -650,7 +650,7 @@ namespace Dysgenesis
                 y = position.y + extra_y;
                 x = position.x + i * (LARGEUR_DEFAUT + ESPACE_DEFAUT) * size - return_length;
 
-                if (x + size * LARGEUR_DEFAUT * 4 > Data.W_LARGEUR)
+                if (x + size * LARGEUR_DEFAUT * 4 > Program.W_LARGEUR)
                 {
                     extra_y += (short)((HAUTEUR_DEFAUT + ESPACE_DEFAUT) * size);
                     return_length = (int)((i + 1) * 8 * size);
@@ -877,7 +877,7 @@ namespace Dysgenesis
                         try_x = (short)Program.RNG.Next(160, 1760);
                         try_y = (short)Program.RNG.Next(240, 640);
                     }
-                    new Explosion(new Vector3(try_x, try_y, (byte)Program.RNG.Next(Data.G_MAX_DEPTH / 8, Data.G_MAX_DEPTH / 4)));
+                    new Explosion(new Vector3(try_x, try_y, (byte)Program.RNG.Next(Program.G_MAX_DEPTH / 8, Program.G_MAX_DEPTH / 4)));
                 }
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
@@ -1512,7 +1512,7 @@ namespace Dysgenesis
                 if (Program.gTimer < 480)
                 {
                     if (Program.gTimer % Program.RNG.Next(8, 12) == 0)
-                        new Explosion(new Vector3(Program.RNG.Next(500, 1400), Program.RNG.Next(100, 550), Data.G_MAX_DEPTH / 2));
+                        new Explosion(new Vector3(Program.RNG.Next(500, 1400), Program.RNG.Next(100, 550), Program.G_MAX_DEPTH / 2));
                 }
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
@@ -1553,7 +1553,7 @@ namespace Dysgenesis
                     for (int i = 0; i < stars.GetLength(0); i++)
                     {
                         int x = Program.RNG.Next(25, 1880), y = Program.RNG.Next(25, 680);
-                        while (Background.Distance(x, y, Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR / 2, 0.2f) < 200)
+                        while (Background.Distance(x, y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2, 0.2f) < 200)
                         {
                             x = Program.RNG.Next(25, 1880);
                             y = Program.RNG.Next(25, 680);
@@ -1571,13 +1571,13 @@ namespace Dysgenesis
 
                 #region vaisseaux
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                SDL_RenderDrawPoint(Program.render, -Program.gTimer + 1900, Data.W_SEMI_HAUTEUR / 2);
+                SDL_RenderDrawPoint(Program.render, -Program.gTimer + 1900, Program.W_SEMI_HAUTEUR / 2);
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
-                SDL_RenderDrawPoint(Program.render, Data.W_SEMI_LARGEUR, Program.gTimer / -2 + 730);
+                SDL_RenderDrawPoint(Program.render, Program.W_SEMI_LARGEUR, Program.gTimer / -2 + 730);
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                SDL_RenderDrawPoint(Program.render, Program.gTimer - 1, Data.W_SEMI_HAUTEUR / 2);
+                SDL_RenderDrawPoint(Program.render, Program.gTimer - 1, Program.W_SEMI_HAUTEUR / 2);
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                SDL_RenderDrawPoint(Program.render, Data.W_SEMI_LARGEUR, Program.gTimer / 2 - 200);
+                SDL_RenderDrawPoint(Program.render, Program.W_SEMI_LARGEUR, Program.gTimer / 2 - 200);
                 #endregion
 
             } // ranconte - fini
@@ -1610,7 +1610,7 @@ namespace Dysgenesis
 
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
                 x = (short)(-Program.gTimer / 10 + 1200);
-                y = (short)(Data.W_SEMI_HAUTEUR - 100);
+                y = (short)(Program.W_SEMI_HAUTEUR - 100);
                 SDL_RenderDrawLine(Program.render, x, y, x + 100, y - 65);
                 SDL_RenderDrawLine(Program.render, x + 100, y - 65, x + 90, y);
                 SDL_RenderDrawLine(Program.render, x + 90, y, x + 139, y - 63);
@@ -1618,8 +1618,8 @@ namespace Dysgenesis
                 SDL_RenderDrawLine(Program.render, x, y, x + 90, y);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
-                x = Data.W_SEMI_LARGEUR;
-                y = (short)(Data.W_SEMI_HAUTEUR / 2 + ((int)Program.gTimer - 880) / 10);
+                x = Program.W_SEMI_LARGEUR;
+                y = (short)(Program.W_SEMI_HAUTEUR / 2 + ((int)Program.gTimer - 880) / 10);
                 for (int i = 0; i < model.GetLength(0) - 1; i++)
                 {
                     SDL_RenderDrawLine(Program.render,
@@ -1631,7 +1631,7 @@ namespace Dysgenesis
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
                 x = (short)(Program.gTimer / 10 + 700);
-                y = (short)(Data.W_SEMI_HAUTEUR - 100);
+                y = (short)(Program.W_SEMI_HAUTEUR - 100);
                 SDL_RenderDrawLine(Program.render, x, y, x - 100, y - 65);
                 SDL_RenderDrawLine(Program.render, x - 100, y - 65, x - 90, y);
                 SDL_RenderDrawLine(Program.render, x - 90, y, x - 139, y - 63);
@@ -1639,8 +1639,8 @@ namespace Dysgenesis
                 SDL_RenderDrawLine(Program.render, x, y, x - 90, y);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                x = Data.W_SEMI_LARGEUR;
-                y = (short)(Data.W_SEMI_HAUTEUR - (Program.gTimer - 800) / 10);
+                x = Program.W_SEMI_LARGEUR;
+                y = (short)(Program.W_SEMI_HAUTEUR - (Program.gTimer - 800) / 10);
                 for (int i = 0; i < model.GetLength(0) - 1; i++)
                 {
                     SDL_RenderDrawLine(Program.render,
@@ -1662,7 +1662,7 @@ namespace Dysgenesis
                     for (int i = 0; i < stars.GetLength(0); i++)
                     {
                         int x = Program.RNG.Next(25, 1880), y = Program.RNG.Next(25, 680);
-                        while (Background.Distance(x, y, Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR / 2 + 100, 0.2f) < 200)
+                        while (Background.Distance(x, y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2 + 100, 0.2f) < 200)
                         {
                             x = Program.RNG.Next(25, 1880);
                             y = Program.RNG.Next(25, 680);
@@ -1995,7 +1995,7 @@ namespace Dysgenesis
                     for (int i = 0; i < stars.GetLength(0); i++)
                     {
                         int x = Program.RNG.Next(25, 1880), y = Program.RNG.Next(25, 680);
-                        while (Background.Distance(x, y, Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR / 2 + 100, 0.2f) < 200)
+                        while (Background.Distance(x, y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2 + 100, 0.2f) < 200)
                         {
                             x = Program.RNG.Next(25, 1880);
                             y = Program.RNG.Next(25, 680);
@@ -3026,51 +3026,51 @@ namespace Dysgenesis
                 Text.DisplayText("dysgenesis", new Vector2(Text.CENTRE, 540 - extra_y * 3), 4, alpha: alpha, scroll: (int)((Program.gTimer - 60) / 5));
             }
             if (Program.gTimer >= 300 && Program.gTimer < 700)
-                Text.DisplayText("conception:\nmalcolm gauthier", new Vector2(100, Data.W_HAUTEUR - (Program.gTimer - 300) * 3), 4, scroll: ((int)Program.gTimer - 330) / 5);
+                Text.DisplayText("conception:\nmalcolm gauthier", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 300) * 3), 4, scroll: ((int)Program.gTimer - 330) / 5);
             if (Program.gTimer >= 540 && Program.gTimer < 940)
-                Text.DisplayText("         modèles:\nmalcolm gauthier", new Vector2(1300, Data.W_HAUTEUR - (Program.gTimer - 540) * 3), 4, scroll: ((int)Program.gTimer - 560) / 5);
+                Text.DisplayText("         modèles:\nmalcolm gauthier", new Vector2(1300, Program.W_HAUTEUR - (Program.gTimer - 540) * 3), 4, scroll: ((int)Program.gTimer - 560) / 5);
             if (Program.gTimer >= 780 && Program.gTimer < 1180)
-                Text.DisplayText("programmation:\nmalcolm gauthier", new Vector2(100, Data.W_HAUTEUR - (Program.gTimer - 780) * 3), 4, scroll: ((int)Program.gTimer - 800) / 5);
+                Text.DisplayText("programmation:\nmalcolm gauthier", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 780) * 3), 4, scroll: ((int)Program.gTimer - 800) / 5);
             if (Program.gTimer >= 1020 && Program.gTimer < 1420)
-                Text.DisplayText(" effets sonnores:\nmalcolm gauthier", new Vector2(1300, Data.W_HAUTEUR - (Program.gTimer - 1020) * 3), 4, scroll: ((int)Program.gTimer - 1040) / 5);
+                Text.DisplayText(" effets sonnores:\nmalcolm gauthier", new Vector2(1300, Program.W_HAUTEUR - (Program.gTimer - 1020) * 3), 4, scroll: ((int)Program.gTimer - 1040) / 5);
             if (Program.gTimer >= 1260 && Program.gTimer < 1660)
-                Text.DisplayText("musique", new Vector2(Text.CENTRE, Data.W_HAUTEUR - (Program.gTimer - 1260) * 3), 4, scroll: ((int)Program.gTimer - 1280) / 5);
+                Text.DisplayText("musique", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1260) * 3), 4, scroll: ((int)Program.gTimer - 1280) / 5);
             if (Program.gTimer >= 1300 && Program.gTimer < 1700)
             {
-                Text.DisplayText("\"dance of the violins\"", new Vector2(Text.CENTRE, Data.W_HAUTEUR - (Program.gTimer - 1300) * 3), 3, scroll: ((int)Program.gTimer - 1320) / 5);
-                Text.DisplayText("jesse valentine (f-777)", new Vector2(Text.CENTRE, Data.W_HAUTEUR - (Program.gTimer - 1320) * 3), 3, scroll: ((int)Program.gTimer - 1320) / 5);
+                Text.DisplayText("\"dance of the violins\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1300) * 3), 3, scroll: ((int)Program.gTimer - 1320) / 5);
+                Text.DisplayText("jesse valentine (f-777)", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1320) * 3), 3, scroll: ((int)Program.gTimer - 1320) / 5);
             }
             if (Program.gTimer >= 1400 && Program.gTimer < 1800)
             {
-                Text.DisplayText("\"240 bits per mile\"", new Vector2(Text.CENTRE, Data.W_HAUTEUR - (Program.gTimer - 1400) * 3), 3, scroll: ((int)Program.gTimer - 1420) / 5);
-                Text.DisplayText("leon riskin", new Vector2(Text.CENTRE, Data.W_HAUTEUR - (Program.gTimer - 1420) * 3), 3, scroll: ((int)Program.gTimer - 1420) / 5);
+                Text.DisplayText("\"240 bits per mile\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1400) * 3), 3, scroll: ((int)Program.gTimer - 1420) / 5);
+                Text.DisplayText("leon riskin", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1420) * 3), 3, scroll: ((int)Program.gTimer - 1420) / 5);
             }
             if (Program.gTimer >= 1500 && Program.gTimer < 1900)
             {
-                Text.DisplayText("\"dysgenesis\"         \"eugenesis\"", new Vector2(Text.CENTRE, Data.W_HAUTEUR - (Program.gTimer - 1500) * 3), 3, scroll: ((int)Program.gTimer - 1520) / 3);
-                Text.DisplayText("malcolm gauthier", new Vector2(Text.CENTRE, Data.W_HAUTEUR - (Program.gTimer - 1520) * 3), 3, scroll: ((int)Program.gTimer - 1520) / 5);
+                Text.DisplayText("\"dysgenesis\"         \"eugenesis\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1500) * 3), 3, scroll: ((int)Program.gTimer - 1520) / 3);
+                Text.DisplayText("malcolm gauthier", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1520) * 3), 3, scroll: ((int)Program.gTimer - 1520) / 5);
             }
             if (Program.gTimer >= 1600 && Program.gTimer < 2000)
             {
-                Text.DisplayText("autres musiques", new Vector2(Text.CENTRE, Data.W_HAUTEUR - (Program.gTimer - 1600) * 3), 3, scroll: ((int)Program.gTimer - 1620) / 5);
-                Text.DisplayText("malcolm gauthier, mélodies non-originales", new Vector2(Text.CENTRE, Data.W_HAUTEUR - (Program.gTimer - 1620) * 3), 3, scroll: ((int)Program.gTimer - 1620) / 3);
+                Text.DisplayText("autres musiques", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1600) * 3), 3, scroll: ((int)Program.gTimer - 1620) / 5);
+                Text.DisplayText("malcolm gauthier, mélodies non-originales", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1620) * 3), 3, scroll: ((int)Program.gTimer - 1620) / 3);
             }
             if (Program.gTimer >= 1740 && Program.gTimer < 2140)
-                Text.DisplayText("mélodies utilisées", new Vector2(100, Data.W_HAUTEUR - (Program.gTimer - 1740) * 3), 4, scroll: ((int)Program.gTimer - 1740) / 5);
+                Text.DisplayText("mélodies utilisées", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 1740) * 3), 4, scroll: ((int)Program.gTimer - 1740) / 5);
             if (Program.gTimer >= 1780 && Program.gTimer < 2180)
             {
-                Text.DisplayText("\"can't remove the pain\"", new Vector2(400, Data.W_HAUTEUR - (Program.gTimer - 1780) * 3), 3, scroll: ((int)Program.gTimer - 1800) / 5);
-                Text.DisplayText("todd porter et herman miller", new Vector2(400, Data.W_HAUTEUR - (Program.gTimer - 1800) * 3), 3, scroll: ((int)Program.gTimer - 1800) / 5);
+                Text.DisplayText("\"can't remove the pain\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1780) * 3), 3, scroll: ((int)Program.gTimer - 1800) / 5);
+                Text.DisplayText("todd porter et herman miller", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1800) * 3), 3, scroll: ((int)Program.gTimer - 1800) / 5);
             }
             if (Program.gTimer >= 1880 && Program.gTimer < 2280)
             {
-                Text.DisplayText("\"pesenka\"", new Vector2(400, Data.W_HAUTEUR - (Program.gTimer - 1880) * 3), 3, scroll: ((int)Program.gTimer - 1900) / 5);
-                Text.DisplayText("Sergey Zhukov et Aleksey Potekhin", new Vector2(400, Data.W_HAUTEUR - (Program.gTimer - 1900) * 3), 3, scroll: ((int)Program.gTimer - 1900) / 5);
+                Text.DisplayText("\"pesenka\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1880) * 3), 3, scroll: ((int)Program.gTimer - 1900) / 5);
+                Text.DisplayText("Sergey Zhukov et Aleksey Potekhin", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1900) * 3), 3, scroll: ((int)Program.gTimer - 1900) / 5);
             }
             if (Program.gTimer >= 1980 && Program.gTimer < 2380)
             {
-                Text.DisplayText("\"the beginning of time\"", new Vector2(400, Data.W_HAUTEUR - (Program.gTimer - 1980) * 3), 3, scroll: ((int)Program.gTimer - 2000) / 5);
-                Text.DisplayText("nathan ingalls (dj-nate)", new Vector2(400, Data.W_HAUTEUR - (Program.gTimer - 2000) * 3), 3, scroll: ((int)Program.gTimer - 2000) / 5);
+                Text.DisplayText("\"the beginning of time\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1980) * 3), 3, scroll: ((int)Program.gTimer - 2000) / 5);
+                Text.DisplayText("nathan ingalls (dj-nate)", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 2000) * 3), 3, scroll: ((int)Program.gTimer - 2000) / 5);
             }
             if (Program.gTimer >= 2250)
             {
@@ -3114,7 +3114,7 @@ namespace Dysgenesis
                 for (byte i = 0; i < 3; i++)
                 {
                     Program.enemies[i].position.x = (600 - Program.gTimer) * 8.2f + 2000 + i * 200;
-                    Program.enemies[i].position.y = (float)Sin((Program.gTimer - 600) / -10f + i) * 50 + Data.W_SEMI_HAUTEUR;
+                    Program.enemies[i].position.y = (float)Sin((Program.gTimer - 600) / -10f + i) * 50 + Program.W_SEMI_HAUTEUR;
                 }
                 if (Program.gTimer == 899)
                 {
@@ -3215,8 +3215,8 @@ namespace Dysgenesis
                 Program.player.taille = 1;
                 Program.player.roll = (float)Sin(Program.gTimer / 8f) / 5f;
                 Program.player.pitch = 0.3f;
-                Program.player.position.x = Data.W_SEMI_LARGEUR;
-                Program.player.position.y = Data.W_SEMI_HAUTEUR + 100;
+                Program.player.position.x = Program.W_SEMI_LARGEUR;
+                Program.player.position.y = Program.W_SEMI_HAUTEUR + 100;
                 byte alpha;
                 if (Program.gTimer < 2350)
                     alpha = (byte)((Program.gTimer - 2240) * 2.33f);
@@ -3246,7 +3246,7 @@ namespace Dysgenesis
                     else
                         ens[0].position.x = -600 + (Program.gTimer - 1600) * 10;
 
-                    ens[0].position.y = 200 * (float)Sin((Program.gTimer - 1600) / 50f) + Data.W_SEMI_HAUTEUR;
+                    ens[0].position.y = 200 * (float)Sin((Program.gTimer - 1600) / 50f) + Program.W_SEMI_HAUTEUR;
                     ens[0].couleure.a = Program.gTimer < 1620 ? (byte)((Program.gTimer - 1600) * 12f) : (byte)255;
                 }
             }
@@ -3272,7 +3272,7 @@ namespace Dysgenesis
                             new Vector3(
                                 Program.player.position.x + 10 + i % 2 * 2 * -10,
                                 Program.player.position.y - 200,
-                                Data.G_MAX_DEPTH
+                                Program.G_MAX_DEPTH
                             ),
                             ProprietaireProjectile.JOUEUR,
                             (byte)(i % 2)
@@ -3323,7 +3323,7 @@ namespace Dysgenesis
                 gFade = (byte)((Program.gTimer - 2550) * 5);
             if (gFade != 0)
             {
-                rect.x = 0; rect.y = 0; rect.w = Data.W_LARGEUR; rect.h = Data.W_HAUTEUR;
+                rect.x = 0; rect.y = 0; rect.w = Program.W_LARGEUR; rect.h = Program.W_HAUTEUR;
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 0, gFade);
                 SDL_RenderFillRect(Program.render, ref rect);
             }
@@ -3401,7 +3401,7 @@ namespace Dysgenesis
             AUCUN,
         }
 
-        const int CURSEUR_DAS = Data.G_FPS / 4;
+        const int CURSEUR_DAS = Program.G_FPS / 4;
         const int CURSEUR_X_INIT = 810;
         const int CURSEUR_Y_INIT = 625;
         const int CURSEUR_ESPACE = 50;
@@ -3486,7 +3486,7 @@ namespace Dysgenesis
             this.position = position;
 
             // évite une division par zéro dans le code rendering
-            Math.Clamp(this.position.z, 0f, Data.G_MAX_DEPTH - 1);
+            Math.Clamp(this.position.z, 0f, Program.G_MAX_DEPTH - 1);
 
             // les explosions utilisés dans les scènes ne doivent pas faire de bruit
             if (Program.GamemodeAction())
@@ -3513,7 +3513,7 @@ namespace Dysgenesis
         public override void RenderObject()
         {
             // division par zéro évitée dans le constructeur
-            byte rayon = (byte)(100.0f / (Data.G_MAX_DEPTH - position.z) + 5);
+            byte rayon = (byte)(100.0f / (Program.G_MAX_DEPTH - position.z) + 5);
 
             for (int i = 0; i < DENSITE_EXPLOSION; i++)
             {
@@ -3547,9 +3547,9 @@ namespace Dysgenesis
         const int ALL_CHUNKS = -1;
         static SDL_Rect boite_volume = new SDL_Rect()
         {
-            x = Data.W_LARGEUR - 360,
+            x = Program.W_LARGEUR - 360,
             y = 10,
-            w = Data.W_HAUTEUR - 730,
+            w = Program.W_HAUTEUR - 730,
             h = 100
         }; // ne peut pas être readonly, RenderRect n'aime pas ca
 
@@ -3667,8 +3667,8 @@ namespace Dysgenesis
         public static void ChangerVolume()
         {
             const int MAX_VOLUME_GUI = 16;
-            const int VOLUME_TEMPS_AFFICHAGE = Data.G_FPS / 2; // nb d'images que la boite reste après que les touches soient lâchés
-            const int VOLUME_DAS = Data.G_FPS / 12; // nb d'images entre les incréments/décrements du volume
+            const int VOLUME_TEMPS_AFFICHAGE = Program.G_FPS / 2; // nb d'images que la boite reste après que les touches soient lâchés
+            const int VOLUME_DAS = Program.G_FPS / 12; // nb d'images entre les incréments/décrements du volume
 
             if (Program.TouchePesee(Touches.PLUS) || Program.TouchePesee(Touches.MINUS))
             {

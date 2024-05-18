@@ -12,7 +12,7 @@ namespace Dysgenesis
 
     public class Projectile : Sprite
     {
-        const float VITESSE_PROJECTILE = Data.P_PROJ_SPEED;
+        const float VITESSE_PROJECTILE = 0.95f;
 
         public Vector3 destination;
         public ProprietaireProjectile proprietaire;
@@ -49,9 +49,13 @@ namespace Dysgenesis
                 return true;
             }
             else if (position.z < destination.z)
+            {
                 position.z++;
+            }
             else
+            {
                 position.z--;
+            }
 
             return false;
         }
@@ -141,7 +145,7 @@ namespace Dysgenesis
 
             // si le projectile manque le joueur
             // 0.75f = marge de manoeuvre, le projectile doit clairment frapper le joueur
-            if (Background.Distance(positions_projectile[0], positions_projectile[1], Program.player.position.x, Program.player.position.y) > 0.75f * Data.P_WIDTH)
+            if (Background.Distance(positions_projectile[0], positions_projectile[1], Program.player.position.x, Program.player.position.y) > 0.75f * Player.JOUEUR_LARGEUR)
             {
                 return 0;
             }
@@ -211,7 +215,7 @@ namespace Dysgenesis
                 position.x = positions[0];
                 position.y = positions[1];
 
-                for (byte i = 0; i < Data.G_MAX_DEPTH; i++)
+                for (byte i = 0; i < Program.G_MAX_DEPTH; i++)
                 {
                     positions = PositionsSurEcran(i);
                     SDL_RenderDrawLineF(Program.render,

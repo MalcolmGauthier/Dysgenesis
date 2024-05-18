@@ -71,9 +71,9 @@ namespace Dysgenesis
         // animation pour changement de niveau + mise à jours des nb d'ennemis pour le prochain
         public static void ChangerNiveau()
         {
-            const int TEMPS_AVANT_TEXTE = (int)(3.33f * Data.G_FPS);
-            const int TEMPS_TEXTE_SUR_ECRAN = (int)(2.0f * Data.G_FPS) + TEMPS_AVANT_TEXTE;
-            const int TEMPS_APRES_TEXTE_PARTI = (int)(0.5f  + Data.G_FPS) + TEMPS_TEXTE_SUR_ECRAN;
+            const int TEMPS_AVANT_TEXTE = (int)(3.33f * Program.G_FPS);
+            const int TEMPS_TEXTE_SUR_ECRAN = (int)(2.0f * Program.G_FPS) + TEMPS_AVANT_TEXTE;
+            const int TEMPS_APRES_TEXTE_PARTI = (int)(0.5f  + Program.G_FPS) + TEMPS_TEXTE_SUR_ECRAN;
 
             // en mode arcade, l'animation commence dès que le dernier ennemi est tué.
             if (Program.Gamemode == Gamemode.ARCADE && timer < TEMPS_AVANT_TEXTE)

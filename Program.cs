@@ -60,6 +60,14 @@ namespace Dysgenesis
     // Classe Main. contient les variables importantes
     public static class Program
     {
+        public const string W_TITLE = "Dysgenesis";
+        public static int W_HAUTEUR = 1080;
+        public static int W_LARGEUR = 1920;
+        public static int W_SEMI_HAUTEUR = W_HAUTEUR / 2;
+        public static int W_SEMI_LARGEUR = W_LARGEUR / 2;
+        public const int G_FPS = 60;
+        public const int G_MAX_DEPTH = 50;
+
         static readonly SDL_Rect BARRE_HP = new SDL_Rect() { x = 125, y = 15, w = 10, h = 20 };
         static readonly SDL_Rect BARRE_VAGUE = new SDL_Rect() { x = 125, y = 40, w = 100, h = 20 };
         static readonly int[] CODE_ARCADE = { 0, (int)Touches.A, (int)Touches.R, (int)Touches.C, (int)Touches.A, (int)Touches.D, (int)Touches.E };
@@ -136,7 +144,7 @@ namespace Dysgenesis
                 SDLRender();
 
                 if (!fps_unlock)
-                    while (frame_time > DateTime.Now.Ticks - temps_entre_60_images_todo_enlever / Data.G_FPS) ;
+                    while (frame_time > DateTime.Now.Ticks - temps_entre_60_images_todo_enlever / Program.G_FPS) ;
                 frame_time = DateTime.Now.Ticks;
 
                 gTimer++;
@@ -160,7 +168,7 @@ namespace Dysgenesis
             if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
                 return 1;
 
-            window = SDL_CreateWindow(Data.W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Data.W_LARGEUR, Data.W_HAUTEUR,
+            window = SDL_CreateWindow(Program.W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Program.W_LARGEUR, Program.W_HAUTEUR,
                 fullscreen ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP : 0 | SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
             render = SDL_CreateRenderer(window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
             SDL_PollEvent(out e);
@@ -171,7 +179,7 @@ namespace Dysgenesis
             SDL_SetRenderDrawColor(render, couleure_fond_ecran.r, couleure_fond_ecran.g, couleure_fond_ecran.b, couleure_fond_ecran.a);
             SDL_RenderPresent(render);
 
-            Etoiles.Spawn(new SDL_Rect() { x = 0, y = 0, w = Data.W_LARGEUR, h = Data.W_HAUTEUR });
+            Etoiles.Spawn(new SDL_Rect() { x = 0, y = 0, w = Program.W_LARGEUR, h = Program.W_HAUTEUR });
             frame_time = DateTime.Now.Ticks;
 
             if (Son.InitSDLMixer() != 0)
@@ -471,7 +479,7 @@ namespace Dysgenesis
                 if (VerifBoss())
                 {
                     BombePulsar.DessinerBombePulsar(
-                        new Vector2(Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR / 2),
+                        new Vector2(Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2),
                         (byte)(25 - enemies[0].position.z / 4),
                         true
                     );
@@ -551,7 +559,7 @@ namespace Dysgenesis
                         "wasd pour bouger\n" +
                         "j pour tirer\n" +
                         "k pour activer une vague électrique",
-                        new Vector2(Data.W_SEMI_LARGEUR - 300, Data.W_SEMI_HAUTEUR + 400),
+                        new Vector2(Program.W_SEMI_LARGEUR - 300, Program.W_SEMI_HAUTEUR + 400),
                         2
                     );
                 }
@@ -563,20 +571,20 @@ namespace Dysgenesis
                 Text.DisplayText("dysgenesis",
                     new Vector2(Text.CENTRE, Text.CENTRE), 5);
                 Text.DisplayText("nouvelle partie",
-                    new Vector2(Data.W_SEMI_LARGEUR - 114, Data.W_SEMI_HAUTEUR + 75), 2);
+                    new Vector2(Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 75), 2);
                 Text.DisplayText("controles menu: w et s pour bouger le curseur, " +
                     "j pour sélectionner\n\ncontroles globaux: esc. pour quitter, " +
                     "+/- pour monter ou baisser le volume",
-                    new Vector2(10, Data.W_HAUTEUR - 40), 1);
+                    new Vector2(10, Program.W_HAUTEUR - 40), 1);
                 Text.DisplayText("v 0.3 (beta)",
-                    new Vector2(Text.CENTRE, Data.W_HAUTEUR - 30), 2);
+                    new Vector2(Text.CENTRE, Program.W_HAUTEUR - 30), 2);
 
                 if (curseur.curseur_max_selection >= 2)
                     Text.DisplayText("continuer: niveau " + nv_continue,
-                    new Vector2(Data.W_SEMI_LARGEUR - 114, Data.W_SEMI_HAUTEUR + 125), 2);
+                    new Vector2(Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 125), 2);
                 if (curseur.curseur_max_selection >= 3)
                     Text.DisplayText("arcade",
-                    new Vector2(Data.W_SEMI_LARGEUR - 114, Data.W_SEMI_HAUTEUR + 175), 2);
+                    new Vector2(Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 175), 2);
 
                 curseur.RenderObject();
             }

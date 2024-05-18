@@ -586,9 +586,9 @@ namespace Dysgenesis
             else
             {
                 position = new Vector3(
-                    Program.RNG.Next(DISTANCE_DE_BORD_EVITER_INIT, Data.W_LARGEUR - DISTANCE_DE_BORD_EVITER_INIT),
-                    Program.RNG.Next(DISTANCE_DE_BORD_EVITER_INIT, Data.W_HAUTEUR - DISTANCE_DE_BORD_EVITER_INIT),
-                    Data.G_MAX_DEPTH
+                    Program.RNG.Next(DISTANCE_DE_BORD_EVITER_INIT, Program.W_LARGEUR - DISTANCE_DE_BORD_EVITER_INIT),
+                    Program.RNG.Next(DISTANCE_DE_BORD_EVITER_INIT, Program.W_HAUTEUR - DISTANCE_DE_BORD_EVITER_INIT),
+                    Program.G_MAX_DEPTH
                 );
             }
 
@@ -829,13 +829,13 @@ namespace Dysgenesis
 
                     Son.StopMusic(); // TODO: n'éxecuter qu'une seule fois
 
-                    if (Background.Distance(position.x, position.y, Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR) > 30)
+                    if (Background.Distance(position.x, position.y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR) > 30)
                     {
-                        if (position.x > Data.W_SEMI_LARGEUR)
+                        if (position.x > Program.W_SEMI_LARGEUR)
                             position.x -= speed;
                         else
                             position.x += speed;
-                        if (position.y > Data.W_SEMI_HAUTEUR)
+                        if (position.y > Program.W_SEMI_HAUTEUR)
                             position.y -= speed;
                         else
                             position.y += speed;
@@ -856,8 +856,8 @@ namespace Dysgenesis
                 // partie #2 de l'animation de mort: le boss vibre au centre de l'écran avec des explosions pour 5 secondes
                 case StatusEnnemi.BOSS_MORT_2:
 
-                    position.x = Data.W_SEMI_LARGEUR + Program.RNG.Next(-2, 2);
-                    position.y = Data.W_SEMI_HAUTEUR + Program.RNG.Next(-2, 2);
+                    position.x = Program.W_SEMI_LARGEUR + Program.RNG.Next(-2, 2);
+                    position.y = Program.W_SEMI_HAUTEUR + Program.RNG.Next(-2, 2);
 
                     if (Program.gTimer % 30 == 0)
                     {
@@ -905,7 +905,7 @@ namespace Dysgenesis
                     timer = 0;
                     Program.player.powerup = TypeItem.NONE;
                     Program.player.fire_rate = Player.JOUEUR_VITESSE_TIR;
-                    position = new Vector3(Data.W_SEMI_LARGEUR, Data.W_SEMI_HAUTEUR, 100);
+                    position = new Vector3(Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR, 100);
                     statut = StatusEnnemi.BOSS_INIT_2;
 
                     break;
@@ -1092,8 +1092,8 @@ namespace Dysgenesis
                 do
                 {
                     // ici et plus loin, on veut éviter le bas de l'écran, car le joueur ne peut pas tirer là
-                    nouveauX = Program.RNG.Next(100, Data.W_LARGEUR - 100);
-                    nouveauY = Program.RNG.Next(100, Data.W_HAUTEUR - 400);
+                    nouveauX = Program.RNG.Next(100, Program.W_LARGEUR - 100);
+                    nouveauY = Program.RNG.Next(100, Program.W_HAUTEUR - 400);
                 }
                 while (Background.Distance(nouveauX, nouveauY, Program.player.position.x, Program.player.position.y) < 800);
 
@@ -1103,15 +1103,15 @@ namespace Dysgenesis
             // si l'ennemi est pas trop proche du joueur, retourne la position du joueur
             if (dist_player_ennemi < 800)
             {
-                float Yverif = Math.Clamp(Program.player.position.y, 0, Data.W_HAUTEUR - 400);
+                float Yverif = Math.Clamp(Program.player.position.y, 0, Program.W_HAUTEUR - 400);
                 return new Vector2(Program.player.position.x, Yverif);
             }
 
             // si l'ennemi est loin du joueur, nouvelle cible = plutôt proche du joueur
             do
             {
-                nouveauX = Program.RNG.Next(100, Data.W_LARGEUR - 100);
-                nouveauY = Program.RNG.Next(100, Data.W_HAUTEUR - 400);
+                nouveauX = Program.RNG.Next(100, Program.W_LARGEUR - 100);
+                nouveauY = Program.RNG.Next(100, Program.W_HAUTEUR - 400);
             }
             while (Background.Distance(nouveauX, nouveauY, Program.player.position.x, Program.player.position.y) > 800);
 
@@ -1127,7 +1127,7 @@ namespace Dysgenesis
             // mouvement avant/arrière
             if (z_speed != 0 && position.z != 0)
             {
-                position.z -= z_speed / Data.G_FPS;
+                position.z -= z_speed / Program.G_FPS;
 
                 if (position.z < LIM_MIN_Z_ENNEMI)
                     position.z = 0;
@@ -1158,7 +1158,7 @@ namespace Dysgenesis
                 speed *= ACCELERATION_ENNEMI_Z0;
 
             // todo: ???
-            pitch = (position.y - Data.W_SEMI_HAUTEUR) / Data.W_SEMI_HAUTEUR * 0.25f;
+            pitch = (position.y - Program.W_SEMI_HAUTEUR) / Program.W_SEMI_HAUTEUR * 0.25f;
 
             // seulement ces ennemis sont capables de tourner leur modèle
             if (type == TypeEnnemi.DUPLIQUEUR || type == TypeEnnemi.DUPLIQUEUR_DUR || type == TypeEnnemi.BOSS)

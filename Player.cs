@@ -12,7 +12,7 @@ namespace Dysgenesis
         public const int JOUEUR_MAX_HP = 150;
         public const int JOUEUR_DEFAULT_HP = 100;
         public const int JOUEUR_LARGEUR = 50;
-        const float VAGUE_ELECTRIQUE_REGENERATION = 1.0f / (30f * Data.G_FPS); // ~1/1800, 1 par 30 secondes
+        const float VAGUE_ELECTRIQUE_REGENERATION = 1.0f / (30f * Program.G_FPS); // ~1/1800, 1 par 30 secondes
         const int JOUEUR_VITESSE = 1;
         const int JOUEUR_HAUTEUR = 20;
 
@@ -134,7 +134,7 @@ namespace Dysgenesis
             powerup = TypeItem.NONE;
             shockwaves = JOUEUR_MAX_VAGUES;
             // ces deux lignes sont fait pourque le joueur commence le jeu en volant très vite du bas de l'écran, comme si il arrivait
-            position = new Vector3(Data.W_SEMI_LARGEUR, Data.W_HAUTEUR, 0);
+            position = new Vector3(Program.W_SEMI_LARGEUR, Program.W_HAUTEUR, 0);
             velocity = new Vector2(0, -30);
             afficher = true;
             pitch = 0;
@@ -188,7 +188,7 @@ namespace Dysgenesis
                     new Vector3(
                         position.x + DECALS_SPREAD[i].x,
                         position.y + DECALS_SPREAD[i].y,
-                        Data.G_MAX_DEPTH
+                        Program.G_MAX_DEPTH
                     ),
                     ProprietaireProjectile.JOUEUR,
                     (byte)(i % 2)
@@ -251,12 +251,12 @@ namespace Dysgenesis
         {
             const float JOUEUR_MORT_VITESSE_X = -0.6f;
             const float JOUEUR_MORT_VITESSE_Y = 0.6f;
-            const float JOUEUR_MORT_VITESSE_ROLL = 1.0f / (1 * Data.G_FPS);
-            const float JOUEUR_MORT_FACTEUR_GRANDEUR = 1.0f / Data.G_FPS;
+            const float JOUEUR_MORT_VITESSE_ROLL = 1.0f / (1 * Program.G_FPS);
+            const float JOUEUR_MORT_FACTEUR_GRANDEUR = 1.0f / Program.G_FPS;
             const int QUANTITE_LIGNES_MODELE_MORT = 3;
 
-            const int IMAGES_AVANT_TEXTE = 2 * Data.G_FPS;
-            const int IMAGES_AVANT_RETOUR_MENU = 15 * Data.G_FPS;
+            const int IMAGES_AVANT_TEXTE = 2 * Program.G_FPS;
+            const int IMAGES_AVANT_RETOUR_MENU = 15 * Program.G_FPS;
 
             if (timer == 1)
             {
@@ -292,7 +292,7 @@ namespace Dysgenesis
                 if (Program.Gamemode == Gamemode.ARCADE)
                 {
                     Text.DisplayText("score: " + Program.niveau,
-                        new Vector2(Text.CENTRE, Data.W_SEMI_HAUTEUR + 30), 2, Text.BLANC, timer - 120, Text.NO_SCROLL);
+                        new Vector2(Text.CENTRE, Program.W_SEMI_HAUTEUR + 30), 2, Text.BLANC, timer - 120, Text.NO_SCROLL);
                 }
             }
 
@@ -358,14 +358,14 @@ namespace Dysgenesis
             if (position.x - JOUEUR_LARGEUR < 0)
                 position.x = JOUEUR_LARGEUR;
 
-            if (position.x + JOUEUR_LARGEUR > Data.W_LARGEUR)
-                position.x = Data.W_LARGEUR - JOUEUR_LARGEUR;
+            if (position.x + JOUEUR_LARGEUR > Program.W_LARGEUR)
+                position.x = Program.W_LARGEUR - JOUEUR_LARGEUR;
 
             if (position.y - JOUEUR_HAUTEUR < 0)
                 position.y = JOUEUR_HAUTEUR;
 
-            if (position.y + JOUEUR_HAUTEUR > Data.W_HAUTEUR)
-                position.y = Data.W_HAUTEUR - JOUEUR_HAUTEUR;
+            if (position.y + JOUEUR_HAUTEUR > Program.W_HAUTEUR)
+                position.y = Program.W_HAUTEUR - JOUEUR_HAUTEUR;
         }
 
         // fonction mystère
