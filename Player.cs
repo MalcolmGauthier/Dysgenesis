@@ -82,7 +82,7 @@ namespace Dysgenesis
         public Vector2 velocity;
         public TypeItem powerup = TypeItem.NONE;
 
-        public float shockwaves = 0;
+        public float vagues = 0;
         public int HP = JOUEUR_DEFAULT_HP;
         public int fire_rate = JOUEUR_VITESSE_TIR;
         int fire_timer = 0;
@@ -122,7 +122,7 @@ namespace Dysgenesis
             if (Program.bombe.HP_bombe > 0)
                 TirJoueur();
 
-            shockwaves += VAGUE_ELECTRIQUE_REGENERATION;
+            vagues += VAGUE_ELECTRIQUE_REGENERATION;
 
             return false;
         }
@@ -132,7 +132,7 @@ namespace Dysgenesis
         {
             HP = JOUEUR_DEFAULT_HP;
             powerup = TypeItem.NONE;
-            shockwaves = JOUEUR_MAX_VAGUES;
+            vagues = JOUEUR_MAX_VAGUES;
             // ces deux lignes sont fait pourque le joueur commence le jeu en volant très vite du bas de l'écran, comme si il arrivait
             position = new Vector3(Program.W_SEMI_LARGEUR, Program.W_HAUTEUR, 0);
             velocity = new Vector2(0, -30);

@@ -525,14 +525,14 @@ namespace Dysgenesis
         {
             MODELE_E1, MODELE_E2, MODELE_E3, new Vector3[]{ }, MODELE_E5,
             MODELE_E6, MODELE_E7, MODELE_E1, MODELE_E2, MODELE_E3,
-            new Vector3[]{ }, MODELE_E5, MODELE_E6, MODELE_E7, MODELE_P,
+            new Vector3[]{ }, MODELE_E5, MODELE_E6, MODELE_E7, Player.MODELE_P,
             MODELE_E7_1, MODELE_E7_1
         };
         public static readonly int[][] lignes_a_sauter_ennemis =
         {
             MODELE_E1_SAUTS, MODELE_E2_SAUTS, MODELE_E3_SAUTS, new int[1]{-1}, MODELE_E5_SAUTS,
             MODELE_E6_SAUTS, MODELE_E7_SAUTS, MODELE_E1_SAUTS, MODELE_E2_SAUTS, MODELE_E3_SAUTS,
-            new int[1]{-1}, MODELE_E5_SAUTS, MODELE_E6_SAUTS, MODELE_E7_SAUTS, MODELE_P_SAUTS,
+            new int[1]{-1}, MODELE_E5_SAUTS, MODELE_E6_SAUTS, MODELE_E7_SAUTS, Player.MODELE_P_SAUTS,
             MODELE_E7_1_SAUTS, MODELE_E7_1_SAUTS
         };
 

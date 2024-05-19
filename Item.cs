@@ -332,7 +332,7 @@ namespace Dysgenesis
                         Program.player.HP += HP_BONUS;
                         break;
                     case TypeItem.WAVE:
-                        Program.player.shockwaves += 1.0f;
+                        Program.player.vagues += 1.0f;
                         break;
                     case TypeItem.HOMING:
                     case TypeItem.X2_SHOT:

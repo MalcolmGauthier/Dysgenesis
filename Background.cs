@@ -1604,7 +1604,7 @@ namespace Dysgenesis
 
                 #region vaisseaux
                 Vector3[] model = Ennemi.modeles_ennemis[(int)TypeEnnemi.DUPLIQUEUR];
-                short x, y;
+                int x, y;
                 sbyte depth = -15;
                 float pitch = -1f;
 

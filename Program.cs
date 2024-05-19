@@ -3,6 +3,7 @@
  Beta v0.2
  */
 using SDL2;
+using System.Runtime.CompilerServices;
 using static SDL2.SDL;
 using static SDL2.SDL_mixer;
 
@@ -10,25 +11,31 @@ namespace Dysgenesis
 {
     public struct Vector2
     {
+        public float x;
+        public float y;
+
         public Vector2(float x, float y)
         {
             this.x = x;
             this.y = y;
         }
-        public float x;
-        public float y;
+
+        public static implicit operator Vector2(Vector3 vector) => new Vector2(vector.x, vector.y);
     }
     public struct Vector3
     {
+        public float x;
+        public float y;
+        public float z;
+
         public Vector3(float x, float y, float z)
         {
             this.x = x;
             this.y = y;
             this.z = z;
         }
-        public float x;
-        public float y;
-        public float z;
+
+        public static implicit operator Vector3(Vector2 vector) => new Vector3(vector.x, vector.y, 0);
     }
     public enum Gamemode
     {
@@ -60,7 +67,7 @@ namespace Dysgenesis
     // Classe Main. contient les variables importantes
     public static class Program
     {
-        public const string W_TITLE = "Dysgenesis";
+        const string W_TITLE = "Dysgenesis";
         public static int W_HAUTEUR = 1080;
         public static int W_LARGEUR = 1920;
         public static int W_SEMI_HAUTEUR = W_HAUTEUR / 2;
@@ -382,7 +389,7 @@ namespace Dysgenesis
 
                             // conséquences pour avoir sélectionné l'option
                             player.HP = 50;
-                            player.shockwaves = 0;
+                            player.vagues = 0;
 
                             Gamemode = Gamemode.GAMEPLAY;
                             break;
@@ -427,7 +434,7 @@ namespace Dysgenesis
                 return;
 
             if (TouchePesee(Touches.K))
-                Shockwave.AttemptSpawn();
+                VagueElectrique.EssayerCreation();
 
             // évite div/0, mais ne devrait jamais être frappé
             if (niveau == -1)
@@ -466,7 +473,7 @@ namespace Dysgenesis
             ExecuterLogique(explosions.Cast<Sprite>().ToList());
 
             player.HP = Math.Clamp(player.HP, 0, Player.JOUEUR_MAX_HP);
-            player.shockwaves = Math.Clamp(player.shockwaves, 0, Player.JOUEUR_MAX_VAGUES);
+            player.vagues = Math.Clamp(player.vagues, 0, Player.JOUEUR_MAX_VAGUES);
         }
 
         // dessiner tout à l'objet SDL_Renderer
@@ -500,7 +507,7 @@ namespace Dysgenesis
                 if (bombe.HP_bombe <= 0)
                     return;
 
-                Shockwave.Display();
+                VagueElectrique.Afficher();
 
                 SDL_Rect barre_hud = BARRE_HP;
                 for (int i = 0; i < player.HP; i++)
@@ -518,7 +525,7 @@ namespace Dysgenesis
                 }
 
                 barre_hud = BARRE_VAGUE;
-                int vagues_entiers = (int)MathF.Floor(player.shockwaves);
+                int vagues_entiers = (int)MathF.Floor(player.vagues);
                 SDL_SetRenderDrawColor(render, 0, 255, 255, 255);
                 for (int i = vagues_entiers; i > 0; i--)
                 {
@@ -526,7 +533,7 @@ namespace Dysgenesis
                     barre_hud.x += barre_hud.w + 5;
                 }
 
-                float vagues_reste = player.shockwaves % 1.0f;
+                float vagues_reste = player.vagues % 1.0f;
                 barre_hud.w = (int)(MathF.Round(vagues_reste, 2) * 100);
                 SDL_RenderFillRect(render, ref barre_hud);
 

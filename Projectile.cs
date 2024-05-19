@@ -1,6 +1,7 @@
 ﻿using SDL2;
 using static SDL2.SDL;
 using static System.Math;
+#pragma warning disable CA1806
 
 namespace Dysgenesis
 {
@@ -10,13 +11,14 @@ namespace Dysgenesis
         ENNEMI
     }
 
+    // classe pour les projectiles, du joueur et des ennemis
     public class Projectile : Sprite
     {
         const float VITESSE_PROJECTILE = 0.95f;
 
         public Vector3 destination;
         public ProprietaireProjectile proprietaire;
-        public byte ID;//todo: enlever ID
+        public byte ID;//todo: enlever ID, il dit si c'est le point de tir 1 ou 2 qui l'a tiré
         public bool laser;
 
         public Projectile(Vector3 position, Vector3 destination, ProprietaireProjectile proprietaire, byte ID)
@@ -39,16 +41,19 @@ namespace Dysgenesis
             Program.projectiles.Add(this);
         }
 
+        // logique des projectiles
         public override bool Exist()
         {
-            if (ProjectileToucheJoueur() > 0) return true;
+            if (ProjectileToucheJoueur() > 0)
+                return true;
 
-            if (Abs(position.z - destination.z) < 1)
+            if (Abs(position.z - destination.z) < 1.0f)
             {
                 Program.projectiles.Remove(this);
                 return true;
             }
-            else if (position.z < destination.z)
+            
+            if (position.z < destination.z)
             {
                 position.z++;
             }
@@ -60,52 +65,65 @@ namespace Dysgenesis
             return false;
         }
 
+        // fonction pour quand le joueur a l'item qui tir vers l'ennemi le plus proche
+        // modifie la destination à l'ennemi le plus proche, mais ne le change pas si aucun ennemi est trouvé
         public void FindTarget()
         {
-            int closest = 99;
-            int closest_distance = 9999;
+            if (Program.enemies.Count == 0)
+                return;
+
+            int plus_petite_distance = int.MaxValue;
 
             for (int i = 0; i < Program.enemies.Count; i++)
             {
-                if (Program.enemies[i].position.z > 0)
-                {
-                    int distance = Background.Distance(
-                        Program.player.position.x,
-                        Program.player.position.y,
-                        Program.enemies[i].position.x,
-                        Program.enemies[i].position.y
-                    );
+                // on ne tire pas aux ennemis à z=0
+                if (Program.enemies[i].position.z <= 0)
+                    continue;
+                
+                int distance = Background.Distance(
+                    Program.player.position.x,
+                    Program.player.position.y,
+                    Program.enemies[i].position.x,
+                    Program.enemies[i].position.y
+                );
 
-                    if (distance < closest_distance)
-                    {
-                        closest = i;
-                        closest_distance = distance;
-                    }
+                if (distance < plus_petite_distance)
+                {
+                    destination.x = Program.enemies[i].position.x;
+                    destination.y = Program.enemies[i].position.y;
+                    plus_petite_distance = distance;
                 }
-            }
-            if (closest != 99)
-            {
-                destination.x = Program.enemies[closest].position.x;
-                destination.y = Program.enemies[closest].position.y;
             }
         }
 
-        public float[] PositionsSurEcran(float depth)
+        // retourne la position du projectile (début et fin de la ligne)
+        // sur l'écran du joueur. ceci est important pour le rendering
+        // la variable profondeur devrait toujours être position.z, et est utile
+        // pour les lasers et ennemis
+        public float[] PositionsSurEcran(float profondeur)
         {
             Vector3 pos = position;
             Vector3 dest = destination;
 
-            if (proprietaire == ProprietaireProjectile.ENNEMI)
+            // la formule exponentielle utilisée pour les projectiles assume que le projectile traverse
+            // dans la direction +Z. Mais pour les ennemis, le projectile traverse dans la direction -Z.
+            // Alors si on essaye de dessiner le projectile sans ce bout de code, la ligne commencera grande
+            // quand tiré par l'ennemi, et raptissera en approchant le joueur. Pour l'effet 3D, on veut l'inverse.
+            // Pour réparer cela, on ment à la formule mathématique en inversant la position de départ (rappel que
+            // le x et y variable position est utilisée par le projectile comme position de départ, elles ne changent
+            // jamais) avec la destination. pas besoin de remettre les z à les bonnes valeures, car elles ne sont
+            // pas utilisés dans cette fonction, et on utilise des copies locales.
+
+            // TLDR: "it just works" - Todd Howard
+            if (pos.z > dest.z)
             {
-                // "it just works" - Todd Howard
                 (pos, dest) = (dest, pos);
-                pos.z = depth;
             }
 
             float dist_x_de_destination = pos.x - dest.x;
             float dist_y_de_destination = pos.y - dest.y;
-            float facteur_profondeur_1 = MathF.Pow(VITESSE_PROJECTILE, depth);
-            float facteur_profondeur_2 = MathF.Pow(VITESSE_PROJECTILE, depth + 1);
+            float facteur_profondeur_1 = MathF.Pow(VITESSE_PROJECTILE, profondeur);
+            float facteur_profondeur_2 = MathF.Pow(VITESSE_PROJECTILE, profondeur + 1);
 
 
             return new float[4]{
@@ -124,6 +142,8 @@ namespace Dysgenesis
         // Retourne >0 si projectile détruit, <=0 sinon
         public int ProjectileToucheJoueur()
         {
+            const float MARGE_DE_MANOEUVRE = 0.75f;
+
             if (proprietaire == ProprietaireProjectile.JOUEUR)
             {
                 return -1;
@@ -145,7 +165,11 @@ namespace Dysgenesis
 
             // si le projectile manque le joueur
             // 0.75f = marge de manoeuvre, le projectile doit clairment frapper le joueur
-            if (Background.Distance(positions_projectile[0], positions_projectile[1], Program.player.position.x, Program.player.position.y) > 0.75f * Player.JOUEUR_LARGEUR)
+            if (Background.Distance(
+                positions_projectile[0],
+                positions_projectile[1],
+                Program.player.position.x,
+                Program.player.position.y) > MARGE_DE_MANOEUVRE * Player.JOUEUR_LARGEUR)
             {
                 return 0;
             }
@@ -174,8 +198,12 @@ namespace Dysgenesis
             return 3;
         }
 
+        // dessine le projectile à l'écran
         public override void RenderObject()
         {
+            if (Program.player.Mort())
+                return;
+
             if (proprietaire == ProprietaireProjectile.ENNEMI)
             {
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
@@ -202,12 +230,9 @@ namespace Dysgenesis
                     break;
             }
 
-            if (Program.player.Mort())
-                return;
-
             float[] positions;
 
-            if (laser && proprietaire == ProprietaireProjectile.JOUEUR)
+            if (laser)
             {
                 // à chaque image, attacher le bout du laser au points de tir du joueur
                 // TODO: ceci est la seule utilisation de ID, trouver comment l'enlever
@@ -217,13 +242,27 @@ namespace Dysgenesis
 
                 for (byte i = 0; i < Program.G_MAX_DEPTH; i++)
                 {
+                    const int LARGEUR_MAX_LASER = 5;
+
+                    // cette formule ne fonctionne seulement pour la direction +Z, qui est celle du joueur
+                    int largeur_laser = ((Program.G_MAX_DEPTH - i) / Program.G_MAX_DEPTH) * LARGEUR_MAX_LASER;
+
                     positions = PositionsSurEcran(i);
                     SDL_RenderDrawLineF(Program.render,
-                        positions[0] + Program.RNG.Next(-5, 5),
-                        positions[1] + Program.RNG.Next(-5, 5),
-                        positions[2] + Program.RNG.Next(-5, 5),
-                        positions[3] + Program.RNG.Next(-5, 5)
+                        positions[0] + Program.RNG.Next(-largeur_laser, largeur_laser),
+                        positions[1] + Program.RNG.Next(-largeur_laser, largeur_laser),
+                        positions[2] + Program.RNG.Next(-largeur_laser, largeur_laser),
+                        positions[3] + Program.RNG.Next(-largeur_laser, largeur_laser)
                     );
+
+                    // si le laser est laid, remettre le vieux code:
+                    //positions = PositionsSurEcran(i);
+                    //SDL_RenderDrawLineF(Program.render,
+                    //    positions[0] + Program.RNG.Next(-5, 5),
+                    //    positions[1] + Program.RNG.Next(-5, 5),
+                    //    positions[2] + Program.RNG.Next(-5, 5),
+                    //    positions[3] + Program.RNG.Next(-5, 5)
+                    //);
                 }
 
                 return;
@@ -238,7 +277,10 @@ namespace Dysgenesis
             );
         }
     }
-    public static class Shockwave
+
+    // classe pour les vagues électriques que le joueur peux utiliser si il y a
+    // des ennemis à coté de lui
+    public static class VagueElectrique
     {
         const int LARGEUR_MAX_VAGUE_ELECTRIQUE = 150;
         const int LARGEUR_MIN_VAGUE_ELECTRIQUE = 150;
@@ -246,42 +288,44 @@ namespace Dysgenesis
 
         static float rayon = 0;
         static float grow = 0;
-        static bool shown = false;
-        static uint cooldown;
+        static bool afficher = false;
+        static uint timer;
 
         // affiche une nouvelle vague electrique si possible
-        public static void AttemptSpawn()
+        public static void EssayerCreation()
         {
-            if (shown || Program.player.Mort() || Program.player.shockwaves < 1.0f)
+            if (afficher || Program.player.Mort() || Program.player.vagues < 1.0f)
                 return;
 
-            cooldown = 0;
-            Program.player.shockwaves -= 1.0f;
+            //TODO: changer au complet le système d'agrandissement, wtf c quoi ceci
+            timer = 0;
+            Program.player.vagues -= 1.0f;
             rayon = 0;
             grow = LARGEUR_MAX_VAGUE_ELECTRIQUE + LARGEUR_MIN_VAGUE_ELECTRIQUE;
-            shown = true;
+            afficher = true;
             Son.JouerEffet(ListeAudioEffets.VAGUE);
         }
         
-        public static void Display()
+        public static void Afficher()
         {
-            if (!shown)
+            if (!afficher)
                 return;
 
-            cooldown++;
+            timer++;
 
             SDL_SetRenderDrawColor(Program.render, 0, 255, 255, 255);
             float angle = MathF.PI / (PRECISION_VAGUE_ELECTRIQUE / 2.0f);
 
-            for (int nb_de_cercles = 0; nb_de_cercles < 3; nb_de_cercles++)
+            const int NOMBRE_DE_CERCLES = 3;
+            for (int i = 0; i < NOMBRE_DE_CERCLES; i++)
             {
                 float rand1, rand2;
-                for (float i = 0; i < PRECISION_VAGUE_ELECTRIQUE; i++)
+                for (float j = 0; j < PRECISION_VAGUE_ELECTRIQUE; j++)
                 {
                     rand1 = Program.RNG.Next(-20, 20) + rayon;
                     rand2 = Program.RNG.Next(-20, 20) + rayon;
-                    float angle_pos1 = i * angle;
-                    float angle_pos2 = (i + 1) * angle;
+                    float angle_pos1 = j * angle;
+                    float angle_pos2 = (j + 1) * angle;
                     SDL_RenderDrawLineF(Program.render,
                         Program.player.position.x + rand1 * MathF.Sin(angle_pos1),
                         Program.player.position.y + rand1 * MathF.Cos(angle_pos1),
@@ -294,9 +338,10 @@ namespace Dysgenesis
             grow /= 1.2f;
             rayon = LARGEUR_MAX_VAGUE_ELECTRIQUE - grow;
             if (rayon >= LARGEUR_MAX_VAGUE_ELECTRIQUE - 1)
-                shown = false;
+                afficher = false;
 
-            if (cooldown < 10 || cooldown % 3 != 0)
+            // la vague est seulement capable de faire des dégats après 10 images, et ensuite une fois au trois images
+            if (timer < 10 || timer % 3 != 0)
                 return;
 
             for (int i = 0; i < Program.enemies.Count; i++)
@@ -304,8 +349,14 @@ namespace Dysgenesis
                 if (Program.enemies[i].position.z != 0)
                     continue;
 
-                if (Background.Distance(Program.enemies[i].position.x, Program.enemies[i].position.y, Program.player.position.x, Program.player.position.y) <= LARGEUR_MAX_VAGUE_ELECTRIQUE)
+                if (Background.Distance(
+                    Program.enemies[i].position.x, 
+                    Program.enemies[i].position.y, 
+                    Program.player.position.x, 
+                    Program.player.position.y) <= LARGEUR_MAX_VAGUE_ELECTRIQUE)
+                {
                     Program.enemies[i].HP--;
+                }
 
                 if (Program.enemies[i].HP <= 0)
                 {
