@@ -1,5 +1,4 @@
-﻿using SDL2;
-using static SDL2.SDL;
+﻿using static SDL2.SDL;
 using static System.Math;
 #pragma warning disable CA1806
 
@@ -20,6 +19,7 @@ namespace Dysgenesis
         public ProprietaireProjectile proprietaire;
         public byte ID;//todo: enlever ID, il dit si c'est le point de tir 1 ou 2 qui l'a tiré
         public bool laser;
+        float z_init;
 
         public Projectile(Vector3 position, Vector3 destination, ProprietaireProjectile proprietaire, byte ID)
         {
@@ -28,6 +28,7 @@ namespace Dysgenesis
             this.destination = destination;
             this.ID = ID;
             laser = false;
+            z_init = this.position.z;
 
             if (proprietaire == ProprietaireProjectile.JOUEUR)
             {
@@ -52,7 +53,7 @@ namespace Dysgenesis
                 Program.projectiles.Remove(this);
                 return true;
             }
-            
+
             if (position.z < destination.z)
             {
                 position.z++;
@@ -79,7 +80,7 @@ namespace Dysgenesis
                 // on ne tire pas aux ennemis à z=0
                 if (Program.enemies[i].position.z <= 0)
                     continue;
-                
+
                 int distance = Background.Distance(
                     Program.player.position.x,
                     Program.player.position.y,
@@ -119,6 +120,10 @@ namespace Dysgenesis
             {
                 (pos, dest) = (dest, pos);
             }
+
+            // wtf
+            //if (z_init - profondeur != 0)
+            //    profondeur = (profondeur / (z_init - profondeur)) * Program.G_MAX_DEPTH;
 
             float dist_x_de_destination = pos.x - dest.x;
             float dist_y_de_destination = pos.y - dest.y;
@@ -208,26 +213,29 @@ namespace Dysgenesis
             {
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
             }
-            else switch (Program.player.powerup)
+            else
             {
-                case TypeItem.X2_SHOT:
-                    SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                    break;
-                case TypeItem.X3_SHOT:
-                    SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                    break;
-                case TypeItem.HOMING:
-                    SDL_SetRenderDrawColor(Program.render, 64, 255, 64, 255);
-                    break;
-                case TypeItem.SPREAD:
-                    SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                    break;
-                case TypeItem.LASER:
-                    SDL_SetRenderDrawColor(Program.render, 127, 0, 255, 255);
-                    break;
-                default:
-                    SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                    break;
+                switch (Program.player.powerup)
+                {
+                    case TypeItem.X2_SHOT:
+                        SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
+                        break;
+                    case TypeItem.X3_SHOT:
+                        SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
+                        break;
+                    case TypeItem.HOMING:
+                        SDL_SetRenderDrawColor(Program.render, 64, 255, 64, 255);
+                        break;
+                    case TypeItem.SPREAD:
+                        SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
+                        break;
+                    case TypeItem.LASER:
+                        SDL_SetRenderDrawColor(Program.render, 127, 0, 255, 255);
+                        break;
+                    default:
+                        SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
+                        break;
+                }
             }
 
             float[] positions;
@@ -304,7 +312,8 @@ namespace Dysgenesis
             actif = true;
             Son.JouerEffet(ListeAudioEffets.VAGUE);
         }
-        
+
+        // logique pour la vague électrique
         public static void Exist()
         {
             if (!actif)
@@ -326,9 +335,9 @@ namespace Dysgenesis
                     continue;
 
                 if (Background.Distance(
-                    Program.enemies[i].position.x, 
-                    Program.enemies[i].position.y, 
-                    Program.player.position.x, 
+                    Program.enemies[i].position.x,
+                    Program.enemies[i].position.y,
+                    Program.player.position.x,
                     Program.player.position.y) <= rayon)
                 {
                     Program.enemies[i].HP--;
@@ -344,6 +353,7 @@ namespace Dysgenesis
             }
         }
 
+        // dessine la vague électrique à l'écran si besoin
         public static void Render()
         {
             if (!actif)

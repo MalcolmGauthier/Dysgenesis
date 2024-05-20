@@ -82,7 +82,8 @@ namespace Dysgenesis
         const int BOSS_MAX_HP = 150;
         const int DISTANCE_DE_BORD_EVITER_INIT = 200;
         const float VITESSE_MOYENNE_ENNEMI = 1f;
-        const float VITESSE_MOYENNE_Z_ENNEMI = 10f;
+        const float VITESSE_MOYENNE_Z_ENNEMI = 5f;
+        const float VITESSE_MOYENNE_TIR_ENNEMI = 1f;
         const float ENNEMI_FRICTION = 0.8f;
 
         // le data pour tout les ennemis dans le jeu. Les ennemis sont trops simmilaires
@@ -567,7 +568,7 @@ namespace Dysgenesis
             speed = data.vitesse;
             z_speed = data.vitesse_z;
             indexs_de_tir = data.indexs_tir;
-            fire_cooldown = data.vitesse_tir;
+            fire_cooldown = Program.G_FPS / data.vitesse_tir;//TODO: enlever gfps
             couleure = data.couleure;
 
             modele = modeles_ennemis[(int)type];

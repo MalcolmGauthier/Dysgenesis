@@ -250,69 +250,94 @@ namespace Dysgenesis
             return false;
         }
     }
+
+    // classe statique qui gère les étoiles dans le fond d'écran.
+    // les fonctions peuvent êtres appelées avec des spécifications, comme c'est fait dans les scènes
     public static class Etoiles
     {
         public const int DENSITE_ETOILES = 100;
-        const int RAYON_DEBUTE_ETOILES = 100;
+        const int RAYON_DEBUT_ETOILES = 100;
         const float VITESSE_ETOILES = 1.02f;
 
-        // todo: enlever limite avec liste
-        public static Vector2[] etoiles_positions = new Vector2[DENSITE_ETOILES];
-        public static void Spawn(SDL_Rect bounds, short limite = DENSITE_ETOILES)
+        public static List<Vector2> positions_etoiles = new();
+
+        // remplit positions_etoiles avec des positions dans bounds
+        public static void Spawn(SDL_Rect bounds, int limite)
         {
-            if (limite > DENSITE_ETOILES)
-                limite = DENSITE_ETOILES;
+            positions_etoiles = new List<Vector2>(limite);
 
             for (int i = 0; i < limite; i++)
             {
-                etoiles_positions[i].x = Program.RNG.Next(bounds.x, bounds.x + bounds.w);
-                etoiles_positions[i].y = Program.RNG.Next(bounds.y, bounds.y + bounds.h);
+                positions_etoiles.Add(new Vector2(
+                    Program.RNG.Next(bounds.x, bounds.x + bounds.w),
+                    Program.RNG.Next(bounds.y, bounds.y + bounds.h)
+                ));
             }
         }
+
+        // bouge les étoiles, pourqu'ils vont vers le bord de l'écran
         public static void Move()
         {
-            for (int i = 0; i < DENSITE_ETOILES; i++)
+            for (int i = 0; i < positions_etoiles.Count; i++)
             {
-                etoiles_positions[i].x = (etoiles_positions[i].x - Program.W_SEMI_LARGEUR) * VITESSE_ETOILES + Program.W_SEMI_LARGEUR;
-                etoiles_positions[i].y = (etoiles_positions[i].y - Program.W_SEMI_HAUTEUR) * VITESSE_ETOILES + Program.W_SEMI_HAUTEUR;
+                positions_etoiles[i] = new Vector2(
+                    (positions_etoiles[i].x - Program.W_SEMI_LARGEUR) * VITESSE_ETOILES + Program.W_SEMI_LARGEUR,
+                    (positions_etoiles[i].y - Program.W_SEMI_HAUTEUR) * VITESSE_ETOILES + Program.W_SEMI_HAUTEUR
+                );
 
-                if (etoiles_positions[i].x >= Program.W_LARGEUR || etoiles_positions[i].x <= 0 || etoiles_positions[i].y >= Program.W_HAUTEUR || etoiles_positions[i].y <= 0)
+                // si l'étoile est hors de l'écran
+                if (
+                    positions_etoiles[i].x > Program.W_LARGEUR ||
+                    positions_etoiles[i].y > Program.W_HAUTEUR ||
+                    positions_etoiles[i].x < 0 ||
+                    positions_etoiles[i].y < 0
+                    )
                 {
-                    etoiles_positions[i].x = Program.RNG.Next(Program.W_SEMI_LARGEUR - RAYON_DEBUTE_ETOILES, Program.W_SEMI_LARGEUR + RAYON_DEBUTE_ETOILES);
-                    etoiles_positions[i].y = Program.RNG.Next(Program.W_SEMI_HAUTEUR - RAYON_DEBUTE_ETOILES, Program.W_SEMI_HAUTEUR + RAYON_DEBUTE_ETOILES);
+                    positions_etoiles[i] = new Vector2(
+                        Program.RNG.Next(Program.W_SEMI_LARGEUR - RAYON_DEBUT_ETOILES, Program.W_SEMI_LARGEUR + RAYON_DEBUT_ETOILES),
+                        Program.RNG.Next(Program.W_SEMI_HAUTEUR - RAYON_DEBUT_ETOILES, Program.W_SEMI_HAUTEUR + RAYON_DEBUT_ETOILES)
+                    );
 
-                    if (etoiles_positions[i].x == Program.W_SEMI_LARGEUR && etoiles_positions[i].y == Program.W_SEMI_HAUTEUR)
-                        etoiles_positions[i].x++;
+                    // une étoile qui se trouve exactement au centre de l'écran ne bougera pas, alors on doit le tasser un peu
+                    if (positions_etoiles[i].x == Program.W_SEMI_LARGEUR && positions_etoiles[i].y == Program.W_SEMI_HAUTEUR)
+                        positions_etoiles[i] = new Vector2(positions_etoiles[i].x + 1, positions_etoiles[i].y);
                 }
             }
         }
-        public static void Render(short limite)
+
+        // dessine les étoiles à l'écran.
+        // limite permet de dessiner moins d'étoiles, mais c'est seulement fait pendant les scènes
+        public static void Render(int limite)
         {
-            if (limite > DENSITE_ETOILES)
-                limite = DENSITE_ETOILES;
+            limite = Math.Clamp(limite, 0, positions_etoiles.Count);
 
             SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
 
             for (int i = 0; i < limite; i++)
-                SDL_RenderDrawPointF(Program.render, etoiles_positions[i].x, etoiles_positions[i].y);
+                SDL_RenderDrawPointF(Program.render, positions_etoiles[i].x, positions_etoiles[i].y);
         }
     }
+
+    // classe statique qui aide à convertir des string en texte écrit dans le jeux.
+    // cette classe est très utile pour faire du débug dans n'importe quel projet SDL,
+    // et donc cette classe est écrite d'une façon où c'est très facile de la modifier
+    // pour qu'elle fonctionne en C et C++.
     public static class Text
     {
-        // documentation texte todo: update
+        // documentation texte
         // 
         //   text: le texte qui sera affiché à l'écran
         //         charactères supportés: a-z, 0-9, +, -, é, è, ê, à,  , ., ,, ', :, \, /, ", (, ), \n
         //         lettres sont majuscule seuelement, mais le texte qui rentre dans la fonction doit être minuscule, les majuscules seront automatiquement
         //         convertis en minuscules avant d'êtres déssinés.
-        //         \n fonctionne et est la seule facon de passer à une prochaine ligne dans le même appel de texte, et quand la ligne est sauté, il revient
+        //         \n fonctionne et est la seule facon de passer à une prochaine ligne dans le même appel de texte, et quand la ligne est sautée, il revient
         //         au x de départ.
         //
         //   x, y: position haut gauche du premier charactère affiché.
-        //         mettre Text.CENTRE (ou -2147483648) va centrer le texte au millieu de l'écran.
+        //         mettre Text.CENTRE (ou -2147483648) pour centrer le texte au millieu de l'écran.
         //
         //   size: nombre qui donne le multiple de la largeure et hauteure.
-        //         la largeur d'un charactère sera de 5 * size, et la hauteur de 10 * size.
+        //         la largeur d'un charactère sera de 5 * size px, et la hauteur de 10 * size px.
         //
         //  color: couleure RGB du texte, où blanc est la valeure par défaut
         //         R, G et B attachés ensemble en un chiffre, où les bits 23 à 16 sont pour le rouge, 15 à 8 pour le vert et 7 à 0 pour le bleu.
@@ -575,44 +600,51 @@ namespace Dysgenesis
 	        2, 3, 2, 7, 127
         };
 
+        // rappel que cette classe est spécifiquement faite pour être facile à copier dans un fichier C/C++. Détails plus haut.
         private static int GetListEntry(char c)
         {
             if (c >= 'a' && c <= 'z')
                 return char_draw_info_starting_indexes[c - 'a'];
             else if (c >= '0' && c <= '9')
                 return char_draw_info_starting_indexes[c - '0' + 26];
-            else if (c == '.')
-                return char_draw_info_starting_indexes[36];
-            else if (c == ':')
-                return char_draw_info_starting_indexes[37];
-            else if (c == ',')
-                return char_draw_info_starting_indexes[38];
-            else if (c == '\'')
-                return char_draw_info_starting_indexes[39];
-            else if (c == 'é')
-                return char_draw_info_starting_indexes[40];
-            else if (c == 'è')
-                return char_draw_info_starting_indexes[41];
-            else if (c == 'ê')
-                return char_draw_info_starting_indexes[42];
-            else if (c == 'à')
-                return char_draw_info_starting_indexes[43];
-            else if (c == '"')
-                return char_draw_info_starting_indexes[44];
-            else if (c == '-')
-                return char_draw_info_starting_indexes[45];
-            else if (c == '/')
-                return char_draw_info_starting_indexes[46];
-            else if (c == '\\')
-                return char_draw_info_starting_indexes[47];
-            else if (c == '(')
-                return char_draw_info_starting_indexes[48];
-            else if (c == ')')
-                return char_draw_info_starting_indexes[49];
-            else if (c == '+')
-                return char_draw_info_starting_indexes[50];
             else
-                return 0;
+            {
+                switch (c)
+                {
+                    case '.':
+                        return char_draw_info_starting_indexes[36];
+                    case ':':
+                        return char_draw_info_starting_indexes[37];
+                    case ',':
+                        return char_draw_info_starting_indexes[38];
+                    case '\'':
+                        return char_draw_info_starting_indexes[39];
+                    case 'é':
+                        return char_draw_info_starting_indexes[40];
+                    case 'è':
+                        return char_draw_info_starting_indexes[41];
+                    case 'ê':
+                        return char_draw_info_starting_indexes[42];
+                    case 'à':
+                        return char_draw_info_starting_indexes[43];
+                    case '"':
+                        return char_draw_info_starting_indexes[44];
+                    case '-':
+                        return char_draw_info_starting_indexes[45];
+                    case '/':
+                        return char_draw_info_starting_indexes[46];
+                    case '\\':
+                        return char_draw_info_starting_indexes[47];
+                    case '(':
+                        return char_draw_info_starting_indexes[48];
+                    case ')':
+                        return char_draw_info_starting_indexes[49];
+                    case '+':
+                        return char_draw_info_starting_indexes[50];
+                }
+            }
+
+            return 0;
         }
         public static void DisplayText(string text, Vector2 position, float size,
             int color = BLANC, int alpha = OPAQUE, int scroll = NO_SCROLL)
@@ -3486,7 +3518,7 @@ namespace Dysgenesis
             this.position = position;
 
             // évite une division par zéro dans le code rendering
-            Math.Clamp(this.position.z, 0f, Program.G_MAX_DEPTH - 1);
+            timer = (int)Math.Clamp(Program.G_MAX_DEPTH - this.position.z, 0f, Program.G_MAX_DEPTH - 1);
 
             // les explosions utilisés dans les scènes ne doivent pas faire de bruit
             if (Program.GamemodeAction())
@@ -3512,8 +3544,11 @@ namespace Dysgenesis
         // dessine l'explosion à l'écran
         public override void RenderObject()
         {
+            if (Program.player.Mort())
+                return;
+
             // division par zéro évitée dans le constructeur
-            byte rayon = (byte)(100.0f / (Program.G_MAX_DEPTH - position.z) + 5);
+            byte rayon = (byte)(Program.G_MAX_DEPTH * 8.0f / (Program.G_MAX_DEPTH - timer) + 5);
 
             for (int i = 0; i < DENSITE_EXPLOSION; i++)
             {
@@ -3530,11 +3565,11 @@ namespace Dysgenesis
                 );
 
                 // dessine des lignes au hasard dans un cercle
-                SDL_RenderDrawLine(Program.render,
-                    (int)(Program.RNG.Next(-rayon, rayon) * cos_ang + position.x),
-                    (int)(Program.RNG.Next(-rayon, rayon) * sin_ang + position.y),
-                    (int)(Program.RNG.Next(-rayon, rayon) * cos_ang + position.x),
-                    (int)(Program.RNG.Next(-rayon, rayon) * sin_ang + position.y)
+                SDL_RenderDrawLineF(Program.render,
+                    Program.RNG.Next(-rayon, rayon) * cos_ang + position.x,
+                    Program.RNG.Next(-rayon, rayon) * sin_ang + position.y,
+                    Program.RNG.Next(-rayon, rayon) * cos_ang + position.x,
+                    Program.RNG.Next(-rayon, rayon) * sin_ang + position.y
                 );
             }
         }

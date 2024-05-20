@@ -124,7 +124,7 @@ namespace Dysgenesis
         static byte debug_fps_count = 0, debug_fps_count_display = 0;
         static long debug_fps_time = DateTime.Now.Ticks;
         public static bool mute_sound = false, free_items = false, cutscene_skip = true,
-                           show_fps = false, monologue_skip = false, lvl_select = false,
+                           show_fps = false, monologue_skip = false, lvl_select = true,
                            fps_unlock = false, crashtest = false, fullscreen = true;
         static void Main()
         {
@@ -172,10 +172,12 @@ namespace Dysgenesis
         // initializer SDL et tout les objets
         static int Init()
         {
+            // le DLL de SDLSayers que j'utilise est en 64 bit, et donc le programme plante ici si on essaye de l'executer en 32 bit.
+            // dans C/C++, ce problème n'existe pas, car le code SDL est compilé avec le projet.
             if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
                 return 1;
 
-            window = SDL_CreateWindow(Program.W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Program.W_LARGEUR, Program.W_HAUTEUR,
+            window = SDL_CreateWindow(W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W_LARGEUR, W_HAUTEUR,
                 fullscreen ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP : 0 | SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
             render = SDL_CreateRenderer(window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
             SDL_PollEvent(out e);
@@ -186,7 +188,7 @@ namespace Dysgenesis
             SDL_SetRenderDrawColor(render, couleure_fond_ecran.r, couleure_fond_ecran.g, couleure_fond_ecran.b, couleure_fond_ecran.a);
             SDL_RenderPresent(render);
 
-            Etoiles.Spawn(new SDL_Rect() { x = 0, y = 0, w = Program.W_LARGEUR, h = Program.W_HAUTEUR });
+            Etoiles.Spawn(new SDL_Rect() { x = 0, y = 0, w = W_LARGEUR, h = W_HAUTEUR }, Etoiles.DENSITE_ETOILES);
             frame_time = DateTime.Now.Ticks;
 
             if (Son.InitSDLMixer() != 0)
@@ -327,6 +329,8 @@ namespace Dysgenesis
         // logique du jeu
         static void Code()
         {
+            Son.ChangerVolume();
+
             if (bouger_etoiles)
                 Etoiles.Move();
 
@@ -438,7 +442,7 @@ namespace Dysgenesis
 
             VagueElectrique.Exist();
 
-            // évite div/0, mais ne devrait jamais être frappé
+            // évite un div/0, mais ne devrait jamais être frappé
             if (niveau == -1)
                 niveau = 0;
 
@@ -503,6 +507,9 @@ namespace Dysgenesis
 
                 foreach (Projectile p in projectiles)
                     p.RenderObject();
+
+                foreach (Explosion e in explosions)
+                    e.RenderObject();
 
                 player.RenderObject();
 
@@ -623,6 +630,7 @@ namespace Dysgenesis
         // portion render qui devrait toujours rouler, de quoi que ce soit
         public static void SDLRender()
         {
+            // debug
             if (show_fps)
             {
                 if (debug_fps_time < DateTime.Now.Ticks - TimeSpan.TicksPerSecond) // fps
@@ -641,21 +649,27 @@ namespace Dysgenesis
                 Text.DisplayText(debug_fps_count_display.ToString(), new Vector2(1828, 52), 3);
             }
 
-            Son.ChangerVolume();
+            // le son est dans cette fonction et non l'autre cars elle doit toujours être éxecutée, mais aussi la dernière chose dessinée
+            Son.RenderVolume();
 
-            SDL_SetRenderDrawColor(render, couleure_fond_ecran.r, couleure_fond_ecran.g, couleure_fond_ecran.b, 255);
+            SDL_SetRenderDrawColor(render, couleure_fond_ecran.r, couleure_fond_ecran.g, couleure_fond_ecran.b, byte.MaxValue);
             SDL_RenderPresent(render);
             SDL_RenderClear(render);
         }
 
+        // retourne vrai si Gamemode est un mode d'action (pas menu ou scène)
         public static bool GamemodeAction()
         {
             return Gamemode == Gamemode.GAMEPLAY || Gamemode == Gamemode.ARCADE;
         }
+
+        // retourne vrai si la touche spécifié est enfoncé pendant cette image
         public static bool TouchePesee(Touches touche)
         {
             return (touches_peses & (int)touche) != 0;
         }
+
+        // retourne vrai si le boss existe et est le seul ennemi
         static bool VerifBoss()
         {
             if (enemies.Count != 1)
