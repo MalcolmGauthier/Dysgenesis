@@ -436,6 +436,8 @@ namespace Dysgenesis
             if (TouchePesee(Touches.K))
                 VagueElectrique.EssayerCreation();
 
+            VagueElectrique.Exist();
+
             // évite div/0, mais ne devrait jamais être frappé
             if (niveau == -1)
                 niveau = 0;
@@ -507,7 +509,7 @@ namespace Dysgenesis
                 if (bombe.HP_bombe <= 0)
                     return;
 
-                VagueElectrique.Afficher();
+                VagueElectrique.Render();
 
                 SDL_Rect barre_hud = BARRE_HP;
                 for (int i = 0; i < player.HP; i++)

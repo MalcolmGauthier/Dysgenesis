@@ -1053,10 +1053,12 @@ namespace Dysgenesis
             Program.player.HP -= 3; // TODO: const
 
             // ces ennemis ci-dessous ne comptent pas pour le total, alors on demande un nouveau ennemi si ce n'est pas un ci-dessous qui vient de mourrir
-            if (type == TypeEnnemi.PATRA_MINION
+            if (!// <---- NOT!!!
+                (  type == TypeEnnemi.PATRA_MINION
                 || type == TypeEnnemi.PATRA_MINION_DUR
                 || (statut >= StatusEnnemi.DUPLIQUEUR_0_RESTANT && statut <= StatusEnnemi.DUPLIQUEUR_1_RESTANT)
                 || (statut >= StatusEnnemi.PATRA_1_RESTANT && statut <= StatusEnnemi.PATRA_8_RESTANT))
+                )
             {
                 Program.ens_needed++;
             }

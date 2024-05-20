@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Dysgenesis")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dddac125ac1510ff07a66e6c6899e797460ff6ff")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c40bf4e6ec13d274273cb7709982aa560026c558")]
 [assembly: System.Reflection.AssemblyProductAttribute("Dysgenesis")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Dysgenesis")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

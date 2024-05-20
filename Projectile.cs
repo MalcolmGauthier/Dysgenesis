@@ -282,66 +282,42 @@ namespace Dysgenesis
     // des ennemis à coté de lui
     public static class VagueElectrique
     {
-        const int LARGEUR_MAX_VAGUE_ELECTRIQUE = 150;
-        const int LARGEUR_MIN_VAGUE_ELECTRIQUE = 150;
+        const int LARGEUR_MAX_VAGUE_ELECTRIQUE = 80;
+        const int LARGEUR_MIN_VAGUE_ELECTRIQUE = 50;
         const int PRECISION_VAGUE_ELECTRIQUE = 50;
+        const int TEMPS_AVANT_VAGUE_FAIT_DEGATS = Program.G_FPS / 6;
+        const int DURATION_VAGUE_ELECTRIQUE = 1 * Program.G_FPS;
 
         static float rayon = 0;
-        static float grow = 0;
-        static bool afficher = false;
+        static bool actif = false;
         static uint timer;
 
         // affiche une nouvelle vague electrique si possible
         public static void EssayerCreation()
         {
-            if (afficher || Program.player.Mort() || Program.player.vagues < 1.0f)
+            if (actif || Program.player.Mort() || Program.player.vagues < 1.0f)
                 return;
 
-            //TODO: changer au complet le système d'agrandissement, wtf c quoi ceci
-            timer = 0;
             Program.player.vagues -= 1.0f;
+            timer = 0;
             rayon = 0;
-            grow = LARGEUR_MAX_VAGUE_ELECTRIQUE + LARGEUR_MIN_VAGUE_ELECTRIQUE;
-            afficher = true;
+            actif = true;
             Son.JouerEffet(ListeAudioEffets.VAGUE);
         }
         
-        public static void Afficher()
+        public static void Exist()
         {
-            if (!afficher)
+            if (!actif)
                 return;
 
+            rayon = (1 - MathF.Pow(0.90f, timer)) * LARGEUR_MAX_VAGUE_ELECTRIQUE + LARGEUR_MIN_VAGUE_ELECTRIQUE;
+
             timer++;
-
-            SDL_SetRenderDrawColor(Program.render, 0, 255, 255, 255);
-            float angle = MathF.PI / (PRECISION_VAGUE_ELECTRIQUE / 2.0f);
-
-            const int NOMBRE_DE_CERCLES = 3;
-            for (int i = 0; i < NOMBRE_DE_CERCLES; i++)
-            {
-                float rand1, rand2;
-                for (float j = 0; j < PRECISION_VAGUE_ELECTRIQUE; j++)
-                {
-                    rand1 = Program.RNG.Next(-20, 20) + rayon;
-                    rand2 = Program.RNG.Next(-20, 20) + rayon;
-                    float angle_pos1 = j * angle;
-                    float angle_pos2 = (j + 1) * angle;
-                    SDL_RenderDrawLineF(Program.render,
-                        Program.player.position.x + rand1 * MathF.Sin(angle_pos1),
-                        Program.player.position.y + rand1 * MathF.Cos(angle_pos1),
-                        Program.player.position.x + rand2 * MathF.Sin(angle_pos2),
-                        Program.player.position.y + rand2 * MathF.Cos(angle_pos2)
-                    );
-                }
-            }
-
-            grow /= 1.2f;
-            rayon = LARGEUR_MAX_VAGUE_ELECTRIQUE - grow;
-            if (rayon >= LARGEUR_MAX_VAGUE_ELECTRIQUE - 1)
-                afficher = false;
+            if (timer > DURATION_VAGUE_ELECTRIQUE)
+                actif = false;
 
             // la vague est seulement capable de faire des dégats après 10 images, et ensuite une fois au trois images
-            if (timer < 10 || timer % 3 != 0)
+            if (timer < TEMPS_AVANT_VAGUE_FAIT_DEGATS || timer % 3 != 0)
                 return;
 
             for (int i = 0; i < Program.enemies.Count; i++)
@@ -353,15 +329,66 @@ namespace Dysgenesis
                     Program.enemies[i].position.x, 
                     Program.enemies[i].position.y, 
                     Program.player.position.x, 
-                    Program.player.position.y) <= LARGEUR_MAX_VAGUE_ELECTRIQUE)
+                    Program.player.position.y) <= rayon)
                 {
                     Program.enemies[i].HP--;
                 }
 
+                // si l'ennemi meurt
                 if (Program.enemies[i].HP <= 0)
                 {
                     Program.ens_killed++;
                     Program.enemies[i].afficher = false;
+                    Program.enemies.RemoveAt(i);
+                }
+            }
+        }
+
+        public static void Render()
+        {
+            if (!actif)
+                return;
+
+            SDL_SetRenderDrawColor(Program.render, 0, 255, 255, 255);
+            float angle = MathF.PI / (PRECISION_VAGUE_ELECTRIQUE / 2.0f);
+
+            const int NOMBRE_DE_CERCLES = 3;
+            for (int i = 0; i < NOMBRE_DE_CERCLES; i++)
+            {
+                float rand;
+                float angle_pos;
+                Vector2 new_pos;
+                Vector2 prev_pos = new Vector2(
+                    Program.player.position.x,
+                    Program.player.position.y + rayon
+                );
+
+                for (float j = 0; j < PRECISION_VAGUE_ELECTRIQUE; j++)
+                {
+                    rand = Program.RNG.Next(-20, 20) + rayon;
+                    angle_pos = (j + 1) * angle;
+
+                    new_pos = new Vector2(
+                        Program.player.position.x + rand * MathF.Sin(angle_pos),
+                        Program.player.position.y + rand * MathF.Cos(angle_pos)
+                    );
+
+                    // pourque le cercle se connecte à la fin
+                    if (j == PRECISION_VAGUE_ELECTRIQUE - 1)
+                        new_pos = new Vector2(Program.player.position.x, Program.player.position.y + rayon);
+
+                    SDL_RenderDrawLineF(Program.render,
+                        prev_pos.x,
+                        prev_pos.y,
+                        new_pos.x,
+                        new_pos.y
+                    );
+
+                    // en se rapellant de la dernière position, le cercle est continu et ne saute pas à chaque ligne.
+                    prev_pos = new Vector2(
+                        new_pos.x,
+                        new_pos.y
+                    );
                 }
             }
         }
