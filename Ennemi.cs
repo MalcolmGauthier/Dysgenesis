@@ -540,7 +540,7 @@ namespace Dysgenesis
         public int largeur;
         public int HP;
 
-        float fire_cooldown;
+        float intervale_tir;
         float speed;
         float z_speed;
 
@@ -568,7 +568,7 @@ namespace Dysgenesis
             speed = data.vitesse;
             z_speed = data.vitesse_z;
             indexs_de_tir = data.indexs_tir;
-            fire_cooldown = Program.G_FPS / data.vitesse_tir;//TODO: enlever gfps
+            intervale_tir = Program.G_FPS / data.vitesse_tir;//TODO: enlever gfps
             couleure = data.couleure;
 
             modele = modeles_ennemis[(int)type];
@@ -618,10 +618,12 @@ namespace Dysgenesis
         // logique ennemi. retourne vrai si mort.
         public override bool Exist()
         {
+            timer++;
+
+            UpdateModele();
+
             if (Program.player.Mort())
                 return false;
-
-            timer++;
 
             // si boss
             if (CodeBoss())
@@ -630,7 +632,6 @@ namespace Dysgenesis
             }
 
             Move();
-            UpdateModele();
 
             target = ActualiserCible();
 
@@ -1175,10 +1176,15 @@ namespace Dysgenesis
         // vérifie si l'ennemi peux tirer, et tire au besoin
         void Tirer()
         {
-            if (fire_cooldown == 0)
+            if (intervale_tir == 0)
                 return;
 
-            if (timer % fire_cooldown != 0)
+            if (timer % intervale_tir >= 1)
+                return;
+
+            // les ennemis ne peuvent pas tirer dans le dernier quart de leur approche, car sinon
+            // les projectiles arrivent au joueur trop vite et sont aussi détachés de leur cible.
+            if (position.z < Program.G_MAX_DEPTH / 4)
                 return;
 
             float[] line_data;

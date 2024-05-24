@@ -3433,7 +3433,7 @@ namespace Dysgenesis
             AUCUN,
         }
 
-        const int CURSEUR_DAS = Program.G_FPS / 4;
+        const int CURSEUR_DAS = Program.G_FPS / 4; // Delayed Auto Shift
         const int CURSEUR_X_INIT = 810;
         const int CURSEUR_Y_INIT = 625;
         const int CURSEUR_ESPACE = 50;
@@ -3615,8 +3615,8 @@ namespace Dysgenesis
 
         static int timer = 0;
         static int prochain_chunk = 0;
-        static byte volume = 8;
-        private static int volume_SDL = 64;
+        static byte volume = 2;
+        private static int volume_SDL;
         static bool render = false;
 
         // initialize SDL mixer
@@ -3627,6 +3627,7 @@ namespace Dysgenesis
                 return -1;
 
             Mix_AllocateChannels(NB_CHAINES_SFX);
+            volume_SDL = volume * 8;
 
             return 0;
         }
@@ -3644,7 +3645,7 @@ namespace Dysgenesis
             if (Program.mute_sound)
                 return 0;
 
-            // -1 boucles dit à SDL de jouer la musique à le plus possible
+            // -1 boucles dit à SDL de jouer la musique infiniment
             int loupes = boucle ? -1 : 1;
 
             chemins_pour_musique.TryGetValue(musique_a_jouer, out string? chemin);
@@ -3685,7 +3686,10 @@ namespace Dysgenesis
                 return -2;
 
             if (Mix_PlayChannel(prochain_chunk + 1, effets_sonnores[prochain_chunk], 0) < 0)
+            {
+                Program.CrashReport(new Exception("effet sonnore non joué"));//DEBUG
                 return -3;
+            }
 
             Mix_Volume(ALL_CHUNKS, volume_SDL);
 

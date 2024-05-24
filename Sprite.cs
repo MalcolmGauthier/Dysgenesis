@@ -2,6 +2,7 @@
 
 namespace Dysgenesis
 {
+    // fonction générale pour pas mal tout ce qui a une position et qui se fait dessiner à l'écran
     public abstract class Sprite
     {
         public const int POSITION_TIR_NON_EXISTANTE = -1;
@@ -12,12 +13,13 @@ namespace Dysgenesis
         public float taille = 1.0f;
         public float pitch = 0.0f;
         public float roll = 0.0f;
-        public int[] indexs_lignes_sauter = new int[0];
-        public int[] indexs_de_tir = new int[2];
+        public int[] indexs_lignes_sauter = Array.Empty<int>();
+        public int[] indexs_de_tir = new int[2]; // indexes dans le modèles pour de quelle lignes partent les projectiles
         public int timer = 0;
         public bool afficher = true;
 
-        public float[] RenderLineData(int line_index, Vector3[] modele)
+        // retourne la position d'une ligne sur le modèle donné.
+        public float[] PositionLigneModele(int line_index, Vector3[] modele)
         {
             if (line_index >= modele.Length || line_index < 0)
                 return new float[4];
@@ -27,6 +29,7 @@ namespace Dysgenesis
 
             float grandeure_ligne = taille * MathF.Pow(0.95f, position.z);
 
+            // pour éviter erreure index OOB
             if (line_index == modele.Length - 1)
             {
                 return new float[2]
@@ -36,6 +39,9 @@ namespace Dysgenesis
                 };
             }
 
+            // rendering quaisiment 3D. avec cette manière, le modèle peut bouger avec n'importe quel roll,
+            // mais aucun yaw, et pitch est trop distorté hors de -1 à 1.
+            // le x et y du modèle doivent être inversés woops mais c'est mieux que avoir à aller dans leurs modèles et manuellement tout changer.
             return new float[4]
             {
                 grandeure_ligne * (cosroll * -modele[line_index    ].x - sinroll * -modele[line_index]    .y) + position.x,
@@ -46,9 +52,10 @@ namespace Dysgenesis
         }
         public float[] RenderLineData(int line_index)
         {
-            return RenderLineData(line_index, modele);
+            return PositionLigneModele(line_index, modele);
         }
 
+        // dessine un modèle à l'écran à l'aide de la liste d'indexs à sauter
         public virtual void RenderObject(Vector3[] modele)
         {
             if (!afficher)
@@ -61,13 +68,15 @@ namespace Dysgenesis
 
             for (int i = 0; i < modele.Length - 1; i++)
             {
+                // pour ettre efficace et stable, la liste d'indexs de sauts doit être en ordre et terminer avec un nombre extra.
+                // personellement, j'utilise toujours -1.
                 if (i == indexs_lignes_sauter[index_sauts] - 1)
                 {
                     index_sauts++;
                     continue;
                 }
 
-                positions_ligne = RenderLineData(i, modele);
+                positions_ligne = PositionLigneModele(i, modele);
 
                 SDL_RenderDrawLineF(Program.render, positions_ligne[0], positions_ligne[1], positions_ligne[2], positions_ligne[3]);
             }

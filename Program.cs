@@ -433,6 +433,8 @@ namespace Dysgenesis
             if (!GamemodeAction())
                 return;
 
+            ExecuterLogique(enemies.Cast<Sprite>().ToList());
+
             // si joueur mort, fait rien d'autre
             if (player.Exist())
                 return;
@@ -474,7 +476,6 @@ namespace Dysgenesis
             }
 
             ExecuterLogique(projectiles.Cast<Sprite>().ToList());
-            ExecuterLogique(enemies.Cast<Sprite>().ToList());
             ExecuterLogique(items.Cast<Sprite>().ToList());
             ExecuterLogique(explosions.Cast<Sprite>().ToList());
 

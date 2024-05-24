@@ -1,5 +1,4 @@
 ﻿using static SDL2.SDL;
-using static System.Math;
 #pragma warning disable CA1806
 
 namespace Dysgenesis
@@ -48,7 +47,8 @@ namespace Dysgenesis
             if (ProjectileToucheJoueur() > 0)
                 return true;
 
-            if (Abs(position.z - destination.z) < 1.0f)
+            // si le projectile est arrivé à sa destination
+            if (MathF.Abs(position.z - destination.z) < 1.0f)
             {
                 Program.projectiles.Remove(this);
                 return true;
@@ -114,24 +114,49 @@ namespace Dysgenesis
             // le x et y variable position est utilisée par le projectile comme position de départ, elles ne changent
             // jamais) avec la destination. pas besoin de remettre les z à les bonnes valeures, car elles ne sont
             // pas utilisés dans cette fonction, et on utilise des copies locales.
-
+            // 
+            // Mais cette technique créé un autre problème qu'on doit régler! maintenant, à cause que en avant
+            // est vers l'ennemi pour le calcul de position, le projectile ne touche plus l'ennemi, car les positions
+            // des projectiles sont maintenant aux asymptotes de la fonction exponentielle. G_MAX_DEPTH n'est pas infini,
+            // alors quand le projectile apparaît, il n'est pas du tout proche de l'ennemi. et ce phénomène devient de
+            // plus en plus pire à force que l'ennemi se raproche de l'écran. J'ai à moitié réglé ce problème en
+            // ajoutant du code dans le constructeur qui trouve la différence entre la position sur l'écran du
+            // projectile avec où il devrait être, et modifie la position et la cible pour la déplacer avec l'ennemi.
+            // le seul problème maintenant c'est que la cible n'est pas sur le joueur, et donc des projectiles tirés
+            // de loin manquent.
+            //
+            // Donc finalement, j'ai juste demandé à chatGPT de me donner une nouvelle formule pour les projectiles,
+            // et celle ci fonctionne. Pour ceci il fallait que je créé une nouvelle variable pour stoquer la coordonée z
+            // originale du projectile, car elle en a besoin de se rappeller pour cette formule-ci.
+            // elle ne fonctionne pas pour les projectiles du joueur, mais je n'ai pas envie
+            // de régler cette stupide formule jusqu'à ce qu'il en aie une seule.
+            // 
             // TLDR: "it just works" - Todd Howard
             if (pos.z > dest.z)
             {
                 (pos, dest) = (dest, pos);
-            }
 
-            // wtf
-            //if (z_init - profondeur != 0)
-            //    profondeur = (profondeur / (z_init - profondeur)) * Program.G_MAX_DEPTH;
+                float dist_x_de_dest = pos.x - dest.x;
+                float dist_y_de_dest = pos.y - dest.y;
+                float fact_profondeur_1 = MathF.Pow((z_init - profondeur) / (z_init - pos.z), 3);
+                float fact_profondeur_2 = MathF.Pow((z_init - (profondeur + 1)) / (z_init - pos.z), 3);
+
+                return new float[4]
+                {
+                    dist_x_de_dest * fact_profondeur_1 + dest.x,
+                    dist_y_de_dest * fact_profondeur_1 + dest.y,
+                    dist_x_de_dest * fact_profondeur_2 + dest.x,
+                    dist_y_de_dest * fact_profondeur_2 + dest.y
+                };
+            }
 
             float dist_x_de_destination = pos.x - dest.x;
             float dist_y_de_destination = pos.y - dest.y;
             float facteur_profondeur_1 = MathF.Pow(VITESSE_PROJECTILE, profondeur);
             float facteur_profondeur_2 = MathF.Pow(VITESSE_PROJECTILE, profondeur + 1);
 
-
-            return new float[4]{
+            return new float[4]
+            {
                 dist_x_de_destination * facteur_profondeur_1 + dest.x,
                 dist_y_de_destination * facteur_profondeur_1 + dest.y,
                 dist_x_de_destination * facteur_profondeur_2 + dest.x,
@@ -145,7 +170,7 @@ namespace Dysgenesis
 
         // Code de collision Projectile/Joueur.
         // Retourne >0 si projectile détruit, <=0 sinon
-        public int ProjectileToucheJoueur()
+        int ProjectileToucheJoueur()
         {
             const float MARGE_DE_MANOEUVRE = 0.75f;
 

@@ -102,12 +102,6 @@ namespace Dysgenesis
         // code logique joueur
         public override bool Exist()
         {
-            //if (Program.TouchePesee(Touches.R))//DEBUG
-            //{
-            //    HP = 0;
-            //    timer = 0;
-            //}
-
             if (Mort())
             {
                 AnimationMort();
@@ -256,7 +250,7 @@ namespace Dysgenesis
             const int QUANTITE_LIGNES_MODELE_MORT = 3;
 
             const int IMAGES_AVANT_TEXTE = 2 * Program.G_FPS;
-            const int IMAGES_AVANT_RETOUR_MENU = 15 * Program.G_FPS;
+            const int IMAGES_AVANT_RETOUR_MENU = 10 * Program.G_FPS;
 
             if (timer == 1)
             {
@@ -305,6 +299,8 @@ namespace Dysgenesis
                 Son.JouerMusique(ListeAudioMusique.DYSGENESIS, true);
                 Program.bouger_etoiles = true;
                 Program.enemies.Clear();
+                Program.explosions.Clear();
+                Program.projectiles.Clear();
                 Program.Gamemode = Gamemode.TITLESCREEN;
                 return;
             }
