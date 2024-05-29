@@ -1,9 +1,8 @@
 ﻿/*
  Dysgenesis par Malcolm Gauthier
- Beta v0.2
+ Beta v0.3
  */
 using SDL2;
-using System.Runtime.CompilerServices;
 using static SDL2.SDL;
 using static SDL2.SDL_mixer;
 
@@ -18,6 +17,16 @@ namespace Dysgenesis
         {
             this.x = x;
             this.y = y;
+        }
+
+        // = +sqrt(w(a²)+h(b²))
+        public static int Distance(float x1, float y1, float x2, float y2, float mult_x = 1, float mult_y = 1)
+        {
+            return (int)MathF.Sqrt(mult_x * MathF.Pow(MathF.Abs(x1 - x2), 2) + mult_y * MathF.Pow(MathF.Abs(y1 - y2), 2));
+        }
+        public static int Distance(float x1, float y1, float x2, float y2)
+        {
+            return Distance(x1, y1, x2, y2, 1, 1);
         }
 
         public static implicit operator Vector2(Vector3 vector) => new Vector2(vector.x, vector.y);
@@ -87,7 +96,7 @@ namespace Dysgenesis
 
         public static Player player = new();
         public static Curseur curseur = new();
-        public static BombePulsar bombe = new();
+        //public static BombePulsar bombe = new();
         public static List<Ennemi> enemies = new(30);
         public static List<Item> items = new(10);
         public static List<Projectile> projectiles = new(50);
@@ -123,9 +132,9 @@ namespace Dysgenesis
         // DEBUG VARS
         static byte debug_fps_count = 0, debug_fps_count_display = 0;
         static long debug_fps_time = DateTime.Now.Ticks;
-        public static bool mute_sound = false, free_items = false, cutscene_skip = true,
+        public static bool mute_sound = false, free_items = true, cutscene_skip = true,
                            show_fps = false, monologue_skip = false, lvl_select = true,
-                           fps_unlock = false, crashtest = false, fullscreen = true;
+                           fps_unlock = false, crashtest = false, fullscreen = false;
         static void Main()
         {
             if (Init() != 0)
@@ -151,7 +160,7 @@ namespace Dysgenesis
                 SDLRender();
 
                 if (!fps_unlock)
-                    while (frame_time > DateTime.Now.Ticks - temps_entre_60_images_todo_enlever / Program.G_FPS) ;
+                    while (frame_time > DateTime.Now.Ticks - temps_entre_60_images_todo_enlever / G_FPS) ;
                 frame_time = DateTime.Now.Ticks;
 
                 gTimer++;
@@ -371,7 +380,7 @@ namespace Dysgenesis
                     switch (curseur.selection)
                     {
                         case Curseur.OptionsCurseur.NOUVELLE_PARTIE:
-                            Son.StopMusic();
+                            Son.StopMusique();
                             niveau = 0;
                             player.Init();
                             
@@ -379,7 +388,7 @@ namespace Dysgenesis
                             break;
 
                         case Curseur.OptionsCurseur.CONTINUER:
-                            Son.StopMusic();
+                            Son.StopMusique();
 
                             // on place le joueur au niveau avant celui qui l'a tué, mais on
                             // ment au jeu en dissant que tout les ennemis sont morts pour pouvoir
@@ -418,7 +427,7 @@ namespace Dysgenesis
 
                     if (timer_generique >= 120)
                     {
-                        Son.StopMusic();
+                        Son.StopMusique();
                         Gamemode = Gamemode.CREDITS;
                         return;
                     }
@@ -433,7 +442,13 @@ namespace Dysgenesis
             if (!GamemodeAction())
                 return;
 
+            // on éxecute les ennemis avant le joueur pourque leurs modèles peuvent tourner même si le joueur est mort
             ExecuterLogique(enemies.Cast<Sprite>().ToList());
+
+            if (VerifBoss())
+            {
+                BombePulsar.Exist();
+            }
 
             // si joueur mort, fait rien d'autre
             if (player.Exist())
@@ -484,6 +499,7 @@ namespace Dysgenesis
         }
 
         // dessiner tout à l'objet SDL_Renderer
+        // important de n'éxecuter AUCUNE LOGIQUE ici.
         static void Render()
         {
             if (GamemodeAction())
@@ -497,7 +513,6 @@ namespace Dysgenesis
                         (byte)(25 - enemies[0].position.z / 4),
                         true
                     );
-                    bombe.Exist();//todo: bouger à code
                 }
 
                 foreach (Ennemi e in enemies)
@@ -514,7 +529,7 @@ namespace Dysgenesis
 
                 player.RenderObject();
 
-                if (bombe.HP_bombe <= 0)
+                if (BombePulsar.HP_bombe <= 0)
                     return;
 
                 VagueElectrique.Render();
@@ -587,18 +602,22 @@ namespace Dysgenesis
 
                 Text.DisplayText("dysgenesis",
                     new Vector2(Text.CENTRE, Text.CENTRE), 5);
+
                 Text.DisplayText("nouvelle partie",
                     new Vector2(Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 75), 2);
+
                 Text.DisplayText("controles menu: w et s pour bouger le curseur, " +
                     "j pour sélectionner\n\ncontroles globaux: esc. pour quitter, " +
                     "+/- pour monter ou baisser le volume",
                     new Vector2(10, Program.W_HAUTEUR - 40), 1);
+
                 Text.DisplayText("v 0.3 (beta)",
                     new Vector2(Text.CENTRE, Program.W_HAUTEUR - 30), 2);
 
                 if (curseur.curseur_max_selection >= 2)
                     Text.DisplayText("continuer: niveau " + nv_continue,
                     new Vector2(Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 125), 2);
+
                 if (curseur.curseur_max_selection >= 3)
                     Text.DisplayText("arcade",
                     new Vector2(Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 175), 2);
@@ -692,12 +711,45 @@ namespace Dysgenesis
             }
         }
 
+        // Dessine un polygone avec X côtés pour créér une approximation de cercle.
+        public static void DessinerCercle(Vector2 position, int taille, byte cotes)
+        {
+            float ang;
+            float next_ang;
+
+            for (int i = 0; i < cotes; i++)
+            {
+                // Tau = 2*Pi
+                ang = (i * MathF.Tau) / cotes;
+                next_ang = ((i + 1) * MathF.Tau) / cotes;
+
+                SDL_RenderDrawLineF(Program.render,
+                    position.x + taille * MathF.Sin(ang),
+                    position.y + taille * MathF.Cos(ang),
+                    position.x + taille * MathF.Sin(next_ang),
+                    position.y + taille * MathF.Cos(next_ang)
+                );
+            }
+        }
+
+        // convertit une valeure couleure hex en SDLColor
+        public static SDL_Color RGBAtoSDLColor(uint RGBA)
+        {
+            return new SDL_Color()
+            {
+                r = (byte)((RGBA >> 24) & 0xFF),
+                g = (byte)((RGBA >> 16) & 0xFF),
+                b = (byte)((RGBA >> 8) & 0xFF),
+                a = (byte)((RGBA >> 0) & 0xFF),
+            };
+        }
+
         // écran à montrer si le jeu plante. ce code-ci ne devrait jamais donner d'erreure.
         public static void CrashReport(Exception e)
         {
             try
             {
-                Son.StopMusic();
+                Son.StopMusique();
                 SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
                 SDL_RenderClear(render);
                 Text.DisplayText("erreure fatale!\n\n"

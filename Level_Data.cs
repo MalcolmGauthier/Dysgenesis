@@ -4,6 +4,7 @@ namespace Dysgenesis
 {
     public static class Level_Data
     {
+        // liste de tous les ennemis que chaque niveau contient
         public static TypeEnnemi[][] lvl_list =
         {
             new TypeEnnemi[] { }, // niveau 0
@@ -34,6 +35,7 @@ namespace Dysgenesis
             TypeEnnemi.OCTAHEDRON, TypeEnnemi.DIAMANT, TypeEnnemi.TOURNANT, TypeEnnemi.ENERGIE, TypeEnnemi.CROISSANT, TypeEnnemi.DUPLIQUEUR, TypeEnnemi.PATRA,
             TypeEnnemi.OCTAHEDRON_DUR, TypeEnnemi.DIAMANT_DUR, TypeEnnemi.TOURNANT_DUR, TypeEnnemi.ENERGIE_DUR, TypeEnnemi.CROISSANT_DUR, TypeEnnemi.DUPLIQUEUR_DUR, TypeEnnemi.PATRA_DUR
         };
+
         public static TypeEnnemi[] arcade_ens = Array.Empty<TypeEnnemi>();
 
         static int timer;

@@ -62,18 +62,6 @@ namespace Dysgenesis
         BOSS_MORT_3,
     }
 
-    // Data pour ennemi
-    public struct EnnemiData
-    {
-        public float vitesse;
-        public float vitesse_z;
-        public float vitesse_tir;
-        public int hp_max;
-        public int largeur;
-        public SDL_Color couleure;
-        public int[] indexs_tir;
-    }
-
     // classe ennemi
     public class Ennemi : Sprite
     {
@@ -86,197 +74,20 @@ namespace Dysgenesis
         const float VITESSE_MOYENNE_TIR_ENNEMI = 1f;
         const float ENNEMI_FRICTION = 0.8f;
 
-        // le data pour tout les ennemis dans le jeu. Les ennemis sont trops simmilaires
-        // pour que ca vaut la peine de créér des classes individuelles pour chaque.
-        static readonly Dictionary<TypeEnnemi, EnnemiData> DataEnnemi = new()
+        // Data pour ennemi, est seulement utilisé pour le dictionnaire dessous
+        private struct EnnemiData
         {
-            { TypeEnnemi.OCTAHEDRON, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI / 8,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
-                vitesse_tir = 0,
-                hp_max = 1,
-                largeur = 30,
-                couleure = Background.RGBAtoSDLColor(0xFFFF00FF),
-                indexs_tir = new int[] {18}
-            }},
+            public float vitesse;
+            public float vitesse_z;
+            public float vitesse_tir;
+            public int hp_max;
+            public int largeur;
+            public SDL_Color couleure;
+            public int[] indexs_tir;
+            public Vector3[] modele;
+            public int[] modele_sauts;
+        }
 
-            { TypeEnnemi.DIAMANT, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI / 2,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
-                vitesse_tir = 2,
-                hp_max = 3,
-                largeur = 30,
-                couleure = Background.RGBAtoSDLColor(0xFF7F00FF),
-                indexs_tir = new int[] {61, 45}
-            }},
-
-            { TypeEnnemi.TOURNANT, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI / 2,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
-                vitesse_tir = 2,
-                hp_max = 3,
-                largeur = 50,
-                couleure = Background.RGBAtoSDLColor(0x00FF00FF),
-                indexs_tir = new int[] {0, 8}
-            }},
-
-            { TypeEnnemi.ENERGIE, new EnnemiData()
-            {
-                vitesse = 0,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 2,
-                vitesse_tir = 0,
-                hp_max = 10,
-                largeur = 50,
-                couleure = Background.RGBAtoSDLColor(0x00FFFFFF),
-                indexs_tir = Array.Empty<int>()
-            }},
-
-            { TypeEnnemi.CROISSANT, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 1.5f,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
-                vitesse_tir = 4,
-                hp_max = 10,
-                largeur = 60,
-                couleure = Background.RGBAtoSDLColor(0x0000FFFF),
-                indexs_tir = new int[] {2, 21}
-            }},
-
-            { TypeEnnemi.DUPLIQUEUR, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI / 2,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 2,
-                vitesse_tir = 2,
-                hp_max = 7,
-                largeur = 40,
-                couleure = Background.RGBAtoSDLColor(0x7F007FFF),
-                indexs_tir = new int[] {3}
-            }},
-
-            { TypeEnnemi.PATRA, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
-                vitesse_z = 0,
-                vitesse_tir = 3,
-                hp_max = 10,
-                largeur = 100,
-                couleure = Background.RGBAtoSDLColor(0xFF00FFFF),
-                indexs_tir = new int[] {5}
-            }},
-
-            { TypeEnnemi.OCTAHEDRON_DUR, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
-                vitesse_tir = 1,
-                hp_max = 3,
-                largeur = 30,
-                couleure = Background.RGBAtoSDLColor(0x7F7F00FF),
-                indexs_tir = new int[] {18}
-            }},
-
-            { TypeEnnemi.DIAMANT_DUR, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
-                vitesse_tir = 2,
-                hp_max = 5,
-                largeur = 30,
-                couleure = Background.RGBAtoSDLColor(0x7F4000FF),
-                indexs_tir = new int[] {61, 45}
-            }},
-
-            { TypeEnnemi.TOURNANT_DUR, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
-                vitesse_tir = 2,
-                hp_max = 7,
-                largeur = 50,
-                couleure = Background.RGBAtoSDLColor(0x007F00FF),
-                indexs_tir = new int[] {0, 8}
-            }},
-
-            { TypeEnnemi.ENERGIE_DUR, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
-                vitesse_tir = 1,
-                hp_max = 15,
-                largeur = 50,
-                couleure = Background.RGBAtoSDLColor(0x007F7FFF),
-                indexs_tir = Array.Empty<int>()
-            }},
-
-            { TypeEnnemi.CROISSANT_DUR, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
-                vitesse_tir = 3,
-                hp_max = 12,
-                largeur = 60,
-                couleure = Background.RGBAtoSDLColor(0x00007FFF),
-                indexs_tir = new int[] {2, 21}
-            }},
-
-            { TypeEnnemi.DUPLIQUEUR_DUR, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 4,
-                vitesse_tir = 1,
-                hp_max = 10,
-                largeur = 40,
-                couleure = Background.RGBAtoSDLColor(0x400080FF),
-                indexs_tir = new int[] {3}
-            }},
-
-            { TypeEnnemi.PATRA_DUR, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 4,
-                vitesse_tir = 4,
-                hp_max = 15,
-                largeur = 100,
-                couleure = Background.RGBAtoSDLColor(0x7F007FFF),
-                indexs_tir = new int[] {5}
-            }},
-
-            { TypeEnnemi.BOSS, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 4,
-                vitesse_z = 0,
-                vitesse_tir = 0.5f,
-                hp_max = BOSS_MAX_HP,
-                largeur = 100,
-                couleure = Background.RGBAtoSDLColor(0xFF0000FF),
-                indexs_tir = new int[] {1, 16}
-            }},
-
-            { TypeEnnemi.PATRA_MINION, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
-                vitesse_tir = 0,
-                hp_max = 1,
-                largeur = 30,
-                couleure = Background.RGBAtoSDLColor(0xFF00FFFF),
-                indexs_tir = Array.Empty<int>()
-            }},
-
-            { TypeEnnemi.PATRA_MINION_DUR, new EnnemiData()
-            {
-                vitesse = VITESSE_MOYENNE_ENNEMI,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
-                vitesse_tir = 0,
-                hp_max = 1,
-                largeur = 30,
-                couleure = Background.RGBAtoSDLColor(0x7F007FFF),
-                indexs_tir = Array.Empty<int>()
-            }},
-        };
         // modèles ennemis
         static readonly Vector3[] MODELE_E1 =
         {
@@ -522,19 +333,245 @@ namespace Dysgenesis
             new( 0, 10, 0 )
         };
         static readonly int[] MODELE_E7_1_SAUTS = { -1 };
-        public static readonly Vector3[][] modeles_ennemis =
+        //public static readonly Vector3[][] modeles_ennemis =
+        //{
+        //    MODELE_E1, MODELE_E2, MODELE_E3, new Vector3[]{ }, MODELE_E5,
+        //    MODELE_E6, MODELE_E7, MODELE_E1, MODELE_E2, MODELE_E3,
+        //    new Vector3[]{ }, MODELE_E5, MODELE_E6, MODELE_E7, Player.MODELE_P,
+        //    MODELE_E7_1, MODELE_E7_1
+        //};
+        //public static readonly int[][] lignes_a_sauter_ennemis =
+        //{
+        //    MODELE_E1_SAUTS, MODELE_E2_SAUTS, MODELE_E3_SAUTS, new int[1]{-1}, MODELE_E5_SAUTS,
+        //    MODELE_E6_SAUTS, MODELE_E7_SAUTS, MODELE_E1_SAUTS, MODELE_E2_SAUTS, MODELE_E3_SAUTS,
+        //    new int[1]{-1}, MODELE_E5_SAUTS, MODELE_E6_SAUTS, MODELE_E7_SAUTS, Player.MODELE_P_SAUTS,
+        //    MODELE_E7_1_SAUTS, MODELE_E7_1_SAUTS
+        //};
+
+        // le data pour tout les ennemis dans le jeu. Les ennemis sont trops simmilaires
+        // pour que ca vaut la peine de créér des classes individuelles pour chaque.
+        static readonly Dictionary<TypeEnnemi, EnnemiData> DataEnnemi = new()
         {
-            MODELE_E1, MODELE_E2, MODELE_E3, new Vector3[]{ }, MODELE_E5,
-            MODELE_E6, MODELE_E7, MODELE_E1, MODELE_E2, MODELE_E3,
-            new Vector3[]{ }, MODELE_E5, MODELE_E6, MODELE_E7, Player.MODELE_P,
-            MODELE_E7_1, MODELE_E7_1
-        };
-        public static readonly int[][] lignes_a_sauter_ennemis =
-        {
-            MODELE_E1_SAUTS, MODELE_E2_SAUTS, MODELE_E3_SAUTS, new int[1]{-1}, MODELE_E5_SAUTS,
-            MODELE_E6_SAUTS, MODELE_E7_SAUTS, MODELE_E1_SAUTS, MODELE_E2_SAUTS, MODELE_E3_SAUTS,
-            new int[1]{-1}, MODELE_E5_SAUTS, MODELE_E6_SAUTS, MODELE_E7_SAUTS, Player.MODELE_P_SAUTS,
-            MODELE_E7_1_SAUTS, MODELE_E7_1_SAUTS
+            { TypeEnnemi.OCTAHEDRON, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI / 8,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
+                vitesse_tir = 0,
+                hp_max = 1,
+                largeur = 30,
+                couleure = Program.RGBAtoSDLColor(0xFFFF00FF),
+                indexs_tir = new int[] {18},
+                modele = MODELE_E1,
+                modele_sauts = MODELE_E1_SAUTS
+            }},
+
+            { TypeEnnemi.DIAMANT, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI / 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
+                vitesse_tir = 2 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 3,
+                largeur = 30,
+                couleure = Program.RGBAtoSDLColor(0xFF7F00FF),
+                indexs_tir = new int[] {61, 45},
+                modele = MODELE_E2,
+                modele_sauts = MODELE_E2_SAUTS
+            }},
+
+            { TypeEnnemi.TOURNANT, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI / 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
+                vitesse_tir = 2 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 3,
+                largeur = 50,
+                couleure = Program.RGBAtoSDLColor(0x00FF00FF),
+                indexs_tir = new int[] {0, 8},
+                modele = MODELE_E3,
+                modele_sauts = MODELE_E3_SAUTS
+            }},
+
+            { TypeEnnemi.ENERGIE, new EnnemiData()
+            {
+                vitesse = 0,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 2,
+                vitesse_tir = 0,
+                hp_max = 10,
+                largeur = 50,
+                couleure = Program.RGBAtoSDLColor(0x00FFFFFF),
+                indexs_tir = Array.Empty<int>(),
+                modele = Array.Empty<Vector3>(),
+                modele_sauts = new int[]{-1}
+            }},
+
+            { TypeEnnemi.CROISSANT, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI * 1.5f,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
+                vitesse_tir = 4 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 10,
+                largeur = 60,
+                couleure = Program.RGBAtoSDLColor(0x0000FFFF),
+                indexs_tir = new int[] {2, 21},
+                modele = MODELE_E5,
+                modele_sauts = MODELE_E5_SAUTS
+            }},
+
+            { TypeEnnemi.DUPLIQUEUR, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI / 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 2,
+                vitesse_tir = 2 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 7,
+                largeur = 40,
+                couleure = Program.RGBAtoSDLColor(0x7F007FFF),
+                indexs_tir = new int[] {3},
+                modele = MODELE_E6,
+                modele_sauts = MODELE_E6_SAUTS
+            }},
+
+            { TypeEnnemi.PATRA, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse_z = 0,
+                vitesse_tir = 3 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 10,
+                largeur = 100,
+                couleure = Program.RGBAtoSDLColor(0xFF00FFFF),
+                indexs_tir = new int[] {5},
+                modele = MODELE_E7,
+                modele_sauts = MODELE_E7_SAUTS
+            }},
+
+            { TypeEnnemi.OCTAHEDRON_DUR, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
+                vitesse_tir = 1 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 3,
+                largeur = 30,
+                couleure = Program.RGBAtoSDLColor(0x7F7F00FF),
+                indexs_tir = new int[] {18},
+                modele = MODELE_E1,
+                modele_sauts = MODELE_E1_SAUTS
+            }},
+
+            { TypeEnnemi.DIAMANT_DUR, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
+                vitesse_tir = 2 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 5,
+                largeur = 30,
+                couleure = Program.RGBAtoSDLColor(0x7F4000FF),
+                indexs_tir = new int[] {61, 45},
+                modele = MODELE_E2,
+                modele_sauts = MODELE_E2_SAUTS
+            }},
+
+            { TypeEnnemi.TOURNANT_DUR, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
+                vitesse_tir = 2 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 7,
+                largeur = 50,
+                couleure = Program.RGBAtoSDLColor(0x007F00FF),
+                indexs_tir = new int[] {0, 8},
+                modele = MODELE_E3,
+                modele_sauts = MODELE_E3_SAUTS
+            }},
+
+            { TypeEnnemi.ENERGIE_DUR, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
+                vitesse_tir = 1 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 15,
+                largeur = 50,
+                couleure = Program.RGBAtoSDLColor(0x007F7FFF),
+                indexs_tir = Array.Empty<int>(),
+                modele = Array.Empty<Vector3>(),
+                modele_sauts = new int[]{-1}
+            }},
+
+            { TypeEnnemi.CROISSANT_DUR, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
+                vitesse_tir = 3 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 12,
+                largeur = 60,
+                couleure = Program.RGBAtoSDLColor(0x00007FFF),
+                indexs_tir = new int[] {2, 21},
+                modele = MODELE_E5,
+                modele_sauts = MODELE_E5_SAUTS
+            }},
+
+            { TypeEnnemi.DUPLIQUEUR_DUR, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 4,
+                vitesse_tir = 1 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 10,
+                largeur = 40,
+                couleure = Program.RGBAtoSDLColor(0x400080FF),
+                indexs_tir = new int[] {3},
+                modele = MODELE_E6,
+                modele_sauts = MODELE_E6_SAUTS
+            }},
+
+            { TypeEnnemi.PATRA_DUR, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 4,
+                vitesse_tir = 4 * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = 15,
+                largeur = 100,
+                couleure = Program.RGBAtoSDLColor(0x7F007FFF),
+                indexs_tir = new int[] {5},
+                modele = MODELE_E7,
+                modele_sauts = MODELE_E7_SAUTS
+            }},
+
+            { TypeEnnemi.BOSS, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI * 4,
+                vitesse_z = 0,
+                vitesse_tir = 0.5f * VITESSE_MOYENNE_TIR_ENNEMI,
+                hp_max = BOSS_MAX_HP,
+                largeur = 100,
+                couleure = Program.RGBAtoSDLColor(0xFF0000FF),
+                indexs_tir = new int[] {1, 16},
+                modele = Player.MODELE_P,
+                modele_sauts = Player.MODELE_P_SAUTS
+            }},
+
+            { TypeEnnemi.PATRA_MINION, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
+                vitesse_tir = 0,
+                hp_max = 1,
+                largeur = 30,
+                couleure = Program.RGBAtoSDLColor(0xFF00FFFF),
+                indexs_tir = Array.Empty<int>(),
+                modele = MODELE_E7_1,
+                modele_sauts = MODELE_E7_1_SAUTS
+            }},
+
+            { TypeEnnemi.PATRA_MINION_DUR, new EnnemiData()
+            {
+                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
+                vitesse_tir = 0,
+                hp_max = 1,
+                largeur = 30,
+                couleure = Program.RGBAtoSDLColor(0x7F007FFF),
+                indexs_tir = Array.Empty<int>(),
+                modele = MODELE_E7_1,
+                modele_sauts = MODELE_E7_1_SAUTS
+            }},
         };
 
         public int largeur;
@@ -570,9 +607,8 @@ namespace Dysgenesis
             indexs_de_tir = data.indexs_tir;
             intervale_tir = Program.G_FPS / data.vitesse_tir;//TODO: enlever gfps
             couleure = data.couleure;
-
-            modele = modeles_ennemis[(int)type];
-            indexs_lignes_sauter = lignes_a_sauter_ennemis[(int)type];
+            modele = data.modele;
+            indexs_lignes_sauter = data.modele_sauts;
 
             // copie le tableau par valeur au lieu de par reference
             modele_en_marche = modele.ToArray();
@@ -580,6 +616,7 @@ namespace Dysgenesis
             afficher = true;
             taille = 1;
 
+            // la variable parent permet de créér l'ennemi à la position d'un autre
             if (parent != null)
             {
                 position = parent.position;
@@ -606,7 +643,7 @@ namespace Dysgenesis
             {
                 this.statut = StatusEnnemi.DUPLIQUEUR_2_RESTANT;
             }
-            // pas else, car certains statuts doivent indiquer qu'ils ont qqc
+            // pas else, car l'ennemi peut être initializé avec un statut autre que init, et c'est important de le garder
             else if (statut == StatusEnnemi.INITIALIZATION)
             {
                 this.statut = StatusEnnemi.NORMAL;
@@ -829,9 +866,10 @@ namespace Dysgenesis
                 // partie #1 de l'animation de mort: le boss bouge vers le centre de l'écran avec des explosions
                 case StatusEnnemi.BOSS_MORT:
 
-                    Son.StopMusic(); // TODO: n'éxecuter qu'une seule fois
+                    if (Son.MusiqueJoue())
+                        Son.StopMusique();
 
-                    if (Background.Distance(position.x, position.y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR) > 30)
+                    if (Vector2.Distance(position.x, position.y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR) > 30)
                     {
                         if (position.x > Program.W_SEMI_LARGEUR)
                             position.x -= speed;
@@ -894,7 +932,7 @@ namespace Dysgenesis
                     if (timer > 550)
                     {
                         Program.Gamemode = Gamemode.CUTSCENE_BAD_END;
-                        
+
                         Program.enemies.Clear();
                         Program.explosions.Clear();
                     }
@@ -951,7 +989,7 @@ namespace Dysgenesis
                     if (timer > 1020)
                     {
                         statut = StatusEnnemi.BOSS_NORMAL;
-                        Program.bombe.HP_bombe = BombePulsar.BOMBE_PULSAR_MAX_HP;
+                        BombePulsar.HP_bombe = BombePulsar.BOMBE_PULSAR_MAX_HP;
                         Son.JouerMusique(ListeAudioMusique.DOTV, true);
                     }
 
@@ -978,7 +1016,7 @@ namespace Dysgenesis
 
             float[] proj_pos = projectile.PositionsSurEcran();
 
-            if (Background.Distance(position.x, position.y, proj_pos[0], proj_pos[1]) > largeur)
+            if (Vector2.Distance(position.x, position.y, proj_pos[0], proj_pos[1]) > largeur)
                 return 0;
 
             // ennemi touché
@@ -1044,19 +1082,21 @@ namespace Dysgenesis
         // retourne 1 si touché, 0 sinon.
         int PlayerCollision()
         {
+            const int DOMMAGES_COLLISION_JOUEUR = 3;
+
             if (position.z != 0)
                 return 0;
 
-            if (Background.Distance(position.x, position.y, Program.player.position.x, Program.player.position.y) > Player.JOUEUR_LARGEUR)
+            if (Vector2.Distance(position.x, position.y, Program.player.position.x, Program.player.position.y) > Player.JOUEUR_LARGEUR)
                 return 0;
 
             // touché
             new Explosion(position);
-            Program.player.HP -= 3; // TODO: const
+            Program.player.HP -= DOMMAGES_COLLISION_JOUEUR;
 
             // ces ennemis ci-dessous ne comptent pas pour le total, alors on demande un nouveau ennemi si ce n'est pas un ci-dessous qui vient de mourrir
             if (!// <---- NOT!!!
-                (  type == TypeEnnemi.PATRA_MINION
+                (type == TypeEnnemi.PATRA_MINION
                 || type == TypeEnnemi.PATRA_MINION_DUR
                 || (statut >= StatusEnnemi.DUPLIQUEUR_0_RESTANT && statut <= StatusEnnemi.DUPLIQUEUR_1_RESTANT)
                 || (statut >= StatusEnnemi.PATRA_1_RESTANT && statut <= StatusEnnemi.PATRA_8_RESTANT))
@@ -1079,7 +1119,7 @@ namespace Dysgenesis
             if (position.z == 0)
                 return new Vector2(Program.player.position.x, Program.player.position.y);
 
-            int dist_ennemi_cible = Background.Distance(target.x, target.y, position.x, position.y);
+            int dist_ennemi_cible = Vector2.Distance(target.x, target.y, position.x, position.y);
 
             // si l'ennemi n'est pas à ca cible, ne la change pas
             if (dist_ennemi_cible > 30)
@@ -1087,7 +1127,7 @@ namespace Dysgenesis
                 return target;
             }
 
-            int dist_player_ennemi = Background.Distance(position.x, position.y, Program.player.position.x, Program.player.position.y);
+            int dist_player_ennemi = Vector2.Distance(position.x, position.y, Program.player.position.x, Program.player.position.y);
             float nouveauX, nouveauY;
 
             // si l'ennemi est plutôt proche du joueur, nouvelle cible = loin du joueur
@@ -1099,7 +1139,7 @@ namespace Dysgenesis
                     nouveauX = Program.RNG.Next(100, Program.W_LARGEUR - 100);
                     nouveauY = Program.RNG.Next(100, Program.W_HAUTEUR - 400);
                 }
-                while (Background.Distance(nouveauX, nouveauY, Program.player.position.x, Program.player.position.y) < 800);
+                while (Vector2.Distance(nouveauX, nouveauY, Program.player.position.x, Program.player.position.y) < 800);
 
                 return new Vector2(nouveauX, nouveauY);
             }
@@ -1117,7 +1157,7 @@ namespace Dysgenesis
                 nouveauX = Program.RNG.Next(100, Program.W_LARGEUR - 100);
                 nouveauY = Program.RNG.Next(100, Program.W_HAUTEUR - 400);
             }
-            while (Background.Distance(nouveauX, nouveauY, Program.player.position.x, Program.player.position.y) > 800);
+            while (Vector2.Distance(nouveauX, nouveauY, Program.player.position.x, Program.player.position.y) > 800);
 
             return new Vector2(nouveauX, nouveauY);
         }
@@ -1127,6 +1167,7 @@ namespace Dysgenesis
         {
             const float LIM_MIN_Z_ENNEMI = 1.0f;
             const float ACCELERATION_ENNEMI_Z0 = 1.01f;
+            const float MAX_PITCH = 0.25f;
 
             // mouvement avant/arrière
             if (z_speed != 0 && position.z != 0)
@@ -1161,8 +1202,8 @@ namespace Dysgenesis
             if (position.z == 0)
                 speed *= ACCELERATION_ENNEMI_Z0;
 
-            // todo: ???
-            pitch = (position.y - Program.W_SEMI_HAUTEUR) / Program.W_SEMI_HAUTEUR * 0.25f;
+            // le pitch de l'ennemi dépend de sa position verticale sur l'écran, et peux aller de +0.25 à -0.25
+            pitch = ((position.y - Program.W_SEMI_HAUTEUR) / Program.W_SEMI_HAUTEUR) * MAX_PITCH;
 
             // seulement ces ennemis sont capables de tourner leur modèle
             if (type == TypeEnnemi.DUPLIQUEUR || type == TypeEnnemi.DUPLIQUEUR_DUR || type == TypeEnnemi.BOSS)

@@ -35,59 +35,9 @@ namespace Dysgenesis
         CREDITS
     }
 
-    // fonction générales. avant était une classe pour encapsuler tout dans ce fichier
-    // todo: se débarrasser de cette classe en mettant les fonctions dans program ou qqc d'autre
-    public static class Background
-    {
-        // Dessine un polygone avec X côtés pour créér une approximation de cercle.
-        public static void DessinerCercle(Vector2 position, int taille, byte cotes)
-        {
-            float ang;
-            float next_ang;
-
-            for (int i = 0; i < cotes; i++)
-            {
-                // Tau = 2*Pi
-                ang = (i * Tau) / cotes;
-                next_ang = ((i + 1) * Tau) / cotes;
-
-                SDL_RenderDrawLineF(Program.render,
-                    position.x + taille * Sin(ang),
-                    position.y + taille * Cos(ang),
-                    position.x + taille * Sin(next_ang),
-                    position.y + taille * Cos(next_ang)
-                );
-            }
-        }
-
-        // = +sqrt(w(a²)+h(b²))
-        // todo: déplacer dans vector2
-        public static int Distance(float x1, float y1, float x2, float y2, float mult_x = 1, float mult_y = 1)
-        {
-            return (int)Sqrt(mult_x * Pow(Abs(x1 - x2), 2) + mult_y * Pow(Abs(y1 - y2), 2));
-        }
-        public static int Distance(float x1, float y1, float x2, float y2)
-        {
-            return Distance(x1, y1, x2, y2, 1, 1);
-        }
-
-        // convertit une valeure couleure hex en SDLColor
-        public static SDL_Color RGBAtoSDLColor(uint RGBA)
-        {
-            return new SDL_Color()
-            {
-                r = (byte)((RGBA >> 24) & 0xFF),
-                g = (byte)((RGBA >> 16) & 0xFF),
-                b = (byte)((RGBA >> 8) & 0xFF),
-                a = (byte)((RGBA >> 0) & 0xFF),
-            };
-        }
-    }
-
     // classe statique qui gère la bombe pulsar, ou n'importe quoi qui à a faire avec
     // la bombe pulsar
-    // TODO: rendre un sprite
-    public class BombePulsar : Sprite
+    public static class BombePulsar
     {
         const byte QUANTITE_RAYONS_BOMBE_PULSAR = 50;
         public const int BOMBE_PULSAR_MAX_HP = 50;
@@ -113,7 +63,9 @@ namespace Dysgenesis
             -0.4f, 1.75f, -0.25f, 1.3f
         };
 
-        public short HP_bombe = BOMBE_PULSAR_MAX_HP;
+        public static short HP_bombe = BOMBE_PULSAR_MAX_HP;
+        static bool bombe_frapee = false;
+        static int timer = 0;
 
         // Dessine la forme de la bombe à pulsar, qui est un cercle avec des lignes qui sortent au hasard
         // de son centre. est utilisé par la bombe, des ennemis, et autres
@@ -136,7 +88,14 @@ namespace Dysgenesis
             }
 
             SDL_SetRenderDrawColor(Program.render, couleure.r, couleure.g, couleure.b, couleure.a);
-            Background.DessinerCercle(position, rayon, 50);
+            Program.DessinerCercle(position, rayon, 50);
+
+            // si la bombe est frapée par un projectile, on la dessine avec du rouge pour une image
+            if (bombe_frapee)
+            {
+                SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
+                bombe_frapee = false;
+            }
 
             // dans une des scènes, la bombe doit ralentir puis s'éteindre, et
             // c'est la seule fois que cette section est utilisée
@@ -179,7 +138,7 @@ namespace Dysgenesis
 
         // animation d'explosion de la bombe
         // retourne 1 si animation en cours
-        public int AnimationExplosion()
+        public static int AnimationExplosion()
         {
             if (HP_bombe > 0)
                 return 0;
@@ -214,7 +173,8 @@ namespace Dysgenesis
             return 1;
         }
 
-        public void VerifCollision()
+        // vérifie la collision avec les projectiles du joueur
+        public static void VerifCollision()
         {
             // ce code roule seulement si niveau 20 et monologue fini
             if (Program.enemies[0].statut != StatusEnnemi.BOSS_NORMAL)
@@ -226,23 +186,17 @@ namespace Dysgenesis
                     continue;
 
                 float[] positions = Program.projectiles[i].PositionsSurEcran();
-                if (Background.Distance(positions[2], positions[3], Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2) < 20)
+                if (Vector2.Distance(positions[2], positions[3], Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2) < 20)
                 {
                     HP_bombe--;
                     new Explosion(new Vector3(positions[2], positions[3], Program.G_MAX_DEPTH / 4));
-                    // TODO: séparer code render de code logique
-                    // rend la bombe rouge pour 1 image quand elle est frappée
-                    DessinerBombePulsar(
-                        new Vector2(Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2),
-                        20,
-                        new SDL_Color() { r = 255, g = 0, b = 0, a = 255 },
-                        false
-                    );
+                    bombe_frapee = true;
                 }
             }
         }
 
-        public override bool Exist()
+        // logique
+        public static bool Exist()
         {
             if (AnimationExplosion() != 0)
                 VerifCollision();
@@ -318,7 +272,7 @@ namespace Dysgenesis
         }
     }
 
-    // classe statique qui aide à convertir des string en texte écrit dans le jeux.
+    // classe statique qui aide à convertir des string en texte écrit dans le jeu.
     // cette classe est très utile pour faire du débug dans n'importe quel projet SDL,
     // et donc cette classe est écrite d'une façon où c'est très facile de la modifier
     // pour qu'elle fonctionne en C et C++.
@@ -788,11 +742,11 @@ namespace Dysgenesis
                                  "existent à travers la galaxie.", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 60));
 
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                Background.DessinerCercle(new Vector2(960, 440), 200, 50);
+                Program.DessinerCercle(new Vector2(960, 440), 200, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 127, 255);
-                Background.DessinerCercle(new Vector2(260, 390), 100, 50);
+                Program.DessinerCercle(new Vector2(260, 390), 100, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 127, 255);
-                Background.DessinerCercle(new Vector2(1660, 390), 100, 50);
+                Program.DessinerCercle(new Vector2(1660, 390), 100, 50);
 
                 #region planète 1
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
@@ -903,8 +857,8 @@ namespace Dysgenesis
                 if (Program.gTimer % Program.RNG.Next(10, 15) == 0)
                 {
                     short try_x = (short)Program.RNG.Next(160, 1760), try_y = (short)Program.RNG.Next(240, 640);
-                    while (Background.Distance(try_x, try_y, 960, 440) > 200 && Background.Distance(try_x, try_y, 260, 390) > 100 &&
-                        Background.Distance(try_x, try_y, 1660, 390) > 100)
+                    while (Vector2.Distance(try_x, try_y, 960, 440) > 200 && Vector2.Distance(try_x, try_y, 260, 390) > 100 &&
+                        Vector2.Distance(try_x, try_y, 1660, 390) > 100)
                     {
                         try_x = (short)Program.RNG.Next(160, 1760);
                         try_y = (short)Program.RNG.Next(240, 640);
@@ -935,7 +889,7 @@ namespace Dysgenesis
                 SDL_RenderDrawLine(Program.render, 1261, 417, 1229, 637);
                 SDL_RenderDrawLine(Program.render, 1545, 412, 1624, 337);
                 SDL_RenderDrawLine(Program.render, 1624, 337, 1417, 260);
-                Background.DessinerCercle(new Vector2(1416, 314), 77, 24);
+                Program.DessinerCercle(new Vector2(1416, 314), 77, 24);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 127, 255);
                 SDL_RenderDrawLine(Program.render, 1462, 434, 1503, 434);
@@ -969,8 +923,8 @@ namespace Dysgenesis
                 SDL_RenderDrawLine(Program.render, 311, 452, 194, 500);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                Background.DessinerCercle(new Vector2(479, 232), 91, 24);
-                Background.DessinerCercle(new Vector2(479, 232), 65, 24);
+                Program.DessinerCercle(new Vector2(479, 232), 91, 24);
+                Program.DessinerCercle(new Vector2(479, 232), 65, 24);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
                 SDL_RenderDrawLine(Program.render, 563, 195, 672, 204);
@@ -1010,8 +964,8 @@ namespace Dysgenesis
 
                 #region emblême cercle
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                Background.DessinerCercle(new Vector2(832, 384), 30, 24);
-                Background.DessinerCercle(new Vector2(832, 384), 39, 24);
+                Program.DessinerCercle(new Vector2(832, 384), 30, 24);
+                Program.DessinerCercle(new Vector2(832, 384), 39, 24);
                 #endregion
 
                 #region étoile
@@ -1467,7 +1421,7 @@ namespace Dysgenesis
                     for (int i = 0; i < stars_glx.GetLength(0); i++)
                     {
                         int x = Program.RNG.Next(442, 1447), y = Program.RNG.Next(76, 601);
-                        while (Background.Distance(x, y, 948, 338, 0.3f) > 270 || Background.Distance(x, y, 954, 276, 0.6f) < 80)
+                        while (Vector2.Distance(x, y, 948, 338, 0.3f) > 270 || Vector2.Distance(x, y, 954, 276, 0.6f) < 80)
                         {
                             x = Program.RNG.Next(25, 1880);
                             y = Program.RNG.Next(25, 680);
@@ -1485,7 +1439,7 @@ namespace Dysgenesis
                 {
                     if (Program.gTimer > 480)
                     {
-                        if (Background.Distance(stars_glx[i, 0], stars_glx[i, 1], 716, 437, 0.5f) < 100)
+                        if (Vector2.Distance(stars_glx[i, 0], stars_glx[i, 1], 716, 437, 0.5f) < 100)
                             SDL_SetRenderDrawColor(Program.render, 0, 0, 0, 255);
                         else
                             SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
@@ -1585,7 +1539,7 @@ namespace Dysgenesis
                     for (int i = 0; i < stars.GetLength(0); i++)
                     {
                         int x = Program.RNG.Next(25, 1880), y = Program.RNG.Next(25, 680);
-                        while (Background.Distance(x, y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2, 0.2f) < 200)
+                        while (Vector2.Distance(x, y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2, 0.2f) < 200)
                         {
                             x = Program.RNG.Next(25, 1880);
                             y = Program.RNG.Next(25, 680);
@@ -1635,7 +1589,16 @@ namespace Dysgenesis
                 #endregion
 
                 #region vaisseaux
-                Vector3[] model = Ennemi.modeles_ennemis[(int)TypeEnnemi.DUPLIQUEUR];
+                Vector3[] model =
+                {
+                    new( -25, 0, 0 ),
+                    new( 0, -10, 0 ),
+                    new( 25, 0, 0 ),
+                    new( 0, -10, -30 ),
+                    new( 0, -10, 0 ),
+                    new( 0, -10, -30 ),
+                    new( -25, 0, 0 )
+                };
                 int x, y;
                 sbyte depth = -15;
                 float pitch = -1f;
@@ -1694,7 +1657,7 @@ namespace Dysgenesis
                     for (int i = 0; i < stars.GetLength(0); i++)
                     {
                         int x = Program.RNG.Next(25, 1880), y = Program.RNG.Next(25, 680);
-                        while (Background.Distance(x, y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2 + 100, 0.2f) < 200)
+                        while (Vector2.Distance(x, y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2 + 100, 0.2f) < 200)
                         {
                             x = Program.RNG.Next(25, 1880);
                             y = Program.RNG.Next(25, 680);
@@ -1733,13 +1696,13 @@ namespace Dysgenesis
                 SDL_RenderDrawLine(Program.render, 600, 500, 1350, 500);
                 SDL_RenderDrawLine(Program.render, 1350, 500, 1350, 680);
 
-                Background.DessinerCercle(new Vector2(730, 189), 57, 50);
+                Program.DessinerCercle(new Vector2(730, 189), 57, 50);
                 SDL_RenderDrawLine(Program.render, 648, 500, 606, 238);
                 SDL_RenderDrawLine(Program.render, 606, 238, 836, 255);
                 SDL_RenderDrawLine(Program.render, 836, 255, 806, 500);
                 SDL_RenderDrawLine(Program.render, 606, 238, 593, 470);
 
-                Background.DessinerCercle(new Vector2(1203, 186), 57, 50);
+                Program.DessinerCercle(new Vector2(1203, 186), 57, 50);
                 SDL_RenderDrawLine(Program.render, 1126, 500, 1096, 255);
                 SDL_RenderDrawLine(Program.render, 1096, 255, 1304, 235);
                 SDL_RenderDrawLine(Program.render, 1304, 235, 1278, 500);
@@ -1896,11 +1859,11 @@ namespace Dysgenesis
 
                 #region planètes
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                Background.DessinerCercle(new Vector2(960, 440), 200, 50);
+                Program.DessinerCercle(new Vector2(960, 440), 200, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 127, 255);
-                Background.DessinerCercle(new Vector2(260, 390), 100, 50);
+                Program.DessinerCercle(new Vector2(260, 390), 100, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 127, 255);
-                Background.DessinerCercle(new Vector2(1660, 390), 100, 50);
+                Program.DessinerCercle(new Vector2(1660, 390), 100, 50);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
                 SDL_RenderDrawLine(Program.render, 818, 298, 930, 336);
@@ -2027,7 +1990,7 @@ namespace Dysgenesis
                     for (int i = 0; i < stars.GetLength(0); i++)
                     {
                         int x = Program.RNG.Next(25, 1880), y = Program.RNG.Next(25, 680);
-                        while (Background.Distance(x, y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2 + 100, 0.2f) < 200)
+                        while (Vector2.Distance(x, y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR / 2 + 100, 0.2f) < 200)
                         {
                             x = Program.RNG.Next(25, 1880);
                             y = Program.RNG.Next(25, 680);
@@ -2077,7 +2040,7 @@ namespace Dysgenesis
                     }
                     for (int i = 0; i < stars_glx.GetLength(0); i++)
                     {
-                        if (Background.Distance(stars_glx[i, 0], stars_glx[i, 1], 716, 437, 0.5f) < 100)
+                        if (Vector2.Distance(stars_glx[i, 0], stars_glx[i, 1], 716, 437, 0.5f) < 100)
                         {
                             stars_glx[i, 0] = -1;
                             stars_glx[i, 1] = -1;
@@ -2100,7 +2063,7 @@ namespace Dysgenesis
                         if (stars_glx[i, 0] == -1)
                         {
                             int x = Program.RNG.Next(516, 916), y = Program.RNG.Next(337, 537);
-                            while (Background.Distance(x, y, 716, 437, 0.5f) > 100)
+                            while (Vector2.Distance(x, y, 716, 437, 0.5f) > 100)
                             {
                                 x = Program.RNG.Next(516, 916);
                                 y = Program.RNG.Next(337, 537);
@@ -2317,7 +2280,7 @@ namespace Dysgenesis
                 }
                 else if (Program.gTimer >= 330)
                 {
-                    Background.DessinerCercle(new Vector2(956, 336), 224, 50);
+                    Program.DessinerCercle(new Vector2(956, 336), 224, 50);
                     SDL_SetRenderDrawColor(Program.render, 200, 255, 255, (byte)alpha);
                     for (int i = 0; i < 50; i++)
                         SDL_RenderDrawLine(Program.render, (int)neutron_slowdown[i].x, (int)neutron_slowdown[i].y, 956, 336);
@@ -2492,8 +2455,8 @@ namespace Dysgenesis
                     SDL_RenderDrawLine(Program.render, 850, 680 - move, 850, 449 - move);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                    Background.DessinerCercle(new Vector2(1050, 560 - move), 84, 50);
-                    Background.DessinerCercle(new Vector2(1050, 560 - move), 63, 50);
+                    Program.DessinerCercle(new Vector2(1050, 560 - move), 84, 50);
+                    Program.DessinerCercle(new Vector2(1050, 560 - move), 63, 50);
 
                     SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
                     SDL_RenderDrawLine(Program.render, 850, 518 - move, 978, 518 - move);
@@ -2526,7 +2489,7 @@ namespace Dysgenesis
                 SDL_RenderDrawLine(Program.render, 499, 249, 630, 310);
                 SDL_RenderDrawLine(Program.render, 630, 310, 539, 680);
 
-                Background.DessinerCercle(new Vector2(400, 200), 78, 50);
+                Program.DessinerCercle(new Vector2(400, 200), 78, 50);
 
                 SDL_RenderDrawLine(Program.render, 156, 309, 159, 649);
                 SDL_RenderDrawLine(Program.render, 630, 310, 685, 215);
@@ -2563,7 +2526,7 @@ namespace Dysgenesis
                 SDL_RenderDrawLine(Program.render, 1048, 254, 1118, 295);
                 SDL_RenderDrawLine(Program.render, 1118, 295, 1057, 680);
 
-                Background.DessinerCercle(new Vector2(959, 205), 76, 50);
+                Program.DessinerCercle(new Vector2(959, 205), 76, 50);
 
                 SDL_RenderDrawLine(Program.render, 893, 166, 1031, 164);
                 SDL_RenderDrawLine(Program.render, 1031, 164, 1018, 127);
@@ -2645,7 +2608,7 @@ namespace Dysgenesis
                     SDL_RenderDrawLine(Program.render, 1315 + i, 305, 1300 + i, 300);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                    Background.DessinerCercle(new Vector2(1346 + i, 375), 32, 50);
+                    Program.DessinerCercle(new Vector2(1346 + i, 375), 32, 50);
 
                     SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
                     SDL_RenderDrawLine(Program.render, 1368 + i, 352, 1371 + i, 309);
@@ -2685,7 +2648,7 @@ namespace Dysgenesis
                     SDL_RenderDrawLine(Program.render, 1449, 203, 1415, 472);
                     SDL_RenderDrawLine(Program.render, 1513, 253, 1444, 505);
                     SDL_RenderDrawLine(Program.render, 1444, 505, 1249, 508);
-                    Background.DessinerCercle(new Vector2(1555, 157), 70, 50);
+                    Program.DessinerCercle(new Vector2(1555, 157), 70, 50);
                 }
                 else
                 {
@@ -2696,7 +2659,7 @@ namespace Dysgenesis
                     SDL_RenderDrawLine(Program.render, 1180, 494, 1078, 539);
                     SDL_RenderDrawLine(Program.render, 1400, 250, 1482, 323);
                     SDL_RenderDrawLine(Program.render, 1482, 323, 1494, 471);
-                    Background.DessinerCercle(new Vector2(1266, 220), 70, 50);
+                    Program.DessinerCercle(new Vector2(1266, 220), 70, 50);
                 }
                 #endregion
 
@@ -2878,7 +2841,7 @@ namespace Dysgenesis
                 SDL_RenderDrawLine(Program.render, 1296, 531, 1270, 266);
                 SDL_RenderDrawLine(Program.render, 1290, 342, 1228, 527);
                 SDL_RenderDrawLine(Program.render, 1228, 527, 1212, 256);
-                Background.DessinerCercle(new Vector2(1256, 251), 67, 50);
+                Program.DessinerCercle(new Vector2(1256, 251), 67, 50);
                 #endregion
 
                 #region fenêtre
@@ -3416,7 +3379,7 @@ namespace Dysgenesis
                 Program.player.Init();
                 Program.player.afficher = true;
                 gFade = 0;
-                Program.bombe.HP_bombe = BombePulsar.BOMBE_PULSAR_MAX_HP;
+                BombePulsar.HP_bombe = BombePulsar.BOMBE_PULSAR_MAX_HP;
             }
         }
     }
@@ -3633,9 +3596,15 @@ namespace Dysgenesis
         }
 
         // arrête la musique
-        public static void StopMusic()
+        public static void StopMusique()
         {
             Mix_PauseMusic();
+        }
+
+        // retourne vrai si la musique joue, faux sinon
+        public static bool MusiqueJoue()
+        {
+            return Mix_PlayingMusic() == (int)SDL_bool.SDL_TRUE;
         }
 
         // Change la musique pour une nouvelle dans la liste de musiques. Il ne peux seulement avoir
@@ -3687,7 +3656,7 @@ namespace Dysgenesis
 
             if (Mix_PlayChannel(prochain_chunk + 1, effets_sonnores[prochain_chunk], 0) < 0)
             {
-                Program.CrashReport(new Exception("effet sonnore non joué"));//DEBUG
+                //Program.CrashReport(new Exception("effet sonnore non joué"));//DEBUG
                 return -3;
             }
 

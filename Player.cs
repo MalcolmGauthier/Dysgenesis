@@ -113,7 +113,7 @@ namespace Dysgenesis
             if (Proj_Collision() != 0)
                 return true;
 
-            if (Program.bombe.HP_bombe > 0)
+            if (BombePulsar.HP_bombe > 0)
                 TirJoueur();
 
             vagues += VAGUE_ELECTRIQUE_REGENERATION;
@@ -170,8 +170,6 @@ namespace Dysgenesis
             if (powerup == TypeItem.SPREAD)
                 iterations = 6;
 
-            Debug.Assert(iterations <= DECALS_SPREAD.Count);
-
             for (int i = 0; i < iterations; i++)
             {
                 // la moitié des tirs se font du point de tir 1, l'autre moitié du point de tir 2
@@ -215,7 +213,7 @@ namespace Dysgenesis
                     continue;
 
                 float[] depths = p.PositionsSurEcran();
-                if (Background.Distance(depths[0], depths[1], position.x, position.y) > 30)
+                if (Vector2.Distance(depths[0], depths[1], position.x, position.y) > 30)
                     continue;
 
                 HP--;
@@ -226,7 +224,7 @@ namespace Dysgenesis
 
                 // code si joueur est mort d'un projectile ennemi
                 timer = 0;
-                Son.StopMusic();
+                Son.StopMusique();
 
                 // code pour option continuer au menu
                 if (Program.curseur.curseur_max_selection < 2)

@@ -58,7 +58,7 @@ namespace Dysgenesis
         // dessine un modèle à l'écran à l'aide de la liste d'indexs à sauter
         public virtual void RenderObject(Vector3[] modele)
         {
-            if (!afficher)
+            if (!afficher || modele == null)
                 return;
 
             float[] positions_ligne;

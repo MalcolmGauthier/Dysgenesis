@@ -81,7 +81,7 @@ namespace Dysgenesis
                 if (Program.enemies[i].position.z <= 0)
                     continue;
 
-                int distance = Background.Distance(
+                int distance = Vector2.Distance(
                     Program.player.position.x,
                     Program.player.position.y,
                     Program.enemies[i].position.x,
@@ -195,7 +195,7 @@ namespace Dysgenesis
 
             // si le projectile manque le joueur
             // 0.75f = marge de manoeuvre, le projectile doit clairment frapper le joueur
-            if (Background.Distance(
+            if (Vector2.Distance(
                 positions_projectile[0],
                 positions_projectile[1],
                 Program.player.position.x,
@@ -216,7 +216,7 @@ namespace Dysgenesis
 
             // joueur mort
             Son.JouerEffet(ListeAudioEffets.EXPLOSION_JOUEUR);
-            Son.StopMusic();
+            Son.StopMusique();
             Program.player.timer = 0;
 
             // code pour option continuer sur menu
@@ -359,7 +359,7 @@ namespace Dysgenesis
                 if (Program.enemies[i].position.z != 0)
                     continue;
 
-                if (Background.Distance(
+                if (Vector2.Distance(
                     Program.enemies[i].position.x,
                     Program.enemies[i].position.y,
                     Program.player.position.x,
