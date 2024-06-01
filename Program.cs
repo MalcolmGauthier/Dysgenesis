@@ -2,9 +2,7 @@
  Dysgenesis par Malcolm Gauthier
  Beta v0.3
  */
-using SDL2;
 using static SDL2.SDL;
-using static SDL2.SDL_mixer;
 
 namespace Dysgenesis
 {
@@ -133,12 +131,16 @@ namespace Dysgenesis
         static byte debug_fps_count = 0, debug_fps_count_display = 0;
         static long debug_fps_time = DateTime.Now.Ticks;
         public static bool mute_sound = false, free_items = true, cutscene_skip = true,
-                           show_fps = false, monologue_skip = false, lvl_select = true,
-                           fps_unlock = false, crashtest = false, fullscreen = false;
+                           show_fps = false, monologue_skip = false, lvl_select = false,
+                           fps_unlock = false, crashtest = false, fullscreen = true;
+
+        // point d'entrée du code
         static void Main()
         {
             if (Init() != 0)
+            {
                 CrashReport(new Exception("Erreure d'initialization: " + SDL_GetError()));
+            }
 
             if (crashtest)
             {
@@ -152,25 +154,32 @@ namespace Dysgenesis
             // étape 4: afficher l'objet render à l'écran
             // étape 5: attendre pour le reste du 60e de seconde au besoin
             // étape 7: incrémenter le global timer
-            while (!exit)
+            try
             {
-                Controlls();
-                Code();
-                Render();
-                SDLRender();
+                while (!exit)
+                {
+                    Controlls();
+                    Code();
+                    Render();
+                    SDLRender();
 
-                if (!fps_unlock)
-                    while (frame_time > DateTime.Now.Ticks - temps_entre_60_images_todo_enlever / G_FPS) ;
-                frame_time = DateTime.Now.Ticks;
+                    if (!fps_unlock)
+                        while (frame_time > DateTime.Now.Ticks - temps_entre_60_images_todo_enlever / G_FPS) ;
+                    frame_time = DateTime.Now.Ticks;
 
-                gTimer++;
+                    gTimer++;
 
-                // bug: si le jeu ne roule pas assez vite sur un ordinateur pour faire 60fps,
-                // les scènes sont désynchronisées de la musique
-                if (GamemodeAction() || Gamemode == Gamemode.TITLESCREEN) //todo: wtf
-                    temps_entre_60_images_todo_enlever = TimeSpan.TicksPerSecond;
-                else
-                    temps_entre_60_images_todo_enlever = TimeSpan.TicksPerSecond * 2;
+                    // bug: si le jeu ne roule pas assez vite sur un ordinateur pour faire 60fps,
+                    // les scènes sont désynchronisées de la musique
+                    if (GamemodeAction() || Gamemode == Gamemode.TITLESCREEN) //TODO: wtf
+                        temps_entre_60_images_todo_enlever = TimeSpan.TicksPerSecond;
+                    else
+                        temps_entre_60_images_todo_enlever = TimeSpan.TicksPerSecond * 2;
+                }
+            }
+            catch (Exception e)
+            {
+                CrashReport(e);
             }
 
             SDL_DestroyWindow(window);
@@ -356,6 +365,8 @@ namespace Dysgenesis
                         {
                             arcade_unlock = true;
                             curseur.curseur_max_selection = 3;
+                            // récompense extra
+                            lvl_select = true;
                         }
                     }
                     // vérifie si une touche autre que la prochaine requise ou la dernière est pesée
@@ -380,7 +391,7 @@ namespace Dysgenesis
                     switch (curseur.selection)
                     {
                         case Curseur.OptionsCurseur.NOUVELLE_PARTIE:
-                            Son.StopMusique();
+                            Son.ArreterMusique();
                             niveau = 0;
                             player.Init();
                             
@@ -388,7 +399,7 @@ namespace Dysgenesis
                             break;
 
                         case Curseur.OptionsCurseur.CONTINUER:
-                            Son.StopMusique();
+                            Son.ArreterMusique();
 
                             // on place le joueur au niveau avant celui qui l'a tué, mais on
                             // ment au jeu en dissant que tout les ennemis sont morts pour pouvoir
@@ -427,7 +438,7 @@ namespace Dysgenesis
 
                     if (timer_generique >= 120)
                     {
-                        Son.StopMusique();
+                        Son.ArreterMusique();
                         Gamemode = Gamemode.CREDITS;
                         return;
                     }
@@ -491,6 +502,7 @@ namespace Dysgenesis
             }
 
             ExecuterLogique(projectiles.Cast<Sprite>().ToList());
+            Projectile.son_cree = false;
             ExecuterLogique(items.Cast<Sprite>().ToList());
             ExecuterLogique(explosions.Cast<Sprite>().ToList());
 
@@ -705,6 +717,8 @@ namespace Dysgenesis
             {
                 if (sprites[i].Exist())
                 {
+                    // !!! ceci ne supprime que l'objet dans la liste locale sprites!
+                    // l'objet devrait être enlevé de sa liste respective avant que son .Exist() retourne faux.
                     sprites.RemoveAt(i);
                     i--;
                 }
@@ -744,21 +758,24 @@ namespace Dysgenesis
             };
         }
 
-        // écran à montrer si le jeu plante. ce code-ci ne devrait jamais donner d'erreure.
+        // écran à montrer si le jeu plante. ce code-ci ne devrait jamais donner d'erreure, mais il y a un try finally quand même.
         public static void CrashReport(Exception e)
         {
             try
             {
-                Son.StopMusique();
+                Son.ArreterMusique();
+                // effacer l'écran avec du noir
                 SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
                 SDL_RenderClear(render);
                 Text.DisplayText("erreure fatale!\n\n"
                     + e.Message + "\n"
                     + e.StackTrace + "\n" +
-                    "\n\ntapez sur escape pour quitter l'application.", new Vector2(10, 10), 1
+                    "\n\ntapez sur échapp. pour quitter l'application.", new Vector2(10, 10), 1
                 );
+                // le texte vas mettre le RenderDrawColor à blanc, alors on le remets à noir pour présenter l'écran
                 SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
                 SDL_RenderPresent(render);
+                // ne fait absolument rien sauf vérifier quand le joueur pèse la touche échapper
                 while (!exit)
                 {
                     SDL_PollEvent(out Program.e);
@@ -769,6 +786,7 @@ namespace Dysgenesis
             }
             finally
             {
+                // détruire objets SDL + quitter programme avec code erreure
                 SDL_DestroyRenderer(render);
                 SDL_DestroyWindow(window);
                 SDL_Quit();

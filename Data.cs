@@ -10,40 +10,42 @@ namespace Dysgenesis
         
     //}
 
+    // avant tu sauvegardait automatiquement le niveau que tu avait comme option continuer, mais j'ai enlevé cette fonction car elle ne fonctionnait pas
     public static class SaveLoad
     {
+        const int NB_MAGIQUE_1 = 395248;
+        const int NB_MAGIQUE_2 = 842598;
+        const string FICHIER_SAUVEGARDE = @"save.txt";
+
         public static void Save()
         {
-            using (FileStream sw = File.Open(@"save.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using (FileStream sw = File.Open(FICHIER_SAUVEGARDE, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                string encoded = (Program.niveau * 842593 + 395248).ToString();
+                string encoded = (Program.niveau * NB_MAGIQUE_2 + NB_MAGIQUE_1).ToString();
                 sw.Write(Encoding.UTF8.GetBytes(encoded));
-                sw.Close();
             }
         }
+
         public static void Load()
         {
-            string read = File.ReadAllText(@"save.txt");
+            string read = File.ReadAllText(FICHIER_SAUVEGARDE);
 
             if (!uint.TryParse(read, out uint num))
             {
                 return;
             }
 
-            if (num.ToString() == read && read != "0")
-            {
-                double check = (num - 395248) / 824593;
-                if (!(check >= 0 && check <= 20 && check % 1 == 0))
-                {
-                    return;
-                }
-            }
-            else
+            float check;
+
+            check = (num - NB_MAGIQUE_1) / NB_MAGIQUE_2;
+
+            // vérifie que check est un entier qui donne un nb de niveau réaliste
+            if (check < 0 || check > 20 || check % 1 > 0)
             {
                 return;
             }
 
-            Program.nv_continue = (ushort)((num - 395248) / 842593);
+            Program.nv_continue = (int)check;
         }
     }
 }

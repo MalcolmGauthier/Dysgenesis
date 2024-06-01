@@ -70,7 +70,7 @@ namespace Dysgenesis
         const int BOSS_MAX_HP = 150;
         const int DISTANCE_DE_BORD_EVITER_INIT = 200;
         const float VITESSE_MOYENNE_ENNEMI = 1f;
-        const float VITESSE_MOYENNE_Z_ENNEMI = 5f;
+        const float VITESSE_MOYENNE_Z_ENNEMI = 2.5f;
         const float VITESSE_MOYENNE_TIR_ENNEMI = 1f;
         const float ENNEMI_FRICTION = 0.8f;
 
@@ -406,7 +406,7 @@ namespace Dysgenesis
 
             { TypeEnnemi.CROISSANT, new EnnemiData()
             {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 1.5f,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 0.75f,
                 vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 4 * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = 10,
@@ -432,7 +432,7 @@ namespace Dysgenesis
 
             { TypeEnnemi.PATRA, new EnnemiData()
             {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 1,
                 vitesse_z = 0,
                 vitesse_tir = 3 * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = 10,
@@ -445,7 +445,7 @@ namespace Dysgenesis
 
             { TypeEnnemi.OCTAHEDRON_DUR, new EnnemiData()
             {
-                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 0.8f,
                 vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 1 * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = 3,
@@ -458,7 +458,7 @@ namespace Dysgenesis
 
             { TypeEnnemi.DIAMANT_DUR, new EnnemiData()
             {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 1.0f,
                 vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 2 * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = 5,
@@ -484,7 +484,7 @@ namespace Dysgenesis
 
             { TypeEnnemi.ENERGIE_DUR, new EnnemiData()
             {
-                vitesse = VITESSE_MOYENNE_ENNEMI,
+                vitesse = VITESSE_MOYENNE_ENNEMI / 2,
                 vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
                 vitesse_tir = 1 * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = 15,
@@ -497,7 +497,7 @@ namespace Dysgenesis
 
             { TypeEnnemi.CROISSANT_DUR, new EnnemiData()
             {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 1.0f,
                 vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 3 * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = 12,
@@ -510,7 +510,7 @@ namespace Dysgenesis
 
             { TypeEnnemi.DUPLIQUEUR_DUR, new EnnemiData()
             {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 1.25f,
                 vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 4,
                 vitesse_tir = 1 * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = 10,
@@ -867,7 +867,7 @@ namespace Dysgenesis
                 case StatusEnnemi.BOSS_MORT:
 
                     if (Son.MusiqueJoue())
-                        Son.StopMusique();
+                        Son.ArreterMusique();
 
                     if (Vector2.Distance(position.x, position.y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR) > 30)
                     {

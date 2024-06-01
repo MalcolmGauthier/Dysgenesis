@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 using static SDL2.SDL;
 
 namespace Dysgenesis
@@ -147,10 +146,10 @@ namespace Dysgenesis
             {
                 new(10, -200),
                 new(-10, -200),
-                new(-15, -240),
-                new(15, -240),
-                new(10, -190),
-                new(-10, -190)
+                new(30, -240),
+                new(-30, -240),
+                new(50, -200),
+                new(-50, -200)
             });
 
             fire_timer++;
@@ -224,7 +223,7 @@ namespace Dysgenesis
 
                 // code si joueur est mort d'un projectile ennemi
                 timer = 0;
-                Son.StopMusique();
+                Son.ArreterMusique();
 
                 // code pour option continuer au menu
                 if (Program.curseur.curseur_max_selection < 2)
@@ -310,8 +309,8 @@ namespace Dysgenesis
         void Move()
         {
             const float JOUEUR_FRICTION = 0.9f;
-            const float JOUEUR_MAX_PITCH = 0.5f;
-            const float JOUEUR_MAX_ROLL = 0.1f;
+            //const float JOUEUR_MAX_PITCH = 0.5f; //inutilisé
+            //const float JOUEUR_MAX_ROLL = 0.1f;
             const float JOUEUR_PITCH_ACCELERATION = 0.05f;
             const float JOUEUR_ROLL_ACCELERATION = 0.05f;
             const float JOUEUR_PITCH_FRICTION = 0.95f;

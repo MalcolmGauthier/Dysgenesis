@@ -377,6 +377,7 @@ namespace Dysgenesis
 
             if (timer > TIMER_DISPARITION_ITEM)
             {
+                Program.items.Remove(this);
                 return 1;
             }
 
@@ -428,6 +429,7 @@ namespace Dysgenesis
                     break;
             }
 
+            Program.items.Remove(this);
             Son.JouerEffet(ListeAudioEffets.POWERUP);
             return 1;
         }

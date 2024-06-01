@@ -14,10 +14,16 @@ namespace Dysgenesis
     {
         const float VITESSE_PROJECTILE = 0.95f;
 
+        // variable statique pour s'assurer que seulement un effet sonnor de tir s'éxecute par image.
+        // quand t'as l'item qui te fait tirer 6 fois, sa commence à être vraiment bruyant...
+        public static bool son_cree = false;
+
         public Vector3 destination;
         public ProprietaireProjectile proprietaire;
         public byte ID;//todo: enlever ID, il dit si c'est le point de tir 1 ou 2 qui l'a tiré
         public bool laser;
+
+        // utilisé pour le calcul des positions de tirs ennemis sur l'écran
         float z_init;
 
         public Projectile(Vector3 position, Vector3 destination, ProprietaireProjectile proprietaire, byte ID)
@@ -31,8 +37,11 @@ namespace Dysgenesis
 
             if (proprietaire == ProprietaireProjectile.JOUEUR)
             {
-                if (Program.GamemodeAction())
+                if (Program.GamemodeAction() && !son_cree)
+                {
                     Son.JouerEffet(ListeAudioEffets.TIR);
+                    son_cree = true;
+                }
 
                 if (Program.player.powerup == TypeItem.LASER)
                     laser = true;
@@ -150,6 +159,23 @@ namespace Dysgenesis
                 };
             }
 
+            // techniquement ce code est meilleur, mais le vieux code marche mieux avec l'item HOMING
+
+            //profondeur = Program.G_MAX_DEPTH - profondeur;
+
+            //float dist_x_de_dest2 = pos.x - dest.x;
+            //float dist_y_de_dest2 = pos.y - dest.y;
+            //float fact_profondeur_12 = MathF.Pow((z_init - profondeur) / (z_init - dest.z), 3);
+            //float fact_profondeur_22 = MathF.Pow((z_init - (profondeur + 1)) / (z_init - dest.z), 3);
+
+            //return new float[4]
+            //{
+            //        dist_x_de_dest2 * fact_profondeur_12 + dest.x,
+            //        dist_y_de_dest2 * fact_profondeur_12 + dest.y,
+            //        dist_x_de_dest2 * fact_profondeur_22 + dest.x,
+            //        dist_y_de_dest2 * fact_profondeur_22 + dest.y
+            //};
+
             float dist_x_de_destination = pos.x - dest.x;
             float dist_y_de_destination = pos.y - dest.y;
             float facteur_profondeur_1 = MathF.Pow(VITESSE_PROJECTILE, profondeur);
@@ -216,7 +242,7 @@ namespace Dysgenesis
 
             // joueur mort
             Son.JouerEffet(ListeAudioEffets.EXPLOSION_JOUEUR);
-            Son.StopMusique();
+            Son.ArreterMusique();
             Program.player.timer = 0;
 
             // code pour option continuer sur menu
@@ -278,7 +304,7 @@ namespace Dysgenesis
                     const int LARGEUR_MAX_LASER = 5;
 
                     // cette formule ne fonctionne seulement pour la direction +Z, qui est celle du joueur
-                    int largeur_laser = ((Program.G_MAX_DEPTH - i) / Program.G_MAX_DEPTH) * LARGEUR_MAX_LASER;
+                    int largeur_laser = (int)(((Program.G_MAX_DEPTH - i) / (float)Program.G_MAX_DEPTH) * LARGEUR_MAX_LASER);
 
                     positions = PositionsSurEcran(i);
                     SDL_RenderDrawLineF(Program.render,
@@ -287,15 +313,6 @@ namespace Dysgenesis
                         positions[2] + Program.RNG.Next(-largeur_laser, largeur_laser),
                         positions[3] + Program.RNG.Next(-largeur_laser, largeur_laser)
                     );
-
-                    // si le laser est laid, remettre le vieux code:
-                    //positions = PositionsSurEcran(i);
-                    //SDL_RenderDrawLineF(Program.render,
-                    //    positions[0] + Program.RNG.Next(-5, 5),
-                    //    positions[1] + Program.RNG.Next(-5, 5),
-                    //    positions[2] + Program.RNG.Next(-5, 5),
-                    //    positions[3] + Program.RNG.Next(-5, 5)
-                    //);
                 }
 
                 return;

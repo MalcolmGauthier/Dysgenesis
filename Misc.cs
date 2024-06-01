@@ -3589,14 +3589,16 @@ namespace Dysgenesis
             if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 1, 2048) != 0)
                 return -1;
 
-            Mix_AllocateChannels(NB_CHAINES_SFX);
+            // +1 répare un bug où que la dernière chaine alloquée ne joue pas de son.
+            // je ne sais pas pourquoi, mais sans le +1, chaque 20e effet sonnore ne jouera pas
+            Mix_AllocateChannels(NB_CHAINES_SFX + 1);
             volume_SDL = volume * 8;
 
             return 0;
         }
 
         // arrête la musique
-        public static void StopMusique()
+        public static void ArreterMusique()
         {
             Mix_PauseMusic();
         }
@@ -3660,7 +3662,7 @@ namespace Dysgenesis
                 return -3;
             }
 
-            Mix_Volume(ALL_CHUNKS, volume_SDL);
+            Mix_Volume(ALL_CHUNKS, volume_SDL / 2);
 
             // cycle à travers la liste de "chunks" donnés. Ceci est la meilleure façon d'avoir ce
             // système sans trous de mémoire
@@ -3695,7 +3697,7 @@ namespace Dysgenesis
                     // le jeu utilise 0 à MAX_VOLUME_GUI, SDL utilise 0 à 128
                     volume_SDL = (int)(MIX_MAX_VOLUME * (volume / (float)MAX_VOLUME_GUI));
                     Mix_VolumeMusic(volume_SDL);
-                    Mix_Volume(ALL_CHUNKS, volume_SDL);
+                    Mix_Volume(ALL_CHUNKS, volume_SDL / 2);
                 }
             }
 
