@@ -130,8 +130,8 @@ namespace Dysgenesis
         // DEBUG VARS
         static byte debug_fps_count = 0, debug_fps_count_display = 0;
         static long debug_fps_time = DateTime.Now.Ticks;
-        public static bool mute_sound = false, free_items = true, cutscene_skip = true,
-                           show_fps = false, monologue_skip = false, lvl_select = false,
+        public static bool mute_sound = false, free_items = true, cutscene_skip = false,
+                           show_fps = false, monologue_skip = true, lvl_select = false,
                            fps_unlock = false, crashtest = false, fullscreen = true;
 
         // point d'entrée du code
@@ -191,11 +191,12 @@ namespace Dysgenesis
         static int Init()
         {
             // le DLL de SDLSayers que j'utilise est en 64 bit, et donc le programme plante ici si on essaye de l'executer en 32 bit.
+            // apart cela, ce code est fait pour fonctionner facilement en 32 bit
             // dans C/C++, ce problème n'existe pas, car le code SDL est compilé avec le projet.
             if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
                 return 1;
 
-            window = SDL_CreateWindow(W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W_LARGEUR, W_HAUTEUR,
+            window = SDL_CreateWindow(W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 400, 400,//DEBUG
                 fullscreen ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP : 0 | SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
             render = SDL_CreateRenderer(window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
             SDL_PollEvent(out e);
@@ -347,6 +348,13 @@ namespace Dysgenesis
         // logique du jeu
         static void Code()
         {
+            // ajuster les valeures pour la taille de la fenêtre
+            // TODO: enlever et fixer à fullscreen
+            SDL_GetWindowSize(window, out W_LARGEUR, out W_HAUTEUR);
+            W_SEMI_HAUTEUR = W_HAUTEUR / 2;
+            W_SEMI_LARGEUR = W_LARGEUR / 2;
+            //Text.DisplayText(W_LARGEUR + ", " + W_HAUTEUR, new(500, 500), 2);
+
             Son.ChangerVolume();
 
             if (bouger_etoiles)

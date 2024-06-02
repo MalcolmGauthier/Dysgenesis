@@ -12,7 +12,6 @@ namespace Dysgenesis
         public const int JOUEUR_DEFAULT_HP = 100;
         public const int JOUEUR_LARGEUR = 50;
         const float VAGUE_ELECTRIQUE_REGENERATION = 1.0f / (30f * Program.G_FPS); // ~1/1800, 1 par 30 secondes
-        const int JOUEUR_VITESSE = 1;
         const int JOUEUR_HAUTEUR = 20;
 
         // modèle joueur
@@ -316,6 +315,7 @@ namespace Dysgenesis
             const float JOUEUR_PITCH_FRICTION = 0.95f;
             const float JOUEUR_ROLL_FRICTION = 0.95f;
             const float JOUEUR_PITCH_CONSTANT = 0.3f;
+            const int JOUEUR_VITESSE = 1;
 
             timer++;
 

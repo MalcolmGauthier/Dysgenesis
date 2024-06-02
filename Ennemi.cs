@@ -536,7 +536,7 @@ namespace Dysgenesis
 
             { TypeEnnemi.BOSS, new EnnemiData()
             {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 4,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 1.25f,
                 vitesse_z = 0,
                 vitesse_tir = 0.5f * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = BOSS_MAX_HP,
@@ -657,10 +657,14 @@ namespace Dysgenesis
         {
             timer++;
 
-            UpdateModele();
-
             if (Program.player.Mort())
+            {
+                // c'est cool si les ennemis bougent leurs modèlent même quand le joueur est mort,
+                // mais je ne peux pas mettre ActualiserModele comme étant la premier fonction dans la logique,
+                // car certains ennemis utilisent la position de l'ennemi pour leur calcul, qui va changer quand Bouger est appelé
+                ActualiserModele();
                 return false;
+            }
 
             // si boss
             if (CodeBoss())
@@ -668,9 +672,11 @@ namespace Dysgenesis
                 return false;
             }
 
-            Move();
+            Bouger();
 
-            target = ActualiserCible();
+            ActualiserModele();
+
+            target = TrouverCible();
 
             for (int i = 0; i < Program.projectiles.Count; i++)
             {
@@ -678,7 +684,7 @@ namespace Dysgenesis
                     return true;
             }
 
-            if (PlayerCollision() != 0)
+            if (PlayerCollision(Program.player) != 0)
             {
                 return true;
             }
@@ -689,7 +695,7 @@ namespace Dysgenesis
         }
 
         // certains ennemis ont des modèles qui bougent. cette méthode est en charge de les bouger
-        public void UpdateModele()
+        public void ActualiserModele()
         {
             float speed = 0;
             float angle;
@@ -1080,19 +1086,19 @@ namespace Dysgenesis
 
         // code pour détecter si un ennemi touche le joueur.
         // retourne 1 si touché, 0 sinon.
-        int PlayerCollision()
+        int PlayerCollision(Player player)
         {
             const int DOMMAGES_COLLISION_JOUEUR = 3;
 
             if (position.z != 0)
                 return 0;
 
-            if (Vector2.Distance(position.x, position.y, Program.player.position.x, Program.player.position.y) > Player.JOUEUR_LARGEUR)
+            if (Vector2.Distance(position.x, position.y, player.position.x, player.position.y) > Player.JOUEUR_LARGEUR)
                 return 0;
 
             // touché
             new Explosion(position);
-            Program.player.HP -= DOMMAGES_COLLISION_JOUEUR;
+            player.HP -= DOMMAGES_COLLISION_JOUEUR;
 
             // ces ennemis ci-dessous ne comptent pas pour le total, alors on demande un nouveau ennemi si ce n'est pas un ci-dessous qui vient de mourrir
             if (!// <---- NOT!!!
@@ -1111,17 +1117,23 @@ namespace Dysgenesis
             return 1;
         }
 
-        // retourne une nouvelle cible pour l'ennemi,
+        // retourne une nouvelle cible de position pour l'ennemi,
         // ou le même si il n'a pas besoin de changer.
-        Vector2 ActualiserCible()
+        Vector2 TrouverCible()
         {
+            // si la taille de l'écran ou qqc d'autre cause une boucle infini, on veut éviter cela
+            const int LIMITE_BOUCLE = 500;
+            int anti_boucle_infini = 0;
+
             // l'ennemi va directement au joueur quand il se rend à z=0
             if (position.z == 0)
-                return new Vector2(Program.player.position.x, Program.player.position.y);
+            {
+                return Program.player.position;
+            }
 
             int dist_ennemi_cible = Vector2.Distance(target.x, target.y, position.x, position.y);
 
-            // si l'ennemi n'est pas à ca cible, ne la change pas
+            // si l'ennemi n'est pas à sa cible, ne la change pas
             if (dist_ennemi_cible > 30)
             {
                 return target;
@@ -1138,6 +1150,9 @@ namespace Dysgenesis
                     // ici et plus loin, on veut éviter le bas de l'écran, car le joueur ne peut pas tirer là
                     nouveauX = Program.RNG.Next(100, Program.W_LARGEUR - 100);
                     nouveauY = Program.RNG.Next(100, Program.W_HAUTEUR - 400);
+
+                    if (++anti_boucle_infini > LIMITE_BOUCLE)
+                        return target;
                 }
                 while (Vector2.Distance(nouveauX, nouveauY, Program.player.position.x, Program.player.position.y) < 800);
 
@@ -1156,6 +1171,10 @@ namespace Dysgenesis
             {
                 nouveauX = Program.RNG.Next(100, Program.W_LARGEUR - 100);
                 nouveauY = Program.RNG.Next(100, Program.W_HAUTEUR - 400);
+
+                if (++anti_boucle_infini > LIMITE_BOUCLE)
+                    return target;
+
             }
             while (Vector2.Distance(nouveauX, nouveauY, Program.player.position.x, Program.player.position.y) > 800);
 
@@ -1163,7 +1182,7 @@ namespace Dysgenesis
         }
 
         // bouge l'ennemi accordément
-        void Move()
+        void Bouger()
         {
             const float LIM_MIN_Z_ENNEMI = 1.0f;
             const float ACCELERATION_ENNEMI_Z0 = 1.01f;

@@ -198,7 +198,7 @@ namespace Dysgenesis
         // logique
         public static bool Exist()
         {
-            if (AnimationExplosion() != 0)
+            if (AnimationExplosion() == 0)
                 VerifCollision();
 
             return false;
@@ -677,10 +677,12 @@ namespace Dysgenesis
     // tout est hard-codé, c'est terrible. désolé en avence.
     public static class Cutscene
     {
-        public static SDL_Rect rect = new SDL_Rect();
+        static Ennemi[] ens = new Ennemi[2];
+        static Vector2[] neutron_slowdown = new Vector2[50];
+        static SDL_Rect rect = new SDL_Rect();
         static short[,] stars = new short[50, 2];
         static short[,] stars_glx = new short[300, 2];
-        static Vector2[] neutron_slowdown = new Vector2[50];
+        static float[,] f_model_pos = new float[7, 3];
         static sbyte[,] f_model = new sbyte[7, 2]
         {
             { -25, -10},
@@ -691,11 +693,9 @@ namespace Dysgenesis
             { 0, 0},
             { -25, -10}
         };
-        static float[,] f_model_pos = new float[7, 3];
-        static byte lTimer = 10;
         static short temp = 0;
+        static byte lTimer = 10;
         static byte gFade = 0;
-        static Ennemi[] ens = new Ennemi[2];
 
         public static void Cut_0() // intro
         {
@@ -750,85 +750,85 @@ namespace Dysgenesis
 
                 #region planète 1
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
-                SDL_RenderDrawLine(Program.render, 818, 298, 930, 336);
-                SDL_RenderDrawLine(Program.render, 930, 336, 971, 355);
-                SDL_RenderDrawLine(Program.render, 971, 355, 910, 373);
-                SDL_RenderDrawLine(Program.render, 910, 373, 860, 400);
-                SDL_RenderDrawLine(Program.render, 860, 400, 893, 412);
-                SDL_RenderDrawLine(Program.render, 893, 412, 906, 438);
-                SDL_RenderDrawLine(Program.render, 906, 438, 861, 453);
-                SDL_RenderDrawLine(Program.render, 861, 453, 766, 492);
-                SDL_RenderDrawLine(Program.render, 1160, 440, 1066, 425);
-                SDL_RenderDrawLine(Program.render, 1066, 425, 1000, 455);
-                SDL_RenderDrawLine(Program.render, 1000, 455, 1002, 490);
-                SDL_RenderDrawLine(Program.render, 1002, 490, 1036, 497);
-                SDL_RenderDrawLine(Program.render, 1036, 497, 1048, 515);
-                SDL_RenderDrawLine(Program.render, 1048, 515, 989, 545);
-                SDL_RenderDrawLine(Program.render, 989, 545, 1050, 583);
-                SDL_RenderDrawLine(Program.render, 1050, 583, 1101, 581);
+                NouveauSDLRenderDrawLine(Program.render, 818, 298, 930, 336);
+                NouveauSDLRenderDrawLine(Program.render, 930, 336, 971, 355);
+                NouveauSDLRenderDrawLine(Program.render, 971, 355, 910, 373);
+                NouveauSDLRenderDrawLine(Program.render, 910, 373, 860, 400);
+                NouveauSDLRenderDrawLine(Program.render, 860, 400, 893, 412);
+                NouveauSDLRenderDrawLine(Program.render, 893, 412, 906, 438);
+                NouveauSDLRenderDrawLine(Program.render, 906, 438, 861, 453);
+                NouveauSDLRenderDrawLine(Program.render, 861, 453, 766, 492);
+                NouveauSDLRenderDrawLine(Program.render, 1160, 440, 1066, 425);
+                NouveauSDLRenderDrawLine(Program.render, 1066, 425, 1000, 455);
+                NouveauSDLRenderDrawLine(Program.render, 1000, 455, 1002, 490);
+                NouveauSDLRenderDrawLine(Program.render, 1002, 490, 1036, 497);
+                NouveauSDLRenderDrawLine(Program.render, 1036, 497, 1048, 515);
+                NouveauSDLRenderDrawLine(Program.render, 1048, 515, 989, 545);
+                NouveauSDLRenderDrawLine(Program.render, 989, 545, 1050, 583);
+                NouveauSDLRenderDrawLine(Program.render, 1050, 583, 1101, 581);
                 #endregion
 
                 #region planète 2
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                SDL_RenderDrawLine(Program.render, 189, 319, 218, 334);
-                SDL_RenderDrawLine(Program.render, 218, 334, 250, 344);
-                SDL_RenderDrawLine(Program.render, 250, 344, 258, 365);
-                SDL_RenderDrawLine(Program.render, 258, 365, 237, 395);
-                SDL_RenderDrawLine(Program.render, 237, 395, 219, 425);
-                SDL_RenderDrawLine(Program.render, 219, 425, 227, 454);
-                SDL_RenderDrawLine(Program.render, 227, 454, 234, 486);
-                SDL_RenderDrawLine(Program.render, 307, 302, 302, 330);
-                SDL_RenderDrawLine(Program.render, 302, 330, 318, 339);
-                SDL_RenderDrawLine(Program.render, 318, 339, 342, 333);
-                SDL_RenderDrawLine(Program.render, 360, 390, 354, 406);
-                SDL_RenderDrawLine(Program.render, 354, 406, 340, 411);
-                SDL_RenderDrawLine(Program.render, 340, 411, 322, 395);
-                SDL_RenderDrawLine(Program.render, 322, 395, 294, 400);
-                SDL_RenderDrawLine(Program.render, 294, 400, 272, 426);
-                SDL_RenderDrawLine(Program.render, 272, 426, 304, 450);
-                SDL_RenderDrawLine(Program.render, 304, 450, 330, 460);
+                NouveauSDLRenderDrawLine(Program.render, 189, 319, 218, 334);
+                NouveauSDLRenderDrawLine(Program.render, 218, 334, 250, 344);
+                NouveauSDLRenderDrawLine(Program.render, 250, 344, 258, 365);
+                NouveauSDLRenderDrawLine(Program.render, 258, 365, 237, 395);
+                NouveauSDLRenderDrawLine(Program.render, 237, 395, 219, 425);
+                NouveauSDLRenderDrawLine(Program.render, 219, 425, 227, 454);
+                NouveauSDLRenderDrawLine(Program.render, 227, 454, 234, 486);
+                NouveauSDLRenderDrawLine(Program.render, 307, 302, 302, 330);
+                NouveauSDLRenderDrawLine(Program.render, 302, 330, 318, 339);
+                NouveauSDLRenderDrawLine(Program.render, 318, 339, 342, 333);
+                NouveauSDLRenderDrawLine(Program.render, 360, 390, 354, 406);
+                NouveauSDLRenderDrawLine(Program.render, 354, 406, 340, 411);
+                NouveauSDLRenderDrawLine(Program.render, 340, 411, 322, 395);
+                NouveauSDLRenderDrawLine(Program.render, 322, 395, 294, 400);
+                NouveauSDLRenderDrawLine(Program.render, 294, 400, 272, 426);
+                NouveauSDLRenderDrawLine(Program.render, 272, 426, 304, 450);
+                NouveauSDLRenderDrawLine(Program.render, 304, 450, 330, 460);
                 #endregion
 
                 #region planète 3
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                SDL_RenderDrawLine(Program.render, 1657, 489, 1605, 443);
-                SDL_RenderDrawLine(Program.render, 1605, 443, 1579, 393);
-                SDL_RenderDrawLine(Program.render, 1579, 393, 1583, 350);
-                SDL_RenderDrawLine(Program.render, 1583, 350, 1599, 310);
-                SDL_RenderDrawLine(Program.render, 1700, 481, 1674, 457);
-                SDL_RenderDrawLine(Program.render, 1674, 457, 1648, 422);
-                SDL_RenderDrawLine(Program.render, 1648, 422, 1633, 361);
-                SDL_RenderDrawLine(Program.render, 1633, 361, 1637, 321);
-                SDL_RenderDrawLine(Program.render, 1637, 321, 1647, 290);
-                SDL_RenderDrawLine(Program.render, 1740, 449, 1713, 419);
-                SDL_RenderDrawLine(Program.render, 1713, 419, 1689, 371);
-                SDL_RenderDrawLine(Program.render, 1689, 371, 1686, 331);
-                SDL_RenderDrawLine(Program.render, 1686, 331, 1702, 299);
-                SDL_RenderDrawLine(Program.render, 1759, 385, 1744, 371);
-                SDL_RenderDrawLine(Program.render, 1744, 371, 1735, 349);
-                SDL_RenderDrawLine(Program.render, 1735, 349, 1738, 328);
+                NouveauSDLRenderDrawLine(Program.render, 1657, 489, 1605, 443);
+                NouveauSDLRenderDrawLine(Program.render, 1605, 443, 1579, 393);
+                NouveauSDLRenderDrawLine(Program.render, 1579, 393, 1583, 350);
+                NouveauSDLRenderDrawLine(Program.render, 1583, 350, 1599, 310);
+                NouveauSDLRenderDrawLine(Program.render, 1700, 481, 1674, 457);
+                NouveauSDLRenderDrawLine(Program.render, 1674, 457, 1648, 422);
+                NouveauSDLRenderDrawLine(Program.render, 1648, 422, 1633, 361);
+                NouveauSDLRenderDrawLine(Program.render, 1633, 361, 1637, 321);
+                NouveauSDLRenderDrawLine(Program.render, 1637, 321, 1647, 290);
+                NouveauSDLRenderDrawLine(Program.render, 1740, 449, 1713, 419);
+                NouveauSDLRenderDrawLine(Program.render, 1713, 419, 1689, 371);
+                NouveauSDLRenderDrawLine(Program.render, 1689, 371, 1686, 331);
+                NouveauSDLRenderDrawLine(Program.render, 1686, 331, 1702, 299);
+                NouveauSDLRenderDrawLine(Program.render, 1759, 385, 1744, 371);
+                NouveauSDLRenderDrawLine(Program.render, 1744, 371, 1735, 349);
+                NouveauSDLRenderDrawLine(Program.render, 1735, 349, 1738, 328);
                 #endregion
 
                 #region drapeaux
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 950, 100, 957, 240);
-                SDL_RenderDrawLine(Program.render, 1644, 178, 1653, 290);
-                SDL_RenderDrawLine(Program.render, 252, 174, 258, 290);
+                NouveauSDLRenderDrawLine(Program.render, 950, 100, 957, 240);
+                NouveauSDLRenderDrawLine(Program.render, 1644, 178, 1653, 290);
+                NouveauSDLRenderDrawLine(Program.render, 252, 174, 258, 290);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                SDL_RenderDrawLine(Program.render, 252, 174, 333, 176);
-                SDL_RenderDrawLine(Program.render, 333, 176, 333, 225);
-                SDL_RenderDrawLine(Program.render, 333, 225, 255, 229);
+                NouveauSDLRenderDrawLine(Program.render, 252, 174, 333, 176);
+                NouveauSDLRenderDrawLine(Program.render, 333, 176, 333, 225);
+                NouveauSDLRenderDrawLine(Program.render, 333, 225, 255, 229);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                SDL_RenderDrawLine(Program.render, 950, 100, 1081, 92);
-                SDL_RenderDrawLine(Program.render, 1081, 92, 1082, 158);
-                SDL_RenderDrawLine(Program.render, 1082, 158, 954, 163);
+                NouveauSDLRenderDrawLine(Program.render, 950, 100, 1081, 92);
+                NouveauSDLRenderDrawLine(Program.render, 1081, 92, 1082, 158);
+                NouveauSDLRenderDrawLine(Program.render, 1082, 158, 954, 163);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
-                SDL_RenderDrawLine(Program.render, 1644, 178, 1747, 172);
-                SDL_RenderDrawLine(Program.render, 1747, 172, 1750, 230);
-                SDL_RenderDrawLine(Program.render, 1750, 230, 1649, 235);
+                NouveauSDLRenderDrawLine(Program.render, 1644, 178, 1747, 172);
+                NouveauSDLRenderDrawLine(Program.render, 1747, 172, 1750, 230);
+                NouveauSDLRenderDrawLine(Program.render, 1750, 230, 1649, 235);
                 #endregion
 
                 if (Program.gTimer == 60)
@@ -878,72 +878,72 @@ namespace Dysgenesis
                                  "de la région galactique locale.", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 300));
 
                 #region toi
-                SDL_RenderDrawLine(Program.render, 1282, 680, 1261, 417);
-                SDL_RenderDrawLine(Program.render, 1261, 417, 1340, 366);
-                SDL_RenderDrawLine(Program.render, 1340, 366, 1373, 400);
-                SDL_RenderDrawLine(Program.render, 1373, 400, 1453, 400);
-                SDL_RenderDrawLine(Program.render, 1453, 400, 1492, 368);
-                SDL_RenderDrawLine(Program.render, 1492, 368, 1545, 412);
-                SDL_RenderDrawLine(Program.render, 1545, 412, 1511, 680);
+                NouveauSDLRenderDrawLine(Program.render, 1282, 680, 1261, 417);
+                NouveauSDLRenderDrawLine(Program.render, 1261, 417, 1340, 366);
+                NouveauSDLRenderDrawLine(Program.render, 1340, 366, 1373, 400);
+                NouveauSDLRenderDrawLine(Program.render, 1373, 400, 1453, 400);
+                NouveauSDLRenderDrawLine(Program.render, 1453, 400, 1492, 368);
+                NouveauSDLRenderDrawLine(Program.render, 1492, 368, 1545, 412);
+                NouveauSDLRenderDrawLine(Program.render, 1545, 412, 1511, 680);
 
-                SDL_RenderDrawLine(Program.render, 1261, 417, 1229, 637);
-                SDL_RenderDrawLine(Program.render, 1545, 412, 1624, 337);
-                SDL_RenderDrawLine(Program.render, 1624, 337, 1417, 260);
+                NouveauSDLRenderDrawLine(Program.render, 1261, 417, 1229, 637);
+                NouveauSDLRenderDrawLine(Program.render, 1545, 412, 1624, 337);
+                NouveauSDLRenderDrawLine(Program.render, 1624, 337, 1417, 260);
                 Program.DessinerCercle(new Vector2(1416, 314), 77, 24);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 127, 255);
-                SDL_RenderDrawLine(Program.render, 1462, 434, 1503, 434);
-                SDL_RenderDrawLine(Program.render, 1503, 434, 1484, 483);
-                SDL_RenderDrawLine(Program.render, 1484, 483, 1462, 434);
+                NouveauSDLRenderDrawLine(Program.render, 1462, 434, 1503, 434);
+                NouveauSDLRenderDrawLine(Program.render, 1503, 434, 1484, 483);
+                NouveauSDLRenderDrawLine(Program.render, 1484, 483, 1462, 434);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                SDL_RenderDrawLine(Program.render, 1484, 483, 1468, 503);
-                SDL_RenderDrawLine(Program.render, 1468, 503, 1484, 522);
-                SDL_RenderDrawLine(Program.render, 1484, 522, 1499, 502);
-                SDL_RenderDrawLine(Program.render, 1499, 502, 1484, 483);
+                NouveauSDLRenderDrawLine(Program.render, 1484, 483, 1468, 503);
+                NouveauSDLRenderDrawLine(Program.render, 1468, 503, 1484, 522);
+                NouveauSDLRenderDrawLine(Program.render, 1484, 522, 1499, 502);
+                NouveauSDLRenderDrawLine(Program.render, 1499, 502, 1484, 483);
                 #endregion
 
                 #region drapeau
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 148, 680, 118, 57);
-                SDL_RenderDrawLine(Program.render, 118, 57, 172, 49);
-                SDL_RenderDrawLine(Program.render, 172, 49, 203, 680);
+                NouveauSDLRenderDrawLine(Program.render, 148, 680, 118, 57);
+                NouveauSDLRenderDrawLine(Program.render, 118, 57, 172, 49);
+                NouveauSDLRenderDrawLine(Program.render, 172, 49, 203, 680);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                SDL_RenderDrawLine(Program.render, 175, 115, 255, 61);
-                SDL_RenderDrawLine(Program.render, 255, 61, 442, 55);
-                SDL_RenderDrawLine(Program.render, 442, 55, 534, 88);
-                SDL_RenderDrawLine(Program.render, 534, 88, 693, 82);
-                SDL_RenderDrawLine(Program.render, 693, 82, 766, 40);
-                SDL_RenderDrawLine(Program.render, 766, 40, 804, 443);
-                SDL_RenderDrawLine(Program.render, 804, 443, 746, 478);
-                SDL_RenderDrawLine(Program.render, 746, 478, 580, 489);
-                SDL_RenderDrawLine(Program.render, 580, 489, 481, 443);
-                SDL_RenderDrawLine(Program.render, 481, 443, 311, 452);
-                SDL_RenderDrawLine(Program.render, 311, 452, 194, 500);
+                NouveauSDLRenderDrawLine(Program.render, 175, 115, 255, 61);
+                NouveauSDLRenderDrawLine(Program.render, 255, 61, 442, 55);
+                NouveauSDLRenderDrawLine(Program.render, 442, 55, 534, 88);
+                NouveauSDLRenderDrawLine(Program.render, 534, 88, 693, 82);
+                NouveauSDLRenderDrawLine(Program.render, 693, 82, 766, 40);
+                NouveauSDLRenderDrawLine(Program.render, 766, 40, 804, 443);
+                NouveauSDLRenderDrawLine(Program.render, 804, 443, 746, 478);
+                NouveauSDLRenderDrawLine(Program.render, 746, 478, 580, 489);
+                NouveauSDLRenderDrawLine(Program.render, 580, 489, 481, 443);
+                NouveauSDLRenderDrawLine(Program.render, 481, 443, 311, 452);
+                NouveauSDLRenderDrawLine(Program.render, 311, 452, 194, 500);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
                 Program.DessinerCercle(new Vector2(479, 232), 91, 24);
                 Program.DessinerCercle(new Vector2(479, 232), 65, 24);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
-                SDL_RenderDrawLine(Program.render, 563, 195, 672, 204);
-                SDL_RenderDrawLine(Program.render, 672, 204, 778, 172);
-                SDL_RenderDrawLine(Program.render, 570, 243, 677, 251);
-                SDL_RenderDrawLine(Program.render, 677, 251, 782, 214);
-                SDL_RenderDrawLine(Program.render, 395, 197, 276, 190);
-                SDL_RenderDrawLine(Program.render, 276, 190, 180, 219);
-                SDL_RenderDrawLine(Program.render, 390, 250, 277, 242);
-                SDL_RenderDrawLine(Program.render, 277, 242, 183, 282);
+                NouveauSDLRenderDrawLine(Program.render, 563, 195, 672, 204);
+                NouveauSDLRenderDrawLine(Program.render, 672, 204, 778, 172);
+                NouveauSDLRenderDrawLine(Program.render, 570, 243, 677, 251);
+                NouveauSDLRenderDrawLine(Program.render, 677, 251, 782, 214);
+                NouveauSDLRenderDrawLine(Program.render, 395, 197, 276, 190);
+                NouveauSDLRenderDrawLine(Program.render, 276, 190, 180, 219);
+                NouveauSDLRenderDrawLine(Program.render, 390, 250, 277, 242);
+                NouveauSDLRenderDrawLine(Program.render, 277, 242, 183, 282);
                 #endregion
 
                 #region étoile
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 472, 167, 443, 286);
-                SDL_RenderDrawLine(Program.render, 443, 286, 534, 197);
-                SDL_RenderDrawLine(Program.render, 534, 197, 420, 206);
-                SDL_RenderDrawLine(Program.render, 420, 206, 524, 279);
-                SDL_RenderDrawLine(Program.render, 524, 279, 472, 167);
+                NouveauSDLRenderDrawLine(Program.render, 472, 167, 443, 286);
+                NouveauSDLRenderDrawLine(Program.render, 443, 286, 534, 197);
+                NouveauSDLRenderDrawLine(Program.render, 534, 197, 420, 206);
+                NouveauSDLRenderDrawLine(Program.render, 420, 206, 524, 279);
+                NouveauSDLRenderDrawLine(Program.render, 524, 279, 472, 167);
                 #endregion
             } // o7
             else if (Program.gTimer > 540 && Program.gTimer <= 780)
@@ -954,12 +954,12 @@ namespace Dysgenesis
                                  new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 540));
 
                 #region lettre
-                SDL_RenderDrawLine(Program.render, 717, 607, 600, 400);
-                SDL_RenderDrawLine(Program.render, 600, 400, 958, 198);
-                SDL_RenderDrawLine(Program.render, 958, 198, 1062, 411);
-                SDL_RenderDrawLine(Program.render, 1062, 411, 717, 607);
-                SDL_RenderDrawLine(Program.render, 600, 400, 792, 385);
-                SDL_RenderDrawLine(Program.render, 856, 353, 958, 198);
+                NouveauSDLRenderDrawLine(Program.render, 717, 607, 600, 400);
+                NouveauSDLRenderDrawLine(Program.render, 600, 400, 958, 198);
+                NouveauSDLRenderDrawLine(Program.render, 958, 198, 1062, 411);
+                NouveauSDLRenderDrawLine(Program.render, 1062, 411, 717, 607);
+                NouveauSDLRenderDrawLine(Program.render, 600, 400, 792, 385);
+                NouveauSDLRenderDrawLine(Program.render, 856, 353, 958, 198);
                 #endregion
 
                 #region emblême cercle
@@ -970,11 +970,11 @@ namespace Dysgenesis
 
                 #region étoile
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 859, 396, 815, 358);
-                SDL_RenderDrawLine(Program.render, 815, 358, 831, 414);
-                SDL_RenderDrawLine(Program.render, 831, 414, 849, 359);
-                SDL_RenderDrawLine(Program.render, 849, 359, 802, 389);
-                SDL_RenderDrawLine(Program.render, 802, 389, 859, 396);
+                NouveauSDLRenderDrawLine(Program.render, 859, 396, 815, 358);
+                NouveauSDLRenderDrawLine(Program.render, 815, 358, 831, 414);
+                NouveauSDLRenderDrawLine(Program.render, 831, 414, 849, 359);
+                NouveauSDLRenderDrawLine(Program.render, 849, 359, 802, 389);
+                NouveauSDLRenderDrawLine(Program.render, 802, 389, 859, 396);
                 #endregion
             } // lettre fermée
             else if (Program.gTimer > 780 && Program.gTimer <= 1020)
@@ -984,37 +984,37 @@ namespace Dysgenesis
                                  "seule qui sauvera notre peuple des mains ennemies, ou bien même la mort.\"", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 780));
 
                 #region lettre
-                SDL_RenderDrawLine(Program.render, 717, 607, 600, 400);
-                SDL_RenderDrawLine(Program.render, 958, 198, 1062, 411);
-                SDL_RenderDrawLine(Program.render, 1062, 411, 717, 607);
-                SDL_RenderDrawLine(Program.render, 600, 400, 832, 383);
-                SDL_RenderDrawLine(Program.render, 832, 383, 958, 198);
-                SDL_RenderDrawLine(Program.render, 600, 400, 648, 316);
-                SDL_RenderDrawLine(Program.render, 958, 198, 868, 193);
+                NouveauSDLRenderDrawLine(Program.render, 717, 607, 600, 400);
+                NouveauSDLRenderDrawLine(Program.render, 958, 198, 1062, 411);
+                NouveauSDLRenderDrawLine(Program.render, 1062, 411, 717, 607);
+                NouveauSDLRenderDrawLine(Program.render, 600, 400, 832, 383);
+                NouveauSDLRenderDrawLine(Program.render, 832, 383, 958, 198);
+                NouveauSDLRenderDrawLine(Program.render, 600, 400, 648, 316);
+                NouveauSDLRenderDrawLine(Program.render, 958, 198, 868, 193);
                 #endregion
 
                 #region papier
                 SDL_SetRenderDrawColor(Program.render, 255, 150, 25, 255);
-                SDL_RenderDrawLine(Program.render, 695, 393, 577, 199);
-                SDL_RenderDrawLine(Program.render, 577, 199, 802, 79);
-                SDL_RenderDrawLine(Program.render, 802, 79, 911, 267);
+                NouveauSDLRenderDrawLine(Program.render, 695, 393, 577, 199);
+                NouveauSDLRenderDrawLine(Program.render, 577, 199, 802, 79);
+                NouveauSDLRenderDrawLine(Program.render, 802, 79, 911, 267);
                 #endregion
 
                 #region blabla
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 611, 212, 669, 180);
-                SDL_RenderDrawLine(Program.render, 636, 252, 817, 153);
-                SDL_RenderDrawLine(Program.render, 644, 273, 718, 231);
-                SDL_RenderDrawLine(Program.render, 739, 218, 821, 173);
-                SDL_RenderDrawLine(Program.render, 659, 292, 684, 276);
-                SDL_RenderDrawLine(Program.render, 702, 265, 799, 212);
-                SDL_RenderDrawLine(Program.render, 818, 201, 839, 188);
-                SDL_RenderDrawLine(Program.render, 664, 312, 797, 228);
-                SDL_RenderDrawLine(Program.render, 820, 221, 850, 200);
-                SDL_RenderDrawLine(Program.render, 682, 337, 766, 280);
-                SDL_RenderDrawLine(Program.render, 798, 263, 860, 225);
-                SDL_RenderDrawLine(Program.render, 698, 358, 869, 251);
-                SDL_RenderDrawLine(Program.render, 843, 317, 893, 282);
+                NouveauSDLRenderDrawLine(Program.render, 611, 212, 669, 180);
+                NouveauSDLRenderDrawLine(Program.render, 636, 252, 817, 153);
+                NouveauSDLRenderDrawLine(Program.render, 644, 273, 718, 231);
+                NouveauSDLRenderDrawLine(Program.render, 739, 218, 821, 173);
+                NouveauSDLRenderDrawLine(Program.render, 659, 292, 684, 276);
+                NouveauSDLRenderDrawLine(Program.render, 702, 265, 799, 212);
+                NouveauSDLRenderDrawLine(Program.render, 818, 201, 839, 188);
+                NouveauSDLRenderDrawLine(Program.render, 664, 312, 797, 228);
+                NouveauSDLRenderDrawLine(Program.render, 820, 221, 850, 200);
+                NouveauSDLRenderDrawLine(Program.render, 682, 337, 766, 280);
+                NouveauSDLRenderDrawLine(Program.render, 798, 263, 860, 225);
+                NouveauSDLRenderDrawLine(Program.render, 698, 358, 869, 251);
+                NouveauSDLRenderDrawLine(Program.render, 843, 317, 893, 282);
                 #endregion
             } // lettre ouverte
             else if (Program.gTimer > 1020 && Program.gTimer <= 1260)
@@ -1038,39 +1038,39 @@ namespace Dysgenesis
                 #endregion
 
                 #region lignes
-                SDL_RenderDrawLine(Program.render, 293, 261, 347, 173);
-                SDL_RenderDrawLine(Program.render, 347, 173, 588, 173);
-                SDL_RenderDrawLine(Program.render, 462, 549, 521, 628);
-                SDL_RenderDrawLine(Program.render, 521, 628, 744, 631);
-                SDL_RenderDrawLine(Program.render, 1191, 76, 1164, 99);
-                SDL_RenderDrawLine(Program.render, 1164, 99, 1166, 258);
-                SDL_RenderDrawLine(Program.render, 1195, 284, 1166, 258);
-                SDL_RenderDrawLine(Program.render, 1165, 176, 981, 171);
-                SDL_RenderDrawLine(Program.render, 1474, 168, 1544, 96);
-                SDL_RenderDrawLine(Program.render, 1544, 96, 1736, 96);
+                NouveauSDLRenderDrawLine(Program.render, 293, 261, 347, 173);
+                NouveauSDLRenderDrawLine(Program.render, 347, 173, 588, 173);
+                NouveauSDLRenderDrawLine(Program.render, 462, 549, 521, 628);
+                NouveauSDLRenderDrawLine(Program.render, 521, 628, 744, 631);
+                NouveauSDLRenderDrawLine(Program.render, 1191, 76, 1164, 99);
+                NouveauSDLRenderDrawLine(Program.render, 1164, 99, 1166, 258);
+                NouveauSDLRenderDrawLine(Program.render, 1195, 284, 1166, 258);
+                NouveauSDLRenderDrawLine(Program.render, 1165, 176, 981, 171);
+                NouveauSDLRenderDrawLine(Program.render, 1474, 168, 1544, 96);
+                NouveauSDLRenderDrawLine(Program.render, 1544, 96, 1736, 96);
                 #endregion
 
                 #region texte et blabla rouge
                 Text.DisplayText("x-57", new Vector2(880, 330), 10);
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                SDL_RenderDrawLine(Program.render, 394, 142, 556, 136);
-                SDL_RenderDrawLine(Program.render, 565, 591, 708, 582);
-                SDL_RenderDrawLine(Program.render, 1016, 129, 1136, 137);
-                SDL_RenderDrawLine(Program.render, 1589, 64, 1709, 67);
+                NouveauSDLRenderDrawLine(Program.render, 394, 142, 556, 136);
+                NouveauSDLRenderDrawLine(Program.render, 565, 591, 708, 582);
+                NouveauSDLRenderDrawLine(Program.render, 1016, 129, 1136, 137);
+                NouveauSDLRenderDrawLine(Program.render, 1589, 64, 1709, 67);
                 #endregion
 
                 #region plus de blabla
-                SDL_RenderDrawLine(Program.render, 874, 472, 1237, 465);
-                SDL_RenderDrawLine(Program.render, 1306, 456, 1680, 458);
-                SDL_RenderDrawLine(Program.render, 1700, 500, 1565, 508);
-                SDL_RenderDrawLine(Program.render, 1521, 512, 1028, 523);
-                SDL_RenderDrawLine(Program.render, 979, 527, 867, 522);
-                SDL_RenderDrawLine(Program.render, 874, 571, 1149, 569);
-                SDL_RenderDrawLine(Program.render, 1206, 559, 1331, 566);
-                SDL_RenderDrawLine(Program.render, 1402, 558, 1685, 553);
-                SDL_RenderDrawLine(Program.render, 1687, 626, 1264, 626);
-                SDL_RenderDrawLine(Program.render, 1210, 632, 1111, 631);
-                SDL_RenderDrawLine(Program.render, 1042, 634, 879, 638);
+                NouveauSDLRenderDrawLine(Program.render, 874, 472, 1237, 465);
+                NouveauSDLRenderDrawLine(Program.render, 1306, 456, 1680, 458);
+                NouveauSDLRenderDrawLine(Program.render, 1700, 500, 1565, 508);
+                NouveauSDLRenderDrawLine(Program.render, 1521, 512, 1028, 523);
+                NouveauSDLRenderDrawLine(Program.render, 979, 527, 867, 522);
+                NouveauSDLRenderDrawLine(Program.render, 874, 571, 1149, 569);
+                NouveauSDLRenderDrawLine(Program.render, 1206, 559, 1331, 566);
+                NouveauSDLRenderDrawLine(Program.render, 1402, 558, 1685, 553);
+                NouveauSDLRenderDrawLine(Program.render, 1687, 626, 1264, 626);
+                NouveauSDLRenderDrawLine(Program.render, 1210, 632, 1111, 631);
+                NouveauSDLRenderDrawLine(Program.render, 1042, 634, 879, 638);
                 #endregion
 
             } // vaisseau
@@ -1104,34 +1104,34 @@ namespace Dysgenesis
 
                 #region bleu autour de pôles
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                SDL_RenderDrawLine(Program.render, 833, 201, 770, 127);
-                SDL_RenderDrawLine(Program.render, 770, 127, 698, 120);
-                SDL_RenderDrawLine(Program.render, 698, 120, 640, 135);
-                SDL_RenderDrawLine(Program.render, 854, 184, 800, 100);
-                SDL_RenderDrawLine(Program.render, 800, 100, 818, 36);
-                SDL_RenderDrawLine(Program.render, 818, 36, 860, 21);
-                SDL_RenderDrawLine(Program.render, 1055, 482, 1109, 549);
-                SDL_RenderDrawLine(Program.render, 1109, 549, 1106, 606);
-                SDL_RenderDrawLine(Program.render, 1106, 606, 1082, 643);
-                SDL_RenderDrawLine(Program.render, 1078, 465, 1136, 526);
-                SDL_RenderDrawLine(Program.render, 1136, 526, 1196, 531);
-                SDL_RenderDrawLine(Program.render, 1196, 531, 1230, 515);
+                NouveauSDLRenderDrawLine(Program.render, 833, 201, 770, 127);
+                NouveauSDLRenderDrawLine(Program.render, 770, 127, 698, 120);
+                NouveauSDLRenderDrawLine(Program.render, 698, 120, 640, 135);
+                NouveauSDLRenderDrawLine(Program.render, 854, 184, 800, 100);
+                NouveauSDLRenderDrawLine(Program.render, 800, 100, 818, 36);
+                NouveauSDLRenderDrawLine(Program.render, 818, 36, 860, 21);
+                NouveauSDLRenderDrawLine(Program.render, 1055, 482, 1109, 549);
+                NouveauSDLRenderDrawLine(Program.render, 1109, 549, 1106, 606);
+                NouveauSDLRenderDrawLine(Program.render, 1106, 606, 1082, 643);
+                NouveauSDLRenderDrawLine(Program.render, 1078, 465, 1136, 526);
+                NouveauSDLRenderDrawLine(Program.render, 1136, 526, 1196, 531);
+                NouveauSDLRenderDrawLine(Program.render, 1196, 531, 1230, 515);
                 #endregion
 
                 #region plus de bleu autour des pôles
-                SDL_RenderDrawLine(Program.render, 1069, 479, 1097, 518);
-                SDL_RenderDrawLine(Program.render, 1090, 494, 1137, 542);
-                SDL_RenderDrawLine(Program.render, 1111, 533, 1134, 567);
-                SDL_RenderDrawLine(Program.render, 1120, 564, 1123, 617);
-                SDL_RenderDrawLine(Program.render, 1139, 583, 1144, 619);
-                SDL_RenderDrawLine(Program.render, 1148, 559, 1202, 596);
-                SDL_RenderDrawLine(Program.render, 1169, 547, 1219, 553);
-                SDL_RenderDrawLine(Program.render, 829, 181, 795, 139);
-                SDL_RenderDrawLine(Program.render, 829, 158, 780, 85);
-                SDL_RenderDrawLine(Program.render, 782, 123, 738, 96);
-                SDL_RenderDrawLine(Program.render, 723, 101, 676, 86);
-                SDL_RenderDrawLine(Program.render, 770, 97, 753, 57);
-                SDL_RenderDrawLine(Program.render, 792, 79, 802, 28);
+                NouveauSDLRenderDrawLine(Program.render, 1069, 479, 1097, 518);
+                NouveauSDLRenderDrawLine(Program.render, 1090, 494, 1137, 542);
+                NouveauSDLRenderDrawLine(Program.render, 1111, 533, 1134, 567);
+                NouveauSDLRenderDrawLine(Program.render, 1120, 564, 1123, 617);
+                NouveauSDLRenderDrawLine(Program.render, 1139, 583, 1144, 619);
+                NouveauSDLRenderDrawLine(Program.render, 1148, 559, 1202, 596);
+                NouveauSDLRenderDrawLine(Program.render, 1169, 547, 1219, 553);
+                NouveauSDLRenderDrawLine(Program.render, 829, 181, 795, 139);
+                NouveauSDLRenderDrawLine(Program.render, 829, 158, 780, 85);
+                NouveauSDLRenderDrawLine(Program.render, 782, 123, 738, 96);
+                NouveauSDLRenderDrawLine(Program.render, 723, 101, 676, 86);
+                NouveauSDLRenderDrawLine(Program.render, 770, 97, 753, 57);
+                NouveauSDLRenderDrawLine(Program.render, 792, 79, 802, 28);
                 #endregion
 
             } // bombe à pulsar
@@ -1143,37 +1143,37 @@ namespace Dysgenesis
                                  "- le dirigeant militaire", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 1500));
 
                 #region lettre
-                SDL_RenderDrawLine(Program.render, 717, 607, 600, 400);
-                SDL_RenderDrawLine(Program.render, 958, 198, 1062, 411);
-                SDL_RenderDrawLine(Program.render, 1062, 411, 717, 607);
-                SDL_RenderDrawLine(Program.render, 600, 400, 832, 383);
-                SDL_RenderDrawLine(Program.render, 832, 383, 958, 198);
-                SDL_RenderDrawLine(Program.render, 600, 400, 648, 316);
-                SDL_RenderDrawLine(Program.render, 958, 198, 868, 193);
+                NouveauSDLRenderDrawLine(Program.render, 717, 607, 600, 400);
+                NouveauSDLRenderDrawLine(Program.render, 958, 198, 1062, 411);
+                NouveauSDLRenderDrawLine(Program.render, 1062, 411, 717, 607);
+                NouveauSDLRenderDrawLine(Program.render, 600, 400, 832, 383);
+                NouveauSDLRenderDrawLine(Program.render, 832, 383, 958, 198);
+                NouveauSDLRenderDrawLine(Program.render, 600, 400, 648, 316);
+                NouveauSDLRenderDrawLine(Program.render, 958, 198, 868, 193);
                 #endregion
 
                 #region papier
                 SDL_SetRenderDrawColor(Program.render, 255, 150, 25, 255);
-                SDL_RenderDrawLine(Program.render, 695, 393, 577, 199);
-                SDL_RenderDrawLine(Program.render, 577, 199, 802, 79);
-                SDL_RenderDrawLine(Program.render, 802, 79, 911, 267);
+                NouveauSDLRenderDrawLine(Program.render, 695, 393, 577, 199);
+                NouveauSDLRenderDrawLine(Program.render, 577, 199, 802, 79);
+                NouveauSDLRenderDrawLine(Program.render, 802, 79, 911, 267);
                 #endregion
 
                 #region blabla
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 611, 212, 669, 180);
-                SDL_RenderDrawLine(Program.render, 636, 252, 817, 153);
-                SDL_RenderDrawLine(Program.render, 644, 273, 718, 231);
-                SDL_RenderDrawLine(Program.render, 739, 218, 821, 173);
-                SDL_RenderDrawLine(Program.render, 659, 292, 684, 276);
-                SDL_RenderDrawLine(Program.render, 702, 265, 799, 212);
-                SDL_RenderDrawLine(Program.render, 818, 201, 839, 188);
-                SDL_RenderDrawLine(Program.render, 664, 312, 797, 228);
-                SDL_RenderDrawLine(Program.render, 820, 221, 850, 200);
-                SDL_RenderDrawLine(Program.render, 682, 337, 766, 280);
-                SDL_RenderDrawLine(Program.render, 798, 263, 860, 225);
-                SDL_RenderDrawLine(Program.render, 698, 358, 869, 251);
-                SDL_RenderDrawLine(Program.render, 843, 317, 893, 282);
+                NouveauSDLRenderDrawLine(Program.render, 611, 212, 669, 180);
+                NouveauSDLRenderDrawLine(Program.render, 636, 252, 817, 153);
+                NouveauSDLRenderDrawLine(Program.render, 644, 273, 718, 231);
+                NouveauSDLRenderDrawLine(Program.render, 739, 218, 821, 173);
+                NouveauSDLRenderDrawLine(Program.render, 659, 292, 684, 276);
+                NouveauSDLRenderDrawLine(Program.render, 702, 265, 799, 212);
+                NouveauSDLRenderDrawLine(Program.render, 818, 201, 839, 188);
+                NouveauSDLRenderDrawLine(Program.render, 664, 312, 797, 228);
+                NouveauSDLRenderDrawLine(Program.render, 820, 221, 850, 200);
+                NouveauSDLRenderDrawLine(Program.render, 682, 337, 766, 280);
+                NouveauSDLRenderDrawLine(Program.render, 798, 263, 860, 225);
+                NouveauSDLRenderDrawLine(Program.render, 698, 358, 869, 251);
+                NouveauSDLRenderDrawLine(Program.render, 843, 317, 893, 282);
                 #endregion
 
             } // lettre ouverte 2
@@ -1183,25 +1183,25 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
 
                 #region hangar
-                SDL_RenderDrawLine(Program.render, 20, 455, 1900, 455);
-                SDL_RenderDrawLine(Program.render, 500, 455, 500, 111);
-                SDL_RenderDrawLine(Program.render, 500, 111, 1500, 111);
-                SDL_RenderDrawLine(Program.render, 1500, 111, 1500, 455);
+                NouveauSDLRenderDrawLine(Program.render, 20, 455, 1900, 455);
+                NouveauSDLRenderDrawLine(Program.render, 500, 455, 500, 111);
+                NouveauSDLRenderDrawLine(Program.render, 500, 111, 1500, 111);
+                NouveauSDLRenderDrawLine(Program.render, 1500, 111, 1500, 455);
                 #endregion
 
                 if (Program.gTimer < 1800)
                 {
-                    SDL_RenderDrawLine(Program.render, 1000, 111, 1000, 455);
+                    NouveauSDLRenderDrawLine(Program.render, 1000, 111, 1000, 455);
                 }
                 if (Program.gTimer >= 1800 && Program.gTimer < 1860)
                 {
-                    SDL_RenderDrawLine(Program.render, 1000 - (int)(Program.gTimer - 1800) * 5, 111, 1000 - (int)(Program.gTimer - 1800) * 5, 455);
-                    SDL_RenderDrawLine(Program.render, 1000 + (int)(Program.gTimer - 1800) * 5, 111, 1000 + (int)(Program.gTimer - 1800) * 5, 455);
+                    NouveauSDLRenderDrawLine(Program.render, 1000 - (int)(Program.gTimer - 1800) * 5, 111, 1000 - (int)(Program.gTimer - 1800) * 5, 455);
+                    NouveauSDLRenderDrawLine(Program.render, 1000 + (int)(Program.gTimer - 1800) * 5, 111, 1000 + (int)(Program.gTimer - 1800) * 5, 455);
                 }
                 if (Program.gTimer >= 1860)
                 {
-                    SDL_RenderDrawLine(Program.render, 700, 111, 700, 455);
-                    SDL_RenderDrawLine(Program.render, 1300, 111, 1300, 455);
+                    NouveauSDLRenderDrawLine(Program.render, 700, 111, 700, 455);
+                    NouveauSDLRenderDrawLine(Program.render, 1300, 111, 1300, 455);
                 }
 
                 if (Program.gTimer == 1741)
@@ -1238,7 +1238,7 @@ namespace Dysgenesis
                 }
 
                 if (Program.gTimer < 1815)
-                    SDL_RenderDrawLine(Program.render, 972, 566, 952, 586);
+                    NouveauSDLRenderDrawLine(Program.render, 972, 566, 952, 586);
 
                 if (Program.gTimer < 1810)
                     SDL_RenderDrawPoint(Program.render, (int)(Program.gTimer - 1740 + 952 - 70), 585);
@@ -1251,10 +1251,10 @@ namespace Dysgenesis
             if (Program.gTimer > 30 && Program.gTimer < 2000)
             {
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 20, 20, 1900, 20);
-                SDL_RenderDrawLine(Program.render, 1900, 20, 1900, 680);
-                SDL_RenderDrawLine(Program.render, 1900, 680, 20, 680);
-                SDL_RenderDrawLine(Program.render, 20, 20, 20, 680);
+                NouveauSDLRenderDrawLine(Program.render, 20, 20, 1900, 20);
+                NouveauSDLRenderDrawLine(Program.render, 1900, 20, 1900, 680);
+                NouveauSDLRenderDrawLine(Program.render, 1900, 680, 20, 680);
+                NouveauSDLRenderDrawLine(Program.render, 20, 20, 20, 680);
             }
 
             if (Program.gTimer > 2100)
@@ -1328,7 +1328,7 @@ namespace Dysgenesis
                         (int)(Program.player.taille * (cosroll * -Program.player.modele[i + 1].x - sinroll * -Program.player.modele[i + 1].y) + Program.player.position.x),
                         (int)(Program.player.taille * (sinroll * -Program.player.modele[i + 1].x + cosroll * -Program.player.modele[i + 1].y) + Program.player.position.y - Program.player.modele[i + 1].z * pitchconst)
                     };
-                    SDL_RenderDrawLine(Program.render, pos[0], pos[1], pos[2], pos[3]);
+                    NouveauSDLRenderDrawLine(Program.render, pos[0], pos[1], pos[2], pos[3]);
                 }
                 #endregion
 
@@ -1337,22 +1337,22 @@ namespace Dysgenesis
                     133, false);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                SDL_RenderDrawLine(Program.render, 1463, 144, 1445, 97);
-                SDL_RenderDrawLine(Program.render, 1445, 97, 1422, 68);
-                SDL_RenderDrawLine(Program.render, 1422, 68, 1373, 46);
-                SDL_RenderDrawLine(Program.render, 1525, 131, 1522, 86);
-                SDL_RenderDrawLine(Program.render, 1522, 86, 1554, 48);
-                SDL_RenderDrawLine(Program.render, 1554, 48, 1584, 35);
-                SDL_RenderDrawLine(Program.render, 1501, 36, 1499, 82);
-                SDL_RenderDrawLine(Program.render, 1464, 63, 1484, 112);
-                SDL_RenderDrawLine(Program.render, 1500, 396, 1491, 454);
-                SDL_RenderDrawLine(Program.render, 1491, 454, 1470, 493);
-                SDL_RenderDrawLine(Program.render, 1470, 493, 1450, 534);
-                SDL_RenderDrawLine(Program.render, 1549, 395, 1550, 450);
-                SDL_RenderDrawLine(Program.render, 1550, 450, 1574, 486);
-                SDL_RenderDrawLine(Program.render, 1574, 486, 1612, 513);
-                SDL_RenderDrawLine(Program.render, 1514, 434, 1506, 485);
-                SDL_RenderDrawLine(Program.render, 1539, 475, 1560, 520);
+                NouveauSDLRenderDrawLine(Program.render, 1463, 144, 1445, 97);
+                NouveauSDLRenderDrawLine(Program.render, 1445, 97, 1422, 68);
+                NouveauSDLRenderDrawLine(Program.render, 1422, 68, 1373, 46);
+                NouveauSDLRenderDrawLine(Program.render, 1525, 131, 1522, 86);
+                NouveauSDLRenderDrawLine(Program.render, 1522, 86, 1554, 48);
+                NouveauSDLRenderDrawLine(Program.render, 1554, 48, 1584, 35);
+                NouveauSDLRenderDrawLine(Program.render, 1501, 36, 1499, 82);
+                NouveauSDLRenderDrawLine(Program.render, 1464, 63, 1484, 112);
+                NouveauSDLRenderDrawLine(Program.render, 1500, 396, 1491, 454);
+                NouveauSDLRenderDrawLine(Program.render, 1491, 454, 1470, 493);
+                NouveauSDLRenderDrawLine(Program.render, 1470, 493, 1450, 534);
+                NouveauSDLRenderDrawLine(Program.render, 1549, 395, 1550, 450);
+                NouveauSDLRenderDrawLine(Program.render, 1550, 450, 1574, 486);
+                NouveauSDLRenderDrawLine(Program.render, 1574, 486, 1612, 513);
+                NouveauSDLRenderDrawLine(Program.render, 1514, 434, 1506, 485);
+                NouveauSDLRenderDrawLine(Program.render, 1539, 475, 1560, 520);
                 #endregion
 
                 #region boom
@@ -1450,48 +1450,48 @@ namespace Dysgenesis
 
                 #region galaxie
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 60);
-                SDL_RenderDrawLine(Program.render, 525, 362, 477, 195);
-                SDL_RenderDrawLine(Program.render, 477, 195, 547, 223);
-                SDL_RenderDrawLine(Program.render, 547, 223, 686, 91);
-                SDL_RenderDrawLine(Program.render, 686, 91, 697, 141);
-                SDL_RenderDrawLine(Program.render, 697, 141, 950, 79);
-                SDL_RenderDrawLine(Program.render, 950, 79, 933, 126);
-                SDL_RenderDrawLine(Program.render, 933, 126, 1230, 92);
-                SDL_RenderDrawLine(Program.render, 1230, 92, 1191, 126);
-                SDL_RenderDrawLine(Program.render, 1191, 126, 1404, 179);
-                SDL_RenderDrawLine(Program.render, 1404, 179, 1344, 186);
-                SDL_RenderDrawLine(Program.render, 1344, 186, 1434, 323);
-                SDL_RenderDrawLine(Program.render, 1434, 323, 1370, 312);
-                SDL_RenderDrawLine(Program.render, 1370, 312, 1404, 441);
-                SDL_RenderDrawLine(Program.render, 1404, 441, 1354, 427);
-                SDL_RenderDrawLine(Program.render, 1354, 427, 1285, 571);
-                SDL_RenderDrawLine(Program.render, 1285, 571, 1285, 499);
-                SDL_RenderDrawLine(Program.render, 1285, 499, 1017, 600);
-                SDL_RenderDrawLine(Program.render, 1017, 600, 1032, 538);
-                SDL_RenderDrawLine(Program.render, 1032, 538, 700, 600);
-                SDL_RenderDrawLine(Program.render, 700, 600, 734, 553);
-                SDL_RenderDrawLine(Program.render, 734, 553, 500, 500);
-                SDL_RenderDrawLine(Program.render, 500, 500, 600, 500);
-                SDL_RenderDrawLine(Program.render, 600, 500, 451, 377);
-                SDL_RenderDrawLine(Program.render, 451, 377, 525, 362);
+                NouveauSDLRenderDrawLine(Program.render, 525, 362, 477, 195);
+                NouveauSDLRenderDrawLine(Program.render, 477, 195, 547, 223);
+                NouveauSDLRenderDrawLine(Program.render, 547, 223, 686, 91);
+                NouveauSDLRenderDrawLine(Program.render, 686, 91, 697, 141);
+                NouveauSDLRenderDrawLine(Program.render, 697, 141, 950, 79);
+                NouveauSDLRenderDrawLine(Program.render, 950, 79, 933, 126);
+                NouveauSDLRenderDrawLine(Program.render, 933, 126, 1230, 92);
+                NouveauSDLRenderDrawLine(Program.render, 1230, 92, 1191, 126);
+                NouveauSDLRenderDrawLine(Program.render, 1191, 126, 1404, 179);
+                NouveauSDLRenderDrawLine(Program.render, 1404, 179, 1344, 186);
+                NouveauSDLRenderDrawLine(Program.render, 1344, 186, 1434, 323);
+                NouveauSDLRenderDrawLine(Program.render, 1434, 323, 1370, 312);
+                NouveauSDLRenderDrawLine(Program.render, 1370, 312, 1404, 441);
+                NouveauSDLRenderDrawLine(Program.render, 1404, 441, 1354, 427);
+                NouveauSDLRenderDrawLine(Program.render, 1354, 427, 1285, 571);
+                NouveauSDLRenderDrawLine(Program.render, 1285, 571, 1285, 499);
+                NouveauSDLRenderDrawLine(Program.render, 1285, 499, 1017, 600);
+                NouveauSDLRenderDrawLine(Program.render, 1017, 600, 1032, 538);
+                NouveauSDLRenderDrawLine(Program.render, 1032, 538, 700, 600);
+                NouveauSDLRenderDrawLine(Program.render, 700, 600, 734, 553);
+                NouveauSDLRenderDrawLine(Program.render, 734, 553, 500, 500);
+                NouveauSDLRenderDrawLine(Program.render, 500, 500, 600, 500);
+                NouveauSDLRenderDrawLine(Program.render, 600, 500, 451, 377);
+                NouveauSDLRenderDrawLine(Program.render, 451, 377, 525, 362);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 0, 127, 255);
-                SDL_RenderDrawLine(Program.render, 850, 350, 833, 306);
-                SDL_RenderDrawLine(Program.render, 833, 306, 842, 271);
-                SDL_RenderDrawLine(Program.render, 842, 271, 878, 221);
-                SDL_RenderDrawLine(Program.render, 878, 221, 952, 193);
-                SDL_RenderDrawLine(Program.render, 952, 193, 1027, 216);
-                SDL_RenderDrawLine(Program.render, 1027, 216, 1064, 260);
-                SDL_RenderDrawLine(Program.render, 1064, 260, 1076, 299);
-                SDL_RenderDrawLine(Program.render, 1076, 299, 1070, 340);
+                NouveauSDLRenderDrawLine(Program.render, 850, 350, 833, 306);
+                NouveauSDLRenderDrawLine(Program.render, 833, 306, 842, 271);
+                NouveauSDLRenderDrawLine(Program.render, 842, 271, 878, 221);
+                NouveauSDLRenderDrawLine(Program.render, 878, 221, 952, 193);
+                NouveauSDLRenderDrawLine(Program.render, 952, 193, 1027, 216);
+                NouveauSDLRenderDrawLine(Program.render, 1027, 216, 1064, 260);
+                NouveauSDLRenderDrawLine(Program.render, 1064, 260, 1076, 299);
+                NouveauSDLRenderDrawLine(Program.render, 1076, 299, 1070, 340);
 
-                SDL_RenderDrawLine(Program.render, 828, 315, 798, 324);
-                SDL_RenderDrawLine(Program.render, 798, 324, 800, 350);
-                SDL_RenderDrawLine(Program.render, 800, 350, 831, 359);
-                SDL_RenderDrawLine(Program.render, 831, 359, 1082, 347);
-                SDL_RenderDrawLine(Program.render, 1082, 347, 1114, 333);
-                SDL_RenderDrawLine(Program.render, 1114, 333, 1112, 309);
-                SDL_RenderDrawLine(Program.render, 1112, 309, 1081, 304);
+                NouveauSDLRenderDrawLine(Program.render, 828, 315, 798, 324);
+                NouveauSDLRenderDrawLine(Program.render, 798, 324, 800, 350);
+                NouveauSDLRenderDrawLine(Program.render, 800, 350, 831, 359);
+                NouveauSDLRenderDrawLine(Program.render, 831, 359, 1082, 347);
+                NouveauSDLRenderDrawLine(Program.render, 1082, 347, 1114, 333);
+                NouveauSDLRenderDrawLine(Program.render, 1114, 333, 1112, 309);
+                NouveauSDLRenderDrawLine(Program.render, 1112, 309, 1081, 304);
                 #endregion
 
                 #region explosions
@@ -1606,18 +1606,18 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
                 x = (short)(-Program.gTimer / 10 + 1200);
                 y = (short)(Program.W_SEMI_HAUTEUR - 100);
-                SDL_RenderDrawLine(Program.render, x, y, x + 100, y - 65);
-                SDL_RenderDrawLine(Program.render, x + 100, y - 65, x + 90, y);
-                SDL_RenderDrawLine(Program.render, x + 90, y, x + 139, y - 63);
-                SDL_RenderDrawLine(Program.render, x + 139, y - 63, x, y);
-                SDL_RenderDrawLine(Program.render, x, y, x + 90, y);
+                NouveauSDLRenderDrawLine(Program.render, x, y, x + 100, y - 65);
+                NouveauSDLRenderDrawLine(Program.render, x + 100, y - 65, x + 90, y);
+                NouveauSDLRenderDrawLine(Program.render, x + 90, y, x + 139, y - 63);
+                NouveauSDLRenderDrawLine(Program.render, x + 139, y - 63, x, y);
+                NouveauSDLRenderDrawLine(Program.render, x, y, x + 90, y);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
                 x = Program.W_SEMI_LARGEUR;
                 y = (short)(Program.W_SEMI_HAUTEUR / 2 + ((int)Program.gTimer - 880) / 10);
                 for (int i = 0; i < model.GetLength(0) - 1; i++)
                 {
-                    SDL_RenderDrawLine(Program.render,
+                    NouveauSDLRenderDrawLine(Program.render,
                         (int)(model[i].x * Pow(0.95f, depth) + x),
                         (int)((model[i].y + (model[i].z * pitch)) * Pow(0.95f, depth) + y),
                         (int)(model[i + 1].x * Pow(0.95f, depth) + x),
@@ -1627,18 +1627,18 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
                 x = (short)(Program.gTimer / 10 + 700);
                 y = (short)(Program.W_SEMI_HAUTEUR - 100);
-                SDL_RenderDrawLine(Program.render, x, y, x - 100, y - 65);
-                SDL_RenderDrawLine(Program.render, x - 100, y - 65, x - 90, y);
-                SDL_RenderDrawLine(Program.render, x - 90, y, x - 139, y - 63);
-                SDL_RenderDrawLine(Program.render, x - 139, y - 63, x, y);
-                SDL_RenderDrawLine(Program.render, x, y, x - 90, y);
+                NouveauSDLRenderDrawLine(Program.render, x, y, x - 100, y - 65);
+                NouveauSDLRenderDrawLine(Program.render, x - 100, y - 65, x - 90, y);
+                NouveauSDLRenderDrawLine(Program.render, x - 90, y, x - 139, y - 63);
+                NouveauSDLRenderDrawLine(Program.render, x - 139, y - 63, x, y);
+                NouveauSDLRenderDrawLine(Program.render, x, y, x - 90, y);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
                 x = Program.W_SEMI_LARGEUR;
                 y = (short)(Program.W_SEMI_HAUTEUR - (Program.gTimer - 800) / 10);
                 for (int i = 0; i < model.GetLength(0) - 1; i++)
                 {
-                    SDL_RenderDrawLine(Program.render,
+                    NouveauSDLRenderDrawLine(Program.render,
                         (int)(model[i].x * Pow(0.95f, depth) + x),
                         (int)((model[i].y + (model[i].z * -pitch)) * Pow(0.95f, depth) + y),
                         (int)(model[i + 1].x * Pow(0.95f, depth) + x),
@@ -1692,24 +1692,24 @@ namespace Dysgenesis
 
                 #region promesse
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 600, 680, 600, 500);
-                SDL_RenderDrawLine(Program.render, 600, 500, 1350, 500);
-                SDL_RenderDrawLine(Program.render, 1350, 500, 1350, 680);
+                NouveauSDLRenderDrawLine(Program.render, 600, 680, 600, 500);
+                NouveauSDLRenderDrawLine(Program.render, 600, 500, 1350, 500);
+                NouveauSDLRenderDrawLine(Program.render, 1350, 500, 1350, 680);
 
                 Program.DessinerCercle(new Vector2(730, 189), 57, 50);
-                SDL_RenderDrawLine(Program.render, 648, 500, 606, 238);
-                SDL_RenderDrawLine(Program.render, 606, 238, 836, 255);
-                SDL_RenderDrawLine(Program.render, 836, 255, 806, 500);
-                SDL_RenderDrawLine(Program.render, 606, 238, 593, 470);
+                NouveauSDLRenderDrawLine(Program.render, 648, 500, 606, 238);
+                NouveauSDLRenderDrawLine(Program.render, 606, 238, 836, 255);
+                NouveauSDLRenderDrawLine(Program.render, 836, 255, 806, 500);
+                NouveauSDLRenderDrawLine(Program.render, 606, 238, 593, 470);
 
                 Program.DessinerCercle(new Vector2(1203, 186), 57, 50);
-                SDL_RenderDrawLine(Program.render, 1126, 500, 1096, 255);
-                SDL_RenderDrawLine(Program.render, 1096, 255, 1304, 235);
-                SDL_RenderDrawLine(Program.render, 1304, 235, 1278, 500);
-                SDL_RenderDrawLine(Program.render, 1304, 235, 1336, 435);
+                NouveauSDLRenderDrawLine(Program.render, 1126, 500, 1096, 255);
+                NouveauSDLRenderDrawLine(Program.render, 1096, 255, 1304, 235);
+                NouveauSDLRenderDrawLine(Program.render, 1304, 235, 1278, 500);
+                NouveauSDLRenderDrawLine(Program.render, 1304, 235, 1336, 435);
 
-                SDL_RenderDrawLine(Program.render, 836, 255, 972, 297 + (Program.gTimer % 30 < 15 ? 0 : 50));
-                SDL_RenderDrawLine(Program.render, 1096, 255, 972, 297 + (Program.gTimer % 30 < 15 ? 0 : 50));
+                NouveauSDLRenderDrawLine(Program.render, 836, 255, 972, 297 + (Program.gTimer % 30 < 15 ? 0 : 50));
+                NouveauSDLRenderDrawLine(Program.render, 1096, 255, 972, 297 + (Program.gTimer % 30 < 15 ? 0 : 50));
                 #endregion
 
                 #region drapeaux
@@ -1717,8 +1717,8 @@ namespace Dysgenesis
                 foreach (short i in positions)
                 {
                     SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                    SDL_RenderDrawLine(Program.render, i, 680, i, 509);
-                    SDL_RenderDrawLine(Program.render, i, 100, i, 365);
+                    NouveauSDLRenderDrawLine(Program.render, i, 680, i, 509);
+                    NouveauSDLRenderDrawLine(Program.render, i, 100, i, 365);
 
                     switch (i)
                     {
@@ -1735,17 +1735,17 @@ namespace Dysgenesis
                             SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
                             break;
                     }
-                    SDL_RenderDrawLine(Program.render, i, 100, 87 + i, 272);
-                    SDL_RenderDrawLine(Program.render, 87 + i, 272, 100 + i, 400);
-                    SDL_RenderDrawLine(Program.render, 100 + i, 400, 76 + i, 449);
-                    SDL_RenderDrawLine(Program.render, 76 + i, 449, 69 + i, 519);
-                    SDL_RenderDrawLine(Program.render, 69 + i, 519, 90 + i, 557);
-                    SDL_RenderDrawLine(Program.render, 90 + i, 557, 32 + i, 574);
-                    SDL_RenderDrawLine(Program.render, 32 + i, 574, -28 + i, 449);
-                    SDL_RenderDrawLine(Program.render, -28 + i, 449, -13 + i, 389);
-                    SDL_RenderDrawLine(Program.render, -13 + i, 389, 14 + i, 338);
-                    SDL_RenderDrawLine(Program.render, 14 + i, 338, 15 + i, 305);
-                    SDL_RenderDrawLine(Program.render, 15 + i, 305, i, 300);
+                    NouveauSDLRenderDrawLine(Program.render, i, 100, 87 + i, 272);
+                    NouveauSDLRenderDrawLine(Program.render, 87 + i, 272, 100 + i, 400);
+                    NouveauSDLRenderDrawLine(Program.render, 100 + i, 400, 76 + i, 449);
+                    NouveauSDLRenderDrawLine(Program.render, 76 + i, 449, 69 + i, 519);
+                    NouveauSDLRenderDrawLine(Program.render, 69 + i, 519, 90 + i, 557);
+                    NouveauSDLRenderDrawLine(Program.render, 90 + i, 557, 32 + i, 574);
+                    NouveauSDLRenderDrawLine(Program.render, 32 + i, 574, -28 + i, 449);
+                    NouveauSDLRenderDrawLine(Program.render, -28 + i, 449, -13 + i, 389);
+                    NouveauSDLRenderDrawLine(Program.render, -13 + i, 389, 14 + i, 338);
+                    NouveauSDLRenderDrawLine(Program.render, 14 + i, 338, 15 + i, 305);
+                    NouveauSDLRenderDrawLine(Program.render, 15 + i, 305, i, 300);
                 }
                 #endregion
             }// paix - fini
@@ -1753,28 +1753,28 @@ namespace Dysgenesis
             {
                 #region traité
                 SDL_SetRenderDrawColor(Program.render, 255, 150, 25, 255);
-                SDL_RenderDrawLine(Program.render, 700, 600, 800, 100);
-                SDL_RenderDrawLine(Program.render, 800, 100, 1200, 100);
-                SDL_RenderDrawLine(Program.render, 1200, 100, 1300, 600);
-                SDL_RenderDrawLine(Program.render, 1300, 600, 700, 600);
+                NouveauSDLRenderDrawLine(Program.render, 700, 600, 800, 100);
+                NouveauSDLRenderDrawLine(Program.render, 800, 100, 1200, 100);
+                NouveauSDLRenderDrawLine(Program.render, 1200, 100, 1300, 600);
+                NouveauSDLRenderDrawLine(Program.render, 1300, 600, 700, 600);
 
                 Text.DisplayText("traité de paix", new Vector2(825, 125), 3, 0x7f7f7f);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 816, 238, 979, 236);
-                SDL_RenderDrawLine(Program.render, 1028, 238, 1180, 234);
-                SDL_RenderDrawLine(Program.render, 809, 283, 849, 280);
-                SDL_RenderDrawLine(Program.render, 905, 286, 1177, 283);
-                SDL_RenderDrawLine(Program.render, 797, 325, 910, 324);
-                SDL_RenderDrawLine(Program.render, 945, 325, 1011, 325);
-                SDL_RenderDrawLine(Program.render, 1040, 324, 1183, 326);
-                SDL_RenderDrawLine(Program.render, 782, 382, 1085, 382);
-                SDL_RenderDrawLine(Program.render, 1128, 380, 1199, 382);
-                SDL_RenderDrawLine(Program.render, 779, 434, 899, 434);
-                SDL_RenderDrawLine(Program.render, 776, 483, 988, 482);
-                SDL_RenderDrawLine(Program.render, 783, 583, 1098, 582);
-                SDL_RenderDrawLine(Program.render, 775, 523, 744, 572);
-                SDL_RenderDrawLine(Program.render, 744, 520, 774, 572);
+                NouveauSDLRenderDrawLine(Program.render, 816, 238, 979, 236);
+                NouveauSDLRenderDrawLine(Program.render, 1028, 238, 1180, 234);
+                NouveauSDLRenderDrawLine(Program.render, 809, 283, 849, 280);
+                NouveauSDLRenderDrawLine(Program.render, 905, 286, 1177, 283);
+                NouveauSDLRenderDrawLine(Program.render, 797, 325, 910, 324);
+                NouveauSDLRenderDrawLine(Program.render, 945, 325, 1011, 325);
+                NouveauSDLRenderDrawLine(Program.render, 1040, 324, 1183, 326);
+                NouveauSDLRenderDrawLine(Program.render, 782, 382, 1085, 382);
+                NouveauSDLRenderDrawLine(Program.render, 1128, 380, 1199, 382);
+                NouveauSDLRenderDrawLine(Program.render, 779, 434, 899, 434);
+                NouveauSDLRenderDrawLine(Program.render, 776, 483, 988, 482);
+                NouveauSDLRenderDrawLine(Program.render, 783, 583, 1098, 582);
+                NouveauSDLRenderDrawLine(Program.render, 775, 523, 744, 572);
+                NouveauSDLRenderDrawLine(Program.render, 744, 520, 774, 572);
                 #endregion
 
                 #region main + signature
@@ -1821,12 +1821,12 @@ namespace Dysgenesis
                     x = 1050;
                     y = (short)(561 + (Program.gTimer - 1500) * 9);
                 }
-                SDL_RenderDrawLine(Program.render, x, y, x + 13, y - 27);
-                SDL_RenderDrawLine(Program.render, x + 13, y - 27, x + 46, y - 70);
-                SDL_RenderDrawLine(Program.render, x + 46, y - 70, x + 53, y - 63);
-                SDL_RenderDrawLine(Program.render, x + 53, y - 63, x + 18, y - 19);
-                SDL_RenderDrawLine(Program.render, x + 18, y - 19, x, y);
-                SDL_RenderDrawLine(Program.render, x + 43, y - 61, x + 202, y + 178);
+                NouveauSDLRenderDrawLine(Program.render, x, y, x + 13, y - 27);
+                NouveauSDLRenderDrawLine(Program.render, x + 13, y - 27, x + 46, y - 70);
+                NouveauSDLRenderDrawLine(Program.render, x + 46, y - 70, x + 53, y - 63);
+                NouveauSDLRenderDrawLine(Program.render, x + 53, y - 63, x + 18, y - 19);
+                NouveauSDLRenderDrawLine(Program.render, x + 18, y - 19, x, y);
+                NouveauSDLRenderDrawLine(Program.render, x + 43, y - 61, x + 202, y + 178);
 
                 if (Program.gTimer > 1430)
                 {
@@ -1834,7 +1834,7 @@ namespace Dysgenesis
                     {
                         if (stars[i, 0] == -1 || stars[1, 0] == -1)
                             break;
-                        SDL_RenderDrawLine(Program.render, stars[i - 1, 0], stars[i - 1, 1], stars[i, 0], stars[i, 1]);
+                        NouveauSDLRenderDrawLine(Program.render, stars[i - 1, 0], stars[i - 1, 1], stars[i, 0], stars[i, 1]);
                     }
                 }
 
@@ -1866,81 +1866,81 @@ namespace Dysgenesis
                 Program.DessinerCercle(new Vector2(1660, 390), 100, 50);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
-                SDL_RenderDrawLine(Program.render, 818, 298, 930, 336);
-                SDL_RenderDrawLine(Program.render, 930, 336, 971, 355);
-                SDL_RenderDrawLine(Program.render, 971, 355, 910, 373);
-                SDL_RenderDrawLine(Program.render, 910, 373, 860, 400);
-                SDL_RenderDrawLine(Program.render, 860, 400, 893, 412);
-                SDL_RenderDrawLine(Program.render, 893, 412, 906, 438);
-                SDL_RenderDrawLine(Program.render, 906, 438, 861, 453);
-                SDL_RenderDrawLine(Program.render, 861, 453, 766, 492);
-                SDL_RenderDrawLine(Program.render, 1160, 440, 1066, 425);
-                SDL_RenderDrawLine(Program.render, 1066, 425, 1000, 455);
-                SDL_RenderDrawLine(Program.render, 1000, 455, 1002, 490);
-                SDL_RenderDrawLine(Program.render, 1002, 490, 1036, 497);
-                SDL_RenderDrawLine(Program.render, 1036, 497, 1048, 515);
-                SDL_RenderDrawLine(Program.render, 1048, 515, 989, 545);
-                SDL_RenderDrawLine(Program.render, 989, 545, 1050, 583);
-                SDL_RenderDrawLine(Program.render, 1050, 583, 1101, 581);
+                NouveauSDLRenderDrawLine(Program.render, 818, 298, 930, 336);
+                NouveauSDLRenderDrawLine(Program.render, 930, 336, 971, 355);
+                NouveauSDLRenderDrawLine(Program.render, 971, 355, 910, 373);
+                NouveauSDLRenderDrawLine(Program.render, 910, 373, 860, 400);
+                NouveauSDLRenderDrawLine(Program.render, 860, 400, 893, 412);
+                NouveauSDLRenderDrawLine(Program.render, 893, 412, 906, 438);
+                NouveauSDLRenderDrawLine(Program.render, 906, 438, 861, 453);
+                NouveauSDLRenderDrawLine(Program.render, 861, 453, 766, 492);
+                NouveauSDLRenderDrawLine(Program.render, 1160, 440, 1066, 425);
+                NouveauSDLRenderDrawLine(Program.render, 1066, 425, 1000, 455);
+                NouveauSDLRenderDrawLine(Program.render, 1000, 455, 1002, 490);
+                NouveauSDLRenderDrawLine(Program.render, 1002, 490, 1036, 497);
+                NouveauSDLRenderDrawLine(Program.render, 1036, 497, 1048, 515);
+                NouveauSDLRenderDrawLine(Program.render, 1048, 515, 989, 545);
+                NouveauSDLRenderDrawLine(Program.render, 989, 545, 1050, 583);
+                NouveauSDLRenderDrawLine(Program.render, 1050, 583, 1101, 581);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                SDL_RenderDrawLine(Program.render, 189, 319, 218, 334);
-                SDL_RenderDrawLine(Program.render, 218, 334, 250, 344);
-                SDL_RenderDrawLine(Program.render, 250, 344, 258, 365);
-                SDL_RenderDrawLine(Program.render, 258, 365, 237, 395);
-                SDL_RenderDrawLine(Program.render, 237, 395, 219, 425);
-                SDL_RenderDrawLine(Program.render, 219, 425, 227, 454);
-                SDL_RenderDrawLine(Program.render, 227, 454, 234, 486);
-                SDL_RenderDrawLine(Program.render, 307, 302, 302, 330);
-                SDL_RenderDrawLine(Program.render, 302, 330, 318, 339);
-                SDL_RenderDrawLine(Program.render, 318, 339, 342, 333);
-                SDL_RenderDrawLine(Program.render, 360, 390, 354, 406);
-                SDL_RenderDrawLine(Program.render, 354, 406, 340, 411);
-                SDL_RenderDrawLine(Program.render, 340, 411, 322, 395);
-                SDL_RenderDrawLine(Program.render, 322, 395, 294, 400);
-                SDL_RenderDrawLine(Program.render, 294, 400, 272, 426);
-                SDL_RenderDrawLine(Program.render, 272, 426, 304, 450);
-                SDL_RenderDrawLine(Program.render, 304, 450, 330, 460);
+                NouveauSDLRenderDrawLine(Program.render, 189, 319, 218, 334);
+                NouveauSDLRenderDrawLine(Program.render, 218, 334, 250, 344);
+                NouveauSDLRenderDrawLine(Program.render, 250, 344, 258, 365);
+                NouveauSDLRenderDrawLine(Program.render, 258, 365, 237, 395);
+                NouveauSDLRenderDrawLine(Program.render, 237, 395, 219, 425);
+                NouveauSDLRenderDrawLine(Program.render, 219, 425, 227, 454);
+                NouveauSDLRenderDrawLine(Program.render, 227, 454, 234, 486);
+                NouveauSDLRenderDrawLine(Program.render, 307, 302, 302, 330);
+                NouveauSDLRenderDrawLine(Program.render, 302, 330, 318, 339);
+                NouveauSDLRenderDrawLine(Program.render, 318, 339, 342, 333);
+                NouveauSDLRenderDrawLine(Program.render, 360, 390, 354, 406);
+                NouveauSDLRenderDrawLine(Program.render, 354, 406, 340, 411);
+                NouveauSDLRenderDrawLine(Program.render, 340, 411, 322, 395);
+                NouveauSDLRenderDrawLine(Program.render, 322, 395, 294, 400);
+                NouveauSDLRenderDrawLine(Program.render, 294, 400, 272, 426);
+                NouveauSDLRenderDrawLine(Program.render, 272, 426, 304, 450);
+                NouveauSDLRenderDrawLine(Program.render, 304, 450, 330, 460);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                SDL_RenderDrawLine(Program.render, 1657, 489, 1605, 443);
-                SDL_RenderDrawLine(Program.render, 1605, 443, 1579, 393);
-                SDL_RenderDrawLine(Program.render, 1579, 393, 1583, 350);
-                SDL_RenderDrawLine(Program.render, 1583, 350, 1599, 310);
-                SDL_RenderDrawLine(Program.render, 1700, 481, 1674, 457);
-                SDL_RenderDrawLine(Program.render, 1674, 457, 1648, 422);
-                SDL_RenderDrawLine(Program.render, 1648, 422, 1633, 361);
-                SDL_RenderDrawLine(Program.render, 1633, 361, 1637, 321);
-                SDL_RenderDrawLine(Program.render, 1637, 321, 1647, 290);
-                SDL_RenderDrawLine(Program.render, 1740, 449, 1713, 419);
-                SDL_RenderDrawLine(Program.render, 1713, 419, 1689, 371);
-                SDL_RenderDrawLine(Program.render, 1689, 371, 1686, 331);
-                SDL_RenderDrawLine(Program.render, 1686, 331, 1702, 299);
-                SDL_RenderDrawLine(Program.render, 1759, 385, 1744, 371);
-                SDL_RenderDrawLine(Program.render, 1744, 371, 1735, 349);
-                SDL_RenderDrawLine(Program.render, 1735, 349, 1738, 328);
+                NouveauSDLRenderDrawLine(Program.render, 1657, 489, 1605, 443);
+                NouveauSDLRenderDrawLine(Program.render, 1605, 443, 1579, 393);
+                NouveauSDLRenderDrawLine(Program.render, 1579, 393, 1583, 350);
+                NouveauSDLRenderDrawLine(Program.render, 1583, 350, 1599, 310);
+                NouveauSDLRenderDrawLine(Program.render, 1700, 481, 1674, 457);
+                NouveauSDLRenderDrawLine(Program.render, 1674, 457, 1648, 422);
+                NouveauSDLRenderDrawLine(Program.render, 1648, 422, 1633, 361);
+                NouveauSDLRenderDrawLine(Program.render, 1633, 361, 1637, 321);
+                NouveauSDLRenderDrawLine(Program.render, 1637, 321, 1647, 290);
+                NouveauSDLRenderDrawLine(Program.render, 1740, 449, 1713, 419);
+                NouveauSDLRenderDrawLine(Program.render, 1713, 419, 1689, 371);
+                NouveauSDLRenderDrawLine(Program.render, 1689, 371, 1686, 331);
+                NouveauSDLRenderDrawLine(Program.render, 1686, 331, 1702, 299);
+                NouveauSDLRenderDrawLine(Program.render, 1759, 385, 1744, 371);
+                NouveauSDLRenderDrawLine(Program.render, 1744, 371, 1735, 349);
+                NouveauSDLRenderDrawLine(Program.render, 1735, 349, 1738, 328);
                 #endregion
 
                 #region drapeaux
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 950, 100, 957, 240);
-                SDL_RenderDrawLine(Program.render, 1644, 178, 1653, 290);
-                SDL_RenderDrawLine(Program.render, 252, 174, 258, 290);
+                NouveauSDLRenderDrawLine(Program.render, 950, 100, 957, 240);
+                NouveauSDLRenderDrawLine(Program.render, 1644, 178, 1653, 290);
+                NouveauSDLRenderDrawLine(Program.render, 252, 174, 258, 290);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                SDL_RenderDrawLine(Program.render, 252, 174, 333, 176);
-                SDL_RenderDrawLine(Program.render, 333, 176, 333, 225);
-                SDL_RenderDrawLine(Program.render, 333, 225, 255, 229);
+                NouveauSDLRenderDrawLine(Program.render, 252, 174, 333, 176);
+                NouveauSDLRenderDrawLine(Program.render, 333, 176, 333, 225);
+                NouveauSDLRenderDrawLine(Program.render, 333, 225, 255, 229);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                SDL_RenderDrawLine(Program.render, 950, 100, 1081, 92);
-                SDL_RenderDrawLine(Program.render, 1081, 92, 1082, 158);
-                SDL_RenderDrawLine(Program.render, 1082, 158, 954, 163);
+                NouveauSDLRenderDrawLine(Program.render, 950, 100, 1081, 92);
+                NouveauSDLRenderDrawLine(Program.render, 1081, 92, 1082, 158);
+                NouveauSDLRenderDrawLine(Program.render, 1082, 158, 954, 163);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
-                SDL_RenderDrawLine(Program.render, 1644, 178, 1747, 172);
-                SDL_RenderDrawLine(Program.render, 1747, 172, 1750, 230);
-                SDL_RenderDrawLine(Program.render, 1750, 230, 1649, 235);
+                NouveauSDLRenderDrawLine(Program.render, 1644, 178, 1747, 172);
+                NouveauSDLRenderDrawLine(Program.render, 1747, 172, 1750, 230);
+                NouveauSDLRenderDrawLine(Program.render, 1750, 230, 1649, 235);
                 #endregion
 
                 #region étoiles
@@ -2078,58 +2078,58 @@ namespace Dysgenesis
 
                 #region galaxie
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 60);
-                SDL_RenderDrawLine(Program.render, 525, 362, 477, 195);
-                SDL_RenderDrawLine(Program.render, 477, 195, 547, 223);
-                SDL_RenderDrawLine(Program.render, 547, 223, 686, 91);
-                SDL_RenderDrawLine(Program.render, 686, 91, 697, 141);
-                SDL_RenderDrawLine(Program.render, 697, 141, 950, 79);
-                SDL_RenderDrawLine(Program.render, 950, 79, 933, 126);
-                SDL_RenderDrawLine(Program.render, 933, 126, 1230, 92);
-                SDL_RenderDrawLine(Program.render, 1230, 92, 1191, 126);
-                SDL_RenderDrawLine(Program.render, 1191, 126, 1404, 179);
-                SDL_RenderDrawLine(Program.render, 1404, 179, 1344, 186);
-                SDL_RenderDrawLine(Program.render, 1344, 186, 1434, 323);
-                SDL_RenderDrawLine(Program.render, 1434, 323, 1370, 312);
-                SDL_RenderDrawLine(Program.render, 1370, 312, 1404, 441);
-                SDL_RenderDrawLine(Program.render, 1404, 441, 1354, 427);
-                SDL_RenderDrawLine(Program.render, 1354, 427, 1285, 571);
-                SDL_RenderDrawLine(Program.render, 1285, 571, 1285, 499);
-                SDL_RenderDrawLine(Program.render, 1285, 499, 1017, 600);
-                SDL_RenderDrawLine(Program.render, 1017, 600, 1032, 538);
-                SDL_RenderDrawLine(Program.render, 1032, 538, 700, 600);
-                SDL_RenderDrawLine(Program.render, 700, 600, 734, 553);
-                SDL_RenderDrawLine(Program.render, 734, 553, 500, 500);
-                SDL_RenderDrawLine(Program.render, 500, 500, 600, 500);
-                SDL_RenderDrawLine(Program.render, 600, 500, 451, 377);
-                SDL_RenderDrawLine(Program.render, 451, 377, 525, 362);
+                NouveauSDLRenderDrawLine(Program.render, 525, 362, 477, 195);
+                NouveauSDLRenderDrawLine(Program.render, 477, 195, 547, 223);
+                NouveauSDLRenderDrawLine(Program.render, 547, 223, 686, 91);
+                NouveauSDLRenderDrawLine(Program.render, 686, 91, 697, 141);
+                NouveauSDLRenderDrawLine(Program.render, 697, 141, 950, 79);
+                NouveauSDLRenderDrawLine(Program.render, 950, 79, 933, 126);
+                NouveauSDLRenderDrawLine(Program.render, 933, 126, 1230, 92);
+                NouveauSDLRenderDrawLine(Program.render, 1230, 92, 1191, 126);
+                NouveauSDLRenderDrawLine(Program.render, 1191, 126, 1404, 179);
+                NouveauSDLRenderDrawLine(Program.render, 1404, 179, 1344, 186);
+                NouveauSDLRenderDrawLine(Program.render, 1344, 186, 1434, 323);
+                NouveauSDLRenderDrawLine(Program.render, 1434, 323, 1370, 312);
+                NouveauSDLRenderDrawLine(Program.render, 1370, 312, 1404, 441);
+                NouveauSDLRenderDrawLine(Program.render, 1404, 441, 1354, 427);
+                NouveauSDLRenderDrawLine(Program.render, 1354, 427, 1285, 571);
+                NouveauSDLRenderDrawLine(Program.render, 1285, 571, 1285, 499);
+                NouveauSDLRenderDrawLine(Program.render, 1285, 499, 1017, 600);
+                NouveauSDLRenderDrawLine(Program.render, 1017, 600, 1032, 538);
+                NouveauSDLRenderDrawLine(Program.render, 1032, 538, 700, 600);
+                NouveauSDLRenderDrawLine(Program.render, 700, 600, 734, 553);
+                NouveauSDLRenderDrawLine(Program.render, 734, 553, 500, 500);
+                NouveauSDLRenderDrawLine(Program.render, 500, 500, 600, 500);
+                NouveauSDLRenderDrawLine(Program.render, 600, 500, 451, 377);
+                NouveauSDLRenderDrawLine(Program.render, 451, 377, 525, 362);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 0, 127, 255);
-                SDL_RenderDrawLine(Program.render, 850, 350, 833, 306);
-                SDL_RenderDrawLine(Program.render, 833, 306, 842, 271);
-                SDL_RenderDrawLine(Program.render, 842, 271, 878, 221);
-                SDL_RenderDrawLine(Program.render, 878, 221, 952, 193);
-                SDL_RenderDrawLine(Program.render, 952, 193, 1027, 216);
-                SDL_RenderDrawLine(Program.render, 1027, 216, 1064, 260);
-                SDL_RenderDrawLine(Program.render, 1064, 260, 1076, 299);
-                SDL_RenderDrawLine(Program.render, 1076, 299, 1070, 340);
+                NouveauSDLRenderDrawLine(Program.render, 850, 350, 833, 306);
+                NouveauSDLRenderDrawLine(Program.render, 833, 306, 842, 271);
+                NouveauSDLRenderDrawLine(Program.render, 842, 271, 878, 221);
+                NouveauSDLRenderDrawLine(Program.render, 878, 221, 952, 193);
+                NouveauSDLRenderDrawLine(Program.render, 952, 193, 1027, 216);
+                NouveauSDLRenderDrawLine(Program.render, 1027, 216, 1064, 260);
+                NouveauSDLRenderDrawLine(Program.render, 1064, 260, 1076, 299);
+                NouveauSDLRenderDrawLine(Program.render, 1076, 299, 1070, 340);
 
-                SDL_RenderDrawLine(Program.render, 828, 315, 798, 324);
-                SDL_RenderDrawLine(Program.render, 798, 324, 800, 350);
-                SDL_RenderDrawLine(Program.render, 800, 350, 831, 359);
-                SDL_RenderDrawLine(Program.render, 831, 359, 1082, 347);
-                SDL_RenderDrawLine(Program.render, 1082, 347, 1114, 333);
-                SDL_RenderDrawLine(Program.render, 1114, 333, 1112, 309);
-                SDL_RenderDrawLine(Program.render, 1112, 309, 1081, 304);
+                NouveauSDLRenderDrawLine(Program.render, 828, 315, 798, 324);
+                NouveauSDLRenderDrawLine(Program.render, 798, 324, 800, 350);
+                NouveauSDLRenderDrawLine(Program.render, 800, 350, 831, 359);
+                NouveauSDLRenderDrawLine(Program.render, 831, 359, 1082, 347);
+                NouveauSDLRenderDrawLine(Program.render, 1082, 347, 1114, 333);
+                NouveauSDLRenderDrawLine(Program.render, 1114, 333, 1112, 309);
+                NouveauSDLRenderDrawLine(Program.render, 1112, 309, 1081, 304);
                 #endregion
             } // étoiles qui reviennent - fini
 
             if (Program.gTimer > 30 && Program.gTimer < 2340)
             {
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 20, 20, 1900, 20);
-                SDL_RenderDrawLine(Program.render, 1900, 20, 1900, 680);
-                SDL_RenderDrawLine(Program.render, 1900, 680, 20, 680);
-                SDL_RenderDrawLine(Program.render, 20, 20, 20, 680);
+                NouveauSDLRenderDrawLine(Program.render, 20, 20, 1900, 20);
+                NouveauSDLRenderDrawLine(Program.render, 1900, 20, 1900, 680);
+                NouveauSDLRenderDrawLine(Program.render, 1900, 680, 20, 680);
+                NouveauSDLRenderDrawLine(Program.render, 20, 20, 20, 680);
             }
 
             if (Program.gTimer > 2400)
@@ -2206,7 +2206,7 @@ namespace Dysgenesis
                         (int)(Program.player.taille * (cosroll * -Program.player.modele[i + 1].x - sinroll * -Program.player.modele[i + 1].y) + Program.player.position.x),
                         (int)(Program.player.taille * (sinroll * -Program.player.modele[i + 1].x + cosroll * -Program.player.modele[i + 1].y) + Program.player.position.y - Program.player.modele[i + 1].z * pitchconst)
                     };
-                    SDL_RenderDrawLine(Program.render, pos[0], pos[1], pos[2], pos[3]);
+                    NouveauSDLRenderDrawLine(Program.render, pos[0], pos[1], pos[2], pos[3]);
                 }
                 #endregion
 
@@ -2214,22 +2214,22 @@ namespace Dysgenesis
                 BombePulsar.DessinerBombePulsar(new Vector2(1522, 264), 133, true);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                SDL_RenderDrawLine(Program.render, 1463, 144, 1445, 97);
-                SDL_RenderDrawLine(Program.render, 1445, 97, 1422, 68);
-                SDL_RenderDrawLine(Program.render, 1422, 68, 1373, 46);
-                SDL_RenderDrawLine(Program.render, 1525, 131, 1522, 86);
-                SDL_RenderDrawLine(Program.render, 1522, 86, 1554, 48);
-                SDL_RenderDrawLine(Program.render, 1554, 48, 1584, 35);
-                SDL_RenderDrawLine(Program.render, 1501, 36, 1499, 82);
-                SDL_RenderDrawLine(Program.render, 1464, 63, 1484, 112);
-                SDL_RenderDrawLine(Program.render, 1500, 396, 1491, 454);
-                SDL_RenderDrawLine(Program.render, 1491, 454, 1470, 493);
-                SDL_RenderDrawLine(Program.render, 1470, 493, 1450, 534);
-                SDL_RenderDrawLine(Program.render, 1549, 395, 1550, 450);
-                SDL_RenderDrawLine(Program.render, 1550, 450, 1574, 486);
-                SDL_RenderDrawLine(Program.render, 1574, 486, 1612, 513);
-                SDL_RenderDrawLine(Program.render, 1514, 434, 1506, 485);
-                SDL_RenderDrawLine(Program.render, 1539, 475, 1560, 520);
+                NouveauSDLRenderDrawLine(Program.render, 1463, 144, 1445, 97);
+                NouveauSDLRenderDrawLine(Program.render, 1445, 97, 1422, 68);
+                NouveauSDLRenderDrawLine(Program.render, 1422, 68, 1373, 46);
+                NouveauSDLRenderDrawLine(Program.render, 1525, 131, 1522, 86);
+                NouveauSDLRenderDrawLine(Program.render, 1522, 86, 1554, 48);
+                NouveauSDLRenderDrawLine(Program.render, 1554, 48, 1584, 35);
+                NouveauSDLRenderDrawLine(Program.render, 1501, 36, 1499, 82);
+                NouveauSDLRenderDrawLine(Program.render, 1464, 63, 1484, 112);
+                NouveauSDLRenderDrawLine(Program.render, 1500, 396, 1491, 454);
+                NouveauSDLRenderDrawLine(Program.render, 1491, 454, 1470, 493);
+                NouveauSDLRenderDrawLine(Program.render, 1470, 493, 1450, 534);
+                NouveauSDLRenderDrawLine(Program.render, 1549, 395, 1550, 450);
+                NouveauSDLRenderDrawLine(Program.render, 1550, 450, 1574, 486);
+                NouveauSDLRenderDrawLine(Program.render, 1574, 486, 1612, 513);
+                NouveauSDLRenderDrawLine(Program.render, 1514, 434, 1506, 485);
+                NouveauSDLRenderDrawLine(Program.render, 1539, 475, 1560, 520);
                 #endregion
             } // e15 tué - fini
             else if (Program.gTimer >= 240 && Program.gTimer < 421)
@@ -2283,7 +2283,7 @@ namespace Dysgenesis
                     Program.DessinerCercle(new Vector2(956, 336), 224, 50);
                     SDL_SetRenderDrawColor(Program.render, 200, 255, 255, (byte)alpha);
                     for (int i = 0; i < 50; i++)
-                        SDL_RenderDrawLine(Program.render, (int)neutron_slowdown[i].x, (int)neutron_slowdown[i].y, 956, 336);
+                        NouveauSDLRenderDrawLine(Program.render, (int)neutron_slowdown[i].x, (int)neutron_slowdown[i].y, 956, 336);
                 }
                 #endregion
 
@@ -2293,23 +2293,23 @@ namespace Dysgenesis
                 else
                     SDL_SetRenderDrawColor(Program.render, 0, 0, 255, (byte)alpha);
 
-                SDL_RenderDrawLine(Program.render, 834, 148, 811, 86);
-                SDL_RenderDrawLine(Program.render, 811, 86, 760, 50);
-                SDL_RenderDrawLine(Program.render, 760, 50, 693, 21);
-                SDL_RenderDrawLine(Program.render, 935, 113, 930, 61);
-                SDL_RenderDrawLine(Program.render, 930, 61, 940, 21);
-                SDL_RenderDrawLine(Program.render, 867, 112, 849, 64);
-                SDL_RenderDrawLine(Program.render, 849, 64, 831, 37);
-                SDL_RenderDrawLine(Program.render, 894, 57, 895, 21);
-                SDL_RenderDrawLine(Program.render, 948, 560, 949, 614);
-                SDL_RenderDrawLine(Program.render, 949, 614, 931, 679);
-                SDL_RenderDrawLine(Program.render, 1041, 543, 1066, 591);
-                SDL_RenderDrawLine(Program.render, 1066, 591, 1134, 632);
-                SDL_RenderDrawLine(Program.render, 1134, 632, 1207, 654);
-                SDL_RenderDrawLine(Program.render, 1032, 578, 1053, 614);
-                SDL_RenderDrawLine(Program.render, 1053, 614, 1090, 648);
-                SDL_RenderDrawLine(Program.render, 1000, 600, 1001, 640);
-                SDL_RenderDrawLine(Program.render, 1001, 640, 989, 679);
+                NouveauSDLRenderDrawLine(Program.render, 834, 148, 811, 86);
+                NouveauSDLRenderDrawLine(Program.render, 811, 86, 760, 50);
+                NouveauSDLRenderDrawLine(Program.render, 760, 50, 693, 21);
+                NouveauSDLRenderDrawLine(Program.render, 935, 113, 930, 61);
+                NouveauSDLRenderDrawLine(Program.render, 930, 61, 940, 21);
+                NouveauSDLRenderDrawLine(Program.render, 867, 112, 849, 64);
+                NouveauSDLRenderDrawLine(Program.render, 849, 64, 831, 37);
+                NouveauSDLRenderDrawLine(Program.render, 894, 57, 895, 21);
+                NouveauSDLRenderDrawLine(Program.render, 948, 560, 949, 614);
+                NouveauSDLRenderDrawLine(Program.render, 949, 614, 931, 679);
+                NouveauSDLRenderDrawLine(Program.render, 1041, 543, 1066, 591);
+                NouveauSDLRenderDrawLine(Program.render, 1066, 591, 1134, 632);
+                NouveauSDLRenderDrawLine(Program.render, 1134, 632, 1207, 654);
+                NouveauSDLRenderDrawLine(Program.render, 1032, 578, 1053, 614);
+                NouveauSDLRenderDrawLine(Program.render, 1053, 614, 1090, 648);
+                NouveauSDLRenderDrawLine(Program.render, 1000, 600, 1001, 640);
+                NouveauSDLRenderDrawLine(Program.render, 1001, 640, 989, 679);
                 #endregion
             } // bombe désactivée - fini
             else if (Program.gTimer >= 421 && Program.gTimer < 600)
@@ -2338,7 +2338,7 @@ namespace Dysgenesis
                 for (int i = 0; i < 50; i++)
                 {
                     float ang = Program.RNG.NextSingle() * (float)PI;
-                    SDL_RenderDrawLine(Program.render, (int)(Program.RNG.Next(-150, 150) * Cos(ang) + 960), (int)(Program.RNG.Next(-80, 80) * Sin(ang) + 130), 960, 130);
+                    NouveauSDLRenderDrawLine(Program.render, (int)(Program.RNG.Next(-150, 150) * Cos(ang) + 960), (int)(Program.RNG.Next(-80, 80) * Sin(ang) + 130), 960, 130);
                 }
                 #endregion
 
@@ -2368,7 +2368,7 @@ namespace Dysgenesis
                 {
                     for (byte j = 0; j < f_model.GetLength(0) - 1; j++)
                     {
-                        SDL_RenderDrawLine(Program.render,
+                        NouveauSDLRenderDrawLine(Program.render,
                             (int)(f_model[j, 0] * f_model_pos[i, 2] + f_model_pos[i, 0]),
                             (int)(f_model[j, 1] * f_model_pos[i, 2] + f_model_pos[i, 1]),
                             (int)(f_model[j + 1, 0] * f_model_pos[i, 2] + f_model_pos[i, 0]),
@@ -2403,16 +2403,16 @@ namespace Dysgenesis
 
                 #region planète
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                SDL_RenderDrawLine(Program.render, 21, 598, 200, 500);
-                SDL_RenderDrawLine(Program.render, 200, 500, 598, 448);
-                SDL_RenderDrawLine(Program.render, 598, 448, 1300, 448);
-                SDL_RenderDrawLine(Program.render, 1300, 448, 1700, 500);
-                SDL_RenderDrawLine(Program.render, 1700, 500, 1899, 600);
+                NouveauSDLRenderDrawLine(Program.render, 21, 598, 200, 500);
+                NouveauSDLRenderDrawLine(Program.render, 200, 500, 598, 448);
+                NouveauSDLRenderDrawLine(Program.render, 598, 448, 1300, 448);
+                NouveauSDLRenderDrawLine(Program.render, 1300, 448, 1700, 500);
+                NouveauSDLRenderDrawLine(Program.render, 1700, 500, 1899, 600);
                 #endregion
 
                 #region vieu drapeau
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 849, 448, 849, 62);
+                NouveauSDLRenderDrawLine(Program.render, 849, 448, 849, 62);
 
                 if (Program.gTimer < 700)
                 {
@@ -2422,21 +2422,21 @@ namespace Dysgenesis
                     if (move > 450)
                         move = 450;
                     SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                    SDL_RenderDrawLine(Program.render, 850, 62 + move, 1247, 60 + move);
-                    SDL_RenderDrawLine(Program.render, 1247, 60 + move, 1247, 264 + move);
-                    SDL_RenderDrawLine(Program.render, 1247, 264 + move, 850, 273 + move);
-                    SDL_RenderDrawLine(Program.render, 850, 273 + move, 850, 62 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 850, 62 + move, 1247, 60 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 1247, 60 + move, 1247, 264 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 1247, 264 + move, 850, 273 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 850, 273 + move, 850, 62 + move);
 
                     SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                    SDL_RenderDrawLine(Program.render, 848, 232 + move, 1191, 61 + move);
-                    SDL_RenderDrawLine(Program.render, 1246, 90 + move, 886, 272 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 848, 232 + move, 1191, 61 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 1246, 90 + move, 886, 272 + move);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                    SDL_RenderDrawLine(Program.render, 1177, 166 + move, 1200, 250 + move);
-                    SDL_RenderDrawLine(Program.render, 1200, 250 + move, 1136, 200 + move);
-                    SDL_RenderDrawLine(Program.render, 1136, 200 + move, 1215, 200 + move);
-                    SDL_RenderDrawLine(Program.render, 1215, 200 + move, 1150, 250 + move);
-                    SDL_RenderDrawLine(Program.render, 1150, 250 + move, 1177, 166 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 1177, 166 + move, 1200, 250 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 1200, 250 + move, 1136, 200 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 1136, 200 + move, 1215, 200 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 1215, 200 + move, 1150, 250 + move);
+                    NouveauSDLRenderDrawLine(Program.render, 1150, 250 + move, 1177, 166 + move);
                 }
                 #endregion
 
@@ -2449,27 +2449,27 @@ namespace Dysgenesis
                     if (move > 380)
                         move = 380;
                     SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                    SDL_RenderDrawLine(Program.render, 850, 449 - move, 1251, 450 - move);
-                    SDL_RenderDrawLine(Program.render, 1251, 450 - move, 1256, 680 - move);
-                    SDL_RenderDrawLine(Program.render, 1256, 680 - move, 850, 680 - move);
-                    SDL_RenderDrawLine(Program.render, 850, 680 - move, 850, 449 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 850, 449 - move, 1251, 450 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 1251, 450 - move, 1256, 680 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 1256, 680 - move, 850, 680 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 850, 680 - move, 850, 449 - move);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
                     Program.DessinerCercle(new Vector2(1050, 560 - move), 84, 50);
                     Program.DessinerCercle(new Vector2(1050, 560 - move), 63, 50);
 
                     SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
-                    SDL_RenderDrawLine(Program.render, 850, 518 - move, 978, 518 - move);
-                    SDL_RenderDrawLine(Program.render, 976, 599 - move, 848, 599 - move);
-                    SDL_RenderDrawLine(Program.render, 1124, 521 - move, 1253, 519 - move);
-                    SDL_RenderDrawLine(Program.render, 1124, 600 - move, 1254, 600 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 850, 518 - move, 978, 518 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 976, 599 - move, 848, 599 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 1124, 521 - move, 1253, 519 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 1124, 600 - move, 1254, 600 - move);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                    SDL_RenderDrawLine(Program.render, 1050, 498 - move, 1090, 609 - move);
-                    SDL_RenderDrawLine(Program.render, 1090, 609 - move, 992, 536 - move);
-                    SDL_RenderDrawLine(Program.render, 992, 536 - move, 1106, 533 - move);
-                    SDL_RenderDrawLine(Program.render, 1106, 533 - move, 1017, 614 - move);
-                    SDL_RenderDrawLine(Program.render, 1017, 614 - move, 1050, 498 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 1050, 498 - move, 1090, 609 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 1090, 609 - move, 992, 536 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 992, 536 - move, 1106, 533 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 1106, 533 - move, 1017, 614 - move);
+                    NouveauSDLRenderDrawLine(Program.render, 1017, 614 - move, 1050, 498 - move);
                 }
                 #endregion
 
@@ -2482,147 +2482,147 @@ namespace Dysgenesis
             {
                 #region toi
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 248, 680, 156, 309);
-                SDL_RenderDrawLine(Program.render, 156, 309, 303, 243);
-                SDL_RenderDrawLine(Program.render, 303, 243, 400, 300);
-                SDL_RenderDrawLine(Program.render, 400, 300, 499, 249);
-                SDL_RenderDrawLine(Program.render, 499, 249, 630, 310);
-                SDL_RenderDrawLine(Program.render, 630, 310, 539, 680);
+                NouveauSDLRenderDrawLine(Program.render, 248, 680, 156, 309);
+                NouveauSDLRenderDrawLine(Program.render, 156, 309, 303, 243);
+                NouveauSDLRenderDrawLine(Program.render, 303, 243, 400, 300);
+                NouveauSDLRenderDrawLine(Program.render, 400, 300, 499, 249);
+                NouveauSDLRenderDrawLine(Program.render, 499, 249, 630, 310);
+                NouveauSDLRenderDrawLine(Program.render, 630, 310, 539, 680);
 
                 Program.DessinerCercle(new Vector2(400, 200), 78, 50);
 
-                SDL_RenderDrawLine(Program.render, 156, 309, 159, 649);
-                SDL_RenderDrawLine(Program.render, 630, 310, 685, 215);
-                SDL_RenderDrawLine(Program.render, 685, 215, 385, 140);
+                NouveauSDLRenderDrawLine(Program.render, 156, 309, 159, 649);
+                NouveauSDLRenderDrawLine(Program.render, 630, 310, 685, 215);
+                NouveauSDLRenderDrawLine(Program.render, 685, 215, 385, 140);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                SDL_RenderDrawLine(Program.render, 480, 380, 460, 400);
-                SDL_RenderDrawLine(Program.render, 460, 400, 480, 420);
-                SDL_RenderDrawLine(Program.render, 480, 420, 500, 400);
-                SDL_RenderDrawLine(Program.render, 500, 400, 480, 380);
+                NouveauSDLRenderDrawLine(Program.render, 480, 380, 460, 400);
+                NouveauSDLRenderDrawLine(Program.render, 460, 400, 480, 420);
+                NouveauSDLRenderDrawLine(Program.render, 480, 420, 500, 400);
+                NouveauSDLRenderDrawLine(Program.render, 500, 400, 480, 380);
 
-                SDL_RenderDrawLine(Program.render, 540, 380, 520, 400);
-                SDL_RenderDrawLine(Program.render, 520, 400, 540, 420);
-                SDL_RenderDrawLine(Program.render, 540, 420, 560, 400);
-                SDL_RenderDrawLine(Program.render, 560, 400, 540, 380);
+                NouveauSDLRenderDrawLine(Program.render, 540, 380, 520, 400);
+                NouveauSDLRenderDrawLine(Program.render, 520, 400, 540, 420);
+                NouveauSDLRenderDrawLine(Program.render, 540, 420, 560, 400);
+                NouveauSDLRenderDrawLine(Program.render, 560, 400, 540, 380);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 0, 127, 255);
-                SDL_RenderDrawLine(Program.render, 480, 380, 460, 320);
-                SDL_RenderDrawLine(Program.render, 460, 320, 500, 320);
-                SDL_RenderDrawLine(Program.render, 500, 320, 480, 380);
+                NouveauSDLRenderDrawLine(Program.render, 480, 380, 460, 320);
+                NouveauSDLRenderDrawLine(Program.render, 460, 320, 500, 320);
+                NouveauSDLRenderDrawLine(Program.render, 500, 320, 480, 380);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
-                SDL_RenderDrawLine(Program.render, 540, 380, 520, 320);
-                SDL_RenderDrawLine(Program.render, 520, 320, 560, 320);
-                SDL_RenderDrawLine(Program.render, 560, 320, 540, 380);
+                NouveauSDLRenderDrawLine(Program.render, 540, 380, 520, 320);
+                NouveauSDLRenderDrawLine(Program.render, 520, 320, 560, 320);
+                NouveauSDLRenderDrawLine(Program.render, 560, 320, 540, 380);
                 #endregion
 
                 #region chef
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 865, 680, 800, 300);
-                SDL_RenderDrawLine(Program.render, 800, 300, 879, 260);
-                SDL_RenderDrawLine(Program.render, 879, 260, 959, 289);
-                SDL_RenderDrawLine(Program.render, 959, 289, 1048, 254);
-                SDL_RenderDrawLine(Program.render, 1048, 254, 1118, 295);
-                SDL_RenderDrawLine(Program.render, 1118, 295, 1057, 680);
+                NouveauSDLRenderDrawLine(Program.render, 865, 680, 800, 300);
+                NouveauSDLRenderDrawLine(Program.render, 800, 300, 879, 260);
+                NouveauSDLRenderDrawLine(Program.render, 879, 260, 959, 289);
+                NouveauSDLRenderDrawLine(Program.render, 959, 289, 1048, 254);
+                NouveauSDLRenderDrawLine(Program.render, 1048, 254, 1118, 295);
+                NouveauSDLRenderDrawLine(Program.render, 1118, 295, 1057, 680);
 
                 Program.DessinerCercle(new Vector2(959, 205), 76, 50);
 
-                SDL_RenderDrawLine(Program.render, 893, 166, 1031, 164);
-                SDL_RenderDrawLine(Program.render, 1031, 164, 1018, 127);
-                SDL_RenderDrawLine(Program.render, 1018, 127, 886, 114);
-                SDL_RenderDrawLine(Program.render, 886, 114, 876, 132);
-                SDL_RenderDrawLine(Program.render, 876, 132, 893, 166);
+                NouveauSDLRenderDrawLine(Program.render, 893, 166, 1031, 164);
+                NouveauSDLRenderDrawLine(Program.render, 1031, 164, 1018, 127);
+                NouveauSDLRenderDrawLine(Program.render, 1018, 127, 886, 114);
+                NouveauSDLRenderDrawLine(Program.render, 886, 114, 876, 132);
+                NouveauSDLRenderDrawLine(Program.render, 876, 132, 893, 166);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                SDL_RenderDrawLine(Program.render, 892, 133, 904, 123);
-                SDL_RenderDrawLine(Program.render, 904, 123, 918, 133);
-                SDL_RenderDrawLine(Program.render, 918, 133, 906, 145);
-                SDL_RenderDrawLine(Program.render, 906, 145, 892, 133);
+                NouveauSDLRenderDrawLine(Program.render, 892, 133, 904, 123);
+                NouveauSDLRenderDrawLine(Program.render, 904, 123, 918, 133);
+                NouveauSDLRenderDrawLine(Program.render, 918, 133, 906, 145);
+                NouveauSDLRenderDrawLine(Program.render, 906, 145, 892, 133);
 
-                SDL_RenderDrawLine(Program.render, 1020, 360, 1000, 380);
-                SDL_RenderDrawLine(Program.render, 1000, 380, 1020, 400);
-                SDL_RenderDrawLine(Program.render, 1020, 400, 1040, 380);
-                SDL_RenderDrawLine(Program.render, 1040, 380, 1020, 360);
+                NouveauSDLRenderDrawLine(Program.render, 1020, 360, 1000, 380);
+                NouveauSDLRenderDrawLine(Program.render, 1000, 380, 1020, 400);
+                NouveauSDLRenderDrawLine(Program.render, 1020, 400, 1040, 380);
+                NouveauSDLRenderDrawLine(Program.render, 1040, 380, 1020, 360);
 
-                SDL_RenderDrawLine(Program.render, 1080, 360, 1060, 380);
-                SDL_RenderDrawLine(Program.render, 1060, 380, 1080, 400);
-                SDL_RenderDrawLine(Program.render, 1080, 400, 1100, 380);
-                SDL_RenderDrawLine(Program.render, 1100, 380, 1080, 360);
+                NouveauSDLRenderDrawLine(Program.render, 1080, 360, 1060, 380);
+                NouveauSDLRenderDrawLine(Program.render, 1060, 380, 1080, 400);
+                NouveauSDLRenderDrawLine(Program.render, 1080, 400, 1100, 380);
+                NouveauSDLRenderDrawLine(Program.render, 1100, 380, 1080, 360);
 
-                SDL_RenderDrawLine(Program.render, 1000, 400, 1020, 420);
-                SDL_RenderDrawLine(Program.render, 1020, 420, 1040, 400);
-                SDL_RenderDrawLine(Program.render, 1040, 400, 1030, 390);
-                SDL_RenderDrawLine(Program.render, 1010, 390, 1000, 400);
+                NouveauSDLRenderDrawLine(Program.render, 1000, 400, 1020, 420);
+                NouveauSDLRenderDrawLine(Program.render, 1020, 420, 1040, 400);
+                NouveauSDLRenderDrawLine(Program.render, 1040, 400, 1030, 390);
+                NouveauSDLRenderDrawLine(Program.render, 1010, 390, 1000, 400);
 
-                SDL_RenderDrawLine(Program.render, 1070, 390, 1060, 400);
-                SDL_RenderDrawLine(Program.render, 1060, 400, 1080, 420);
-                SDL_RenderDrawLine(Program.render, 1080, 420, 1100, 400);
-                SDL_RenderDrawLine(Program.render, 1100, 400, 1090, 390);
+                NouveauSDLRenderDrawLine(Program.render, 1070, 390, 1060, 400);
+                NouveauSDLRenderDrawLine(Program.render, 1060, 400, 1080, 420);
+                NouveauSDLRenderDrawLine(Program.render, 1080, 420, 1100, 400);
+                NouveauSDLRenderDrawLine(Program.render, 1100, 400, 1090, 390);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 0, 127, 255);
-                SDL_RenderDrawLine(Program.render, 1000, 300, 1040, 300);
-                SDL_RenderDrawLine(Program.render, 1040, 300, 1020, 360);
-                SDL_RenderDrawLine(Program.render, 1020, 360, 1000, 300);
+                NouveauSDLRenderDrawLine(Program.render, 1000, 300, 1040, 300);
+                NouveauSDLRenderDrawLine(Program.render, 1040, 300, 1020, 360);
+                NouveauSDLRenderDrawLine(Program.render, 1020, 360, 1000, 300);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                SDL_RenderDrawLine(Program.render, 1060, 300, 1100, 300);
-                SDL_RenderDrawLine(Program.render, 1100, 300, 1080, 360);
-                SDL_RenderDrawLine(Program.render, 1080, 360, 1060, 300);
+                NouveauSDLRenderDrawLine(Program.render, 1060, 300, 1100, 300);
+                NouveauSDLRenderDrawLine(Program.render, 1100, 300, 1080, 360);
+                NouveauSDLRenderDrawLine(Program.render, 1080, 360, 1060, 300);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 127, 255, 255);
-                SDL_RenderDrawLine(Program.render, 1000, 340, 1013, 340);
-                SDL_RenderDrawLine(Program.render, 1027, 340, 1040, 340);
-                SDL_RenderDrawLine(Program.render, 1040, 340, 1030, 370);
-                SDL_RenderDrawLine(Program.render, 1011, 369, 1000, 340);
+                NouveauSDLRenderDrawLine(Program.render, 1000, 340, 1013, 340);
+                NouveauSDLRenderDrawLine(Program.render, 1027, 340, 1040, 340);
+                NouveauSDLRenderDrawLine(Program.render, 1040, 340, 1030, 370);
+                NouveauSDLRenderDrawLine(Program.render, 1011, 369, 1000, 340);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                SDL_RenderDrawLine(Program.render, 1060, 340, 1073, 340);
-                SDL_RenderDrawLine(Program.render, 1087, 340, 1100, 340);
-                SDL_RenderDrawLine(Program.render, 1100, 340, 1091, 371);
-                SDL_RenderDrawLine(Program.render, 1071, 369, 1060, 340);
+                NouveauSDLRenderDrawLine(Program.render, 1060, 340, 1073, 340);
+                NouveauSDLRenderDrawLine(Program.render, 1087, 340, 1100, 340);
+                NouveauSDLRenderDrawLine(Program.render, 1100, 340, 1091, 371);
+                NouveauSDLRenderDrawLine(Program.render, 1071, 369, 1060, 340);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 800, 300, 553, 328);
-                SDL_RenderDrawLine(Program.render, 531, 340, 1118, 295);
+                NouveauSDLRenderDrawLine(Program.render, 800, 300, 553, 328);
+                NouveauSDLRenderDrawLine(Program.render, 531, 340, 1118, 295);
                 #endregion
 
                 #region drapeaux
                 for (short i = 0; i < 401; i += 200)
                 {
                     SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                    SDL_RenderDrawLine(Program.render, 1300 + i, 680, 1300 + i, 494);
-                    SDL_RenderDrawLine(Program.render, 1300 + i, 100, 1300 + i, 365);
+                    NouveauSDLRenderDrawLine(Program.render, 1300 + i, 680, 1300 + i, 494);
+                    NouveauSDLRenderDrawLine(Program.render, 1300 + i, 100, 1300 + i, 365);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                    SDL_RenderDrawLine(Program.render, 1300 + i, 100, 1387 + i, 272);
-                    SDL_RenderDrawLine(Program.render, 1387 + i, 272, 1400 + i, 400);
-                    SDL_RenderDrawLine(Program.render, 1400 + i, 400, 1376 + i, 449);
-                    SDL_RenderDrawLine(Program.render, 1376 + i, 449, 1369 + i, 519);
-                    SDL_RenderDrawLine(Program.render, 1369 + i, 519, 1390 + i, 557);
-                    SDL_RenderDrawLine(Program.render, 1390 + i, 557, 1332 + i, 574);
-                    SDL_RenderDrawLine(Program.render, 1332 + i, 574, 1282 + i, 449);
-                    SDL_RenderDrawLine(Program.render, 1282 + i, 449, 1287 + i, 389);
-                    SDL_RenderDrawLine(Program.render, 1287 + i, 389, 1314 + i, 338);
-                    SDL_RenderDrawLine(Program.render, 1314 + i, 338, 1315 + i, 305);
-                    SDL_RenderDrawLine(Program.render, 1315 + i, 305, 1300 + i, 300);
+                    NouveauSDLRenderDrawLine(Program.render, 1300 + i, 100, 1387 + i, 272);
+                    NouveauSDLRenderDrawLine(Program.render, 1387 + i, 272, 1400 + i, 400);
+                    NouveauSDLRenderDrawLine(Program.render, 1400 + i, 400, 1376 + i, 449);
+                    NouveauSDLRenderDrawLine(Program.render, 1376 + i, 449, 1369 + i, 519);
+                    NouveauSDLRenderDrawLine(Program.render, 1369 + i, 519, 1390 + i, 557);
+                    NouveauSDLRenderDrawLine(Program.render, 1390 + i, 557, 1332 + i, 574);
+                    NouveauSDLRenderDrawLine(Program.render, 1332 + i, 574, 1282 + i, 449);
+                    NouveauSDLRenderDrawLine(Program.render, 1282 + i, 449, 1287 + i, 389);
+                    NouveauSDLRenderDrawLine(Program.render, 1287 + i, 389, 1314 + i, 338);
+                    NouveauSDLRenderDrawLine(Program.render, 1314 + i, 338, 1315 + i, 305);
+                    NouveauSDLRenderDrawLine(Program.render, 1315 + i, 305, 1300 + i, 300);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
                     Program.DessinerCercle(new Vector2(1346 + i, 375), 32, 50);
 
                     SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
-                    SDL_RenderDrawLine(Program.render, 1368 + i, 352, 1371 + i, 309);
-                    SDL_RenderDrawLine(Program.render, 1371 + i, 309, 1346 + i, 253);
-                    SDL_RenderDrawLine(Program.render, 1346 + i, 253, 1300 + i, 170);
-                    SDL_RenderDrawLine(Program.render, 1339 + i, 343, 1340 + i, 308);
-                    SDL_RenderDrawLine(Program.render, 1340 + i, 308, 1321 + i, 268);
-                    SDL_RenderDrawLine(Program.render, 1321 + i, 268, 1300 + i, 249);
-                    SDL_RenderDrawLine(Program.render, 1325 + i, 400, 1311 + i, 437);
-                    SDL_RenderDrawLine(Program.render, 1311 + i, 437, 1318 + i, 488);
-                    SDL_RenderDrawLine(Program.render, 1318 + i, 488, 1351 + i, 568);
-                    SDL_RenderDrawLine(Program.render, 1375 + i, 561, 1350 + i, 500);
-                    SDL_RenderDrawLine(Program.render, 1350 + i, 500, 1339 + i, 441);
-                    SDL_RenderDrawLine(Program.render, 1339 + i, 441, 1351 + i, 407);
+                    NouveauSDLRenderDrawLine(Program.render, 1368 + i, 352, 1371 + i, 309);
+                    NouveauSDLRenderDrawLine(Program.render, 1371 + i, 309, 1346 + i, 253);
+                    NouveauSDLRenderDrawLine(Program.render, 1346 + i, 253, 1300 + i, 170);
+                    NouveauSDLRenderDrawLine(Program.render, 1339 + i, 343, 1340 + i, 308);
+                    NouveauSDLRenderDrawLine(Program.render, 1340 + i, 308, 1321 + i, 268);
+                    NouveauSDLRenderDrawLine(Program.render, 1321 + i, 268, 1300 + i, 249);
+                    NouveauSDLRenderDrawLine(Program.render, 1325 + i, 400, 1311 + i, 437);
+                    NouveauSDLRenderDrawLine(Program.render, 1311 + i, 437, 1318 + i, 488);
+                    NouveauSDLRenderDrawLine(Program.render, 1318 + i, 488, 1351 + i, 568);
+                    NouveauSDLRenderDrawLine(Program.render, 1375 + i, 561, 1350 + i, 500);
+                    NouveauSDLRenderDrawLine(Program.render, 1350 + i, 500, 1339 + i, 441);
+                    NouveauSDLRenderDrawLine(Program.render, 1339 + i, 441, 1351 + i, 407);
                 }
                 #endregion
             } // honneure - fini
@@ -2630,47 +2630,47 @@ namespace Dysgenesis
             {
                 #region toi + chaise
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 1034, 680, 1030, 521);
-                SDL_RenderDrawLine(Program.render, 1030, 521, 1085, 470);
-                SDL_RenderDrawLine(Program.render, 1085, 470, 1623, 474);
-                SDL_RenderDrawLine(Program.render, 1623, 474, 1684, 523);
-                SDL_RenderDrawLine(Program.render, 1684, 523, 1682, 680);
+                NouveauSDLRenderDrawLine(Program.render, 1034, 680, 1030, 521);
+                NouveauSDLRenderDrawLine(Program.render, 1030, 521, 1085, 470);
+                NouveauSDLRenderDrawLine(Program.render, 1085, 470, 1623, 474);
+                NouveauSDLRenderDrawLine(Program.render, 1623, 474, 1684, 523);
+                NouveauSDLRenderDrawLine(Program.render, 1684, 523, 1682, 680);
 
-                SDL_RenderDrawLine(Program.render, 1512, 473, 1647, 110);
-                SDL_RenderDrawLine(Program.render, 1647, 110, 1715, 80);
-                SDL_RenderDrawLine(Program.render, 1715, 80, 1785, 117);
-                SDL_RenderDrawLine(Program.render, 1785, 117, 1811, 165);
-                SDL_RenderDrawLine(Program.render, 1811, 165, 1684, 523);
+                NouveauSDLRenderDrawLine(Program.render, 1512, 473, 1647, 110);
+                NouveauSDLRenderDrawLine(Program.render, 1647, 110, 1715, 80);
+                NouveauSDLRenderDrawLine(Program.render, 1715, 80, 1785, 117);
+                NouveauSDLRenderDrawLine(Program.render, 1785, 117, 1811, 165);
+                NouveauSDLRenderDrawLine(Program.render, 1811, 165, 1684, 523);
 
                 if (Program.gTimer < 1050)
                 {
-                    SDL_RenderDrawLine(Program.render, 1500, 200, 1449, 203);
-                    SDL_RenderDrawLine(Program.render, 1449, 203, 1415, 472);
-                    SDL_RenderDrawLine(Program.render, 1513, 253, 1444, 505);
-                    SDL_RenderDrawLine(Program.render, 1444, 505, 1249, 508);
+                    NouveauSDLRenderDrawLine(Program.render, 1500, 200, 1449, 203);
+                    NouveauSDLRenderDrawLine(Program.render, 1449, 203, 1415, 472);
+                    NouveauSDLRenderDrawLine(Program.render, 1513, 253, 1444, 505);
+                    NouveauSDLRenderDrawLine(Program.render, 1444, 505, 1249, 508);
                     Program.DessinerCercle(new Vector2(1555, 157), 70, 50);
                 }
                 else
                 {
-                    SDL_RenderDrawLine(Program.render, 1246, 471, 1199, 277);
-                    SDL_RenderDrawLine(Program.render, 1199, 277, 1400, 250);
-                    SDL_RenderDrawLine(Program.render, 1400, 250, 1448, 472);
-                    SDL_RenderDrawLine(Program.render, 1199, 277, 1180, 494);
-                    SDL_RenderDrawLine(Program.render, 1180, 494, 1078, 539);
-                    SDL_RenderDrawLine(Program.render, 1400, 250, 1482, 323);
-                    SDL_RenderDrawLine(Program.render, 1482, 323, 1494, 471);
+                    NouveauSDLRenderDrawLine(Program.render, 1246, 471, 1199, 277);
+                    NouveauSDLRenderDrawLine(Program.render, 1199, 277, 1400, 250);
+                    NouveauSDLRenderDrawLine(Program.render, 1400, 250, 1448, 472);
+                    NouveauSDLRenderDrawLine(Program.render, 1199, 277, 1180, 494);
+                    NouveauSDLRenderDrawLine(Program.render, 1180, 494, 1078, 539);
+                    NouveauSDLRenderDrawLine(Program.render, 1400, 250, 1482, 323);
+                    NouveauSDLRenderDrawLine(Program.render, 1482, 323, 1494, 471);
                     Program.DessinerCercle(new Vector2(1266, 220), 70, 50);
                 }
                 #endregion
 
                 #region fenêtre
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 800, 100, 1050, 100);
-                SDL_RenderDrawLine(Program.render, 1050, 100, 1050, 400);
-                SDL_RenderDrawLine(Program.render, 1050, 400, 800, 400);
-                SDL_RenderDrawLine(Program.render, 800, 400, 800, 100);
-                SDL_RenderDrawLine(Program.render, 800, 250, 1050, 250);
-                SDL_RenderDrawLine(Program.render, 925, 100, 925, 400);
+                NouveauSDLRenderDrawLine(Program.render, 800, 100, 1050, 100);
+                NouveauSDLRenderDrawLine(Program.render, 1050, 100, 1050, 400);
+                NouveauSDLRenderDrawLine(Program.render, 1050, 400, 800, 400);
+                NouveauSDLRenderDrawLine(Program.render, 800, 400, 800, 100);
+                NouveauSDLRenderDrawLine(Program.render, 800, 250, 1050, 250);
+                NouveauSDLRenderDrawLine(Program.render, 925, 100, 925, 400);
 
                 if (Program.gTimer == 960)
                 {
@@ -2691,62 +2691,62 @@ namespace Dysgenesis
 
                 #region table + médailles
                 SDL_SetRenderDrawColor(Program.render, 120, 50, 0, 255);
-                SDL_RenderDrawLine(Program.render, 20, 200, 700, 200);
-                SDL_RenderDrawLine(Program.render, 700, 200, 700, 250);
-                SDL_RenderDrawLine(Program.render, 700, 250, 20, 250);
+                NouveauSDLRenderDrawLine(Program.render, 20, 200, 700, 200);
+                NouveauSDLRenderDrawLine(Program.render, 700, 200, 700, 250);
+                NouveauSDLRenderDrawLine(Program.render, 700, 250, 20, 250);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                SDL_RenderDrawLine(Program.render, 99, 219, 150, 219);
-                SDL_RenderDrawLine(Program.render, 150, 219, 127, 300);
-                SDL_RenderDrawLine(Program.render, 127, 300, 99, 219);
+                NouveauSDLRenderDrawLine(Program.render, 99, 219, 150, 219);
+                NouveauSDLRenderDrawLine(Program.render, 150, 219, 127, 300);
+                NouveauSDLRenderDrawLine(Program.render, 127, 300, 99, 219);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
-                SDL_RenderDrawLine(Program.render, 252, 221, 300, 221);
-                SDL_RenderDrawLine(Program.render, 300, 221, 276, 301);
-                SDL_RenderDrawLine(Program.render, 276, 301, 252, 221);
+                NouveauSDLRenderDrawLine(Program.render, 252, 221, 300, 221);
+                NouveauSDLRenderDrawLine(Program.render, 300, 221, 276, 301);
+                NouveauSDLRenderDrawLine(Program.render, 276, 301, 252, 221);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 0, 127, 255);
-                SDL_RenderDrawLine(Program.render, 400, 223, 450, 223);
-                SDL_RenderDrawLine(Program.render, 450, 223, 427, 301);
-                SDL_RenderDrawLine(Program.render, 427, 301, 400, 223);
+                NouveauSDLRenderDrawLine(Program.render, 400, 223, 450, 223);
+                NouveauSDLRenderDrawLine(Program.render, 450, 223, 427, 301);
+                NouveauSDLRenderDrawLine(Program.render, 427, 301, 400, 223);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                SDL_RenderDrawLine(Program.render, 127, 300, 101, 323);
-                SDL_RenderDrawLine(Program.render, 101, 323, 127, 348);
-                SDL_RenderDrawLine(Program.render, 127, 348, 154, 324);
-                SDL_RenderDrawLine(Program.render, 154, 324, 127, 300);
+                NouveauSDLRenderDrawLine(Program.render, 127, 300, 101, 323);
+                NouveauSDLRenderDrawLine(Program.render, 101, 323, 127, 348);
+                NouveauSDLRenderDrawLine(Program.render, 127, 348, 154, 324);
+                NouveauSDLRenderDrawLine(Program.render, 154, 324, 127, 300);
 
-                SDL_RenderDrawLine(Program.render, 276, 301, 250, 325);
-                SDL_RenderDrawLine(Program.render, 250, 325, 277, 349);
-                SDL_RenderDrawLine(Program.render, 277, 349, 304, 325);
-                SDL_RenderDrawLine(Program.render, 304, 325, 276, 301);
+                NouveauSDLRenderDrawLine(Program.render, 276, 301, 250, 325);
+                NouveauSDLRenderDrawLine(Program.render, 250, 325, 277, 349);
+                NouveauSDLRenderDrawLine(Program.render, 277, 349, 304, 325);
+                NouveauSDLRenderDrawLine(Program.render, 304, 325, 276, 301);
 
-                SDL_RenderDrawLine(Program.render, 427, 301, 401, 324);
-                SDL_RenderDrawLine(Program.render, 401, 324, 427, 349);
-                SDL_RenderDrawLine(Program.render, 427, 349, 454, 325);
-                SDL_RenderDrawLine(Program.render, 454, 325, 427, 301);
+                NouveauSDLRenderDrawLine(Program.render, 427, 301, 401, 324);
+                NouveauSDLRenderDrawLine(Program.render, 401, 324, 427, 349);
+                NouveauSDLRenderDrawLine(Program.render, 427, 349, 454, 325);
+                NouveauSDLRenderDrawLine(Program.render, 454, 325, 427, 301);
                 #endregion
 
                 #region trophés
                 for (short i = 0; i < 301; i += 150)
                 {
-                    SDL_RenderDrawLine(Program.render, 150 + i, 200, 166 + i, 171);
-                    SDL_RenderDrawLine(Program.render, 166 + i, 171, 221 + i, 172);
-                    SDL_RenderDrawLine(Program.render, 221 + i, 172, 238 + i, 200);
-                    SDL_RenderDrawLine(Program.render, 188 + i, 171, 188 + i, 154);
-                    SDL_RenderDrawLine(Program.render, 201 + i, 171, 201 + i, 154);
-                    SDL_RenderDrawLine(Program.render, 173 + i, 71, 161 + i, 124);
-                    SDL_RenderDrawLine(Program.render, 161 + i, 124, 176 + i, 154);
-                    SDL_RenderDrawLine(Program.render, 176 + i, 154, 215 + i, 154);
-                    SDL_RenderDrawLine(Program.render, 215 + i, 154, 227 + i, 128);
-                    SDL_RenderDrawLine(Program.render, 227 + i, 128, 218 + i, 71);
-                    SDL_RenderDrawLine(Program.render, 218 + i, 71, 173 + i, 71);
-                    SDL_RenderDrawLine(Program.render, 167 + i, 98, 151 + i, 97);
-                    SDL_RenderDrawLine(Program.render, 151 + i, 97, 144 + i, 119);
-                    SDL_RenderDrawLine(Program.render, 144 + i, 119, 166 + i, 133);
-                    SDL_RenderDrawLine(Program.render, 223 + i, 100, 237 + i, 97);
-                    SDL_RenderDrawLine(Program.render, 237 + i, 97, 245 + i, 122);
-                    SDL_RenderDrawLine(Program.render, 245 + i, 122, 224 + i, 136);
+                    NouveauSDLRenderDrawLine(Program.render, 150 + i, 200, 166 + i, 171);
+                    NouveauSDLRenderDrawLine(Program.render, 166 + i, 171, 221 + i, 172);
+                    NouveauSDLRenderDrawLine(Program.render, 221 + i, 172, 238 + i, 200);
+                    NouveauSDLRenderDrawLine(Program.render, 188 + i, 171, 188 + i, 154);
+                    NouveauSDLRenderDrawLine(Program.render, 201 + i, 171, 201 + i, 154);
+                    NouveauSDLRenderDrawLine(Program.render, 173 + i, 71, 161 + i, 124);
+                    NouveauSDLRenderDrawLine(Program.render, 161 + i, 124, 176 + i, 154);
+                    NouveauSDLRenderDrawLine(Program.render, 176 + i, 154, 215 + i, 154);
+                    NouveauSDLRenderDrawLine(Program.render, 215 + i, 154, 227 + i, 128);
+                    NouveauSDLRenderDrawLine(Program.render, 227 + i, 128, 218 + i, 71);
+                    NouveauSDLRenderDrawLine(Program.render, 218 + i, 71, 173 + i, 71);
+                    NouveauSDLRenderDrawLine(Program.render, 167 + i, 98, 151 + i, 97);
+                    NouveauSDLRenderDrawLine(Program.render, 151 + i, 97, 144 + i, 119);
+                    NouveauSDLRenderDrawLine(Program.render, 144 + i, 119, 166 + i, 133);
+                    NouveauSDLRenderDrawLine(Program.render, 223 + i, 100, 237 + i, 97);
+                    NouveauSDLRenderDrawLine(Program.render, 237 + i, 97, 245 + i, 122);
+                    NouveauSDLRenderDrawLine(Program.render, 245 + i, 122, 224 + i, 136);
                 }
                 #endregion
             } // à la maison - fini
@@ -2760,13 +2760,13 @@ namespace Dysgenesis
 
                 #region bordure
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 750, 650, 750, 50);
-                SDL_RenderDrawLine(Program.render, 750, 50, 1200, 50);
-                SDL_RenderDrawLine(Program.render, 1200, 50, 1200, 650);
-                SDL_RenderDrawLine(Program.render, 1200, 650, 750, 650);
+                NouveauSDLRenderDrawLine(Program.render, 750, 650, 750, 50);
+                NouveauSDLRenderDrawLine(Program.render, 750, 50, 1200, 50);
+                NouveauSDLRenderDrawLine(Program.render, 1200, 50, 1200, 650);
+                NouveauSDLRenderDrawLine(Program.render, 1200, 650, 750, 650);
 
-                SDL_RenderDrawLine(Program.render, 975, 50, 975, 650);
-                SDL_RenderDrawLine(Program.render, 750, 350, 1200, 350);
+                NouveauSDLRenderDrawLine(Program.render, 975, 50, 975, 650);
+                NouveauSDLRenderDrawLine(Program.render, 750, 350, 1200, 350);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 0, 255);
                 rect.x = 700; rect.y = 30; rect.w = 50; rect.h = 650;
@@ -2820,27 +2820,27 @@ namespace Dysgenesis
             {
                 #region toi + chaise
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 1034, 680, 1030, 521);
-                SDL_RenderDrawLine(Program.render, 1030, 521, 1085, 470);
-                SDL_RenderDrawLine(Program.render, 1085, 470, 1623, 474);
-                SDL_RenderDrawLine(Program.render, 1623, 474, 1684, 523);
-                SDL_RenderDrawLine(Program.render, 1684, 523, 1682, 680);
+                NouveauSDLRenderDrawLine(Program.render, 1034, 680, 1030, 521);
+                NouveauSDLRenderDrawLine(Program.render, 1030, 521, 1085, 470);
+                NouveauSDLRenderDrawLine(Program.render, 1085, 470, 1623, 474);
+                NouveauSDLRenderDrawLine(Program.render, 1623, 474, 1684, 523);
+                NouveauSDLRenderDrawLine(Program.render, 1684, 523, 1682, 680);
 
-                SDL_RenderDrawLine(Program.render, 1512, 473, 1647, 110);
-                SDL_RenderDrawLine(Program.render, 1647, 110, 1715, 80);
-                SDL_RenderDrawLine(Program.render, 1715, 80, 1785, 117);
-                SDL_RenderDrawLine(Program.render, 1785, 117, 1811, 165);
-                SDL_RenderDrawLine(Program.render, 1811, 165, 1684, 523);
+                NouveauSDLRenderDrawLine(Program.render, 1512, 473, 1647, 110);
+                NouveauSDLRenderDrawLine(Program.render, 1647, 110, 1715, 80);
+                NouveauSDLRenderDrawLine(Program.render, 1715, 80, 1785, 117);
+                NouveauSDLRenderDrawLine(Program.render, 1785, 117, 1811, 165);
+                NouveauSDLRenderDrawLine(Program.render, 1811, 165, 1684, 523);
 
-                SDL_RenderDrawLine(Program.render, 1318, 225, 1408, 244);
-                SDL_RenderDrawLine(Program.render, 1408, 244, 1490, 321);
-                SDL_RenderDrawLine(Program.render, 1490, 321, 1527, 433);
-                SDL_RenderDrawLine(Program.render, 1272, 317, 1313, 375);
-                SDL_RenderDrawLine(Program.render, 1313, 375, 1342, 473);
-                SDL_RenderDrawLine(Program.render, 1390, 323, 1296, 531);
-                SDL_RenderDrawLine(Program.render, 1296, 531, 1270, 266);
-                SDL_RenderDrawLine(Program.render, 1290, 342, 1228, 527);
-                SDL_RenderDrawLine(Program.render, 1228, 527, 1212, 256);
+                NouveauSDLRenderDrawLine(Program.render, 1318, 225, 1408, 244);
+                NouveauSDLRenderDrawLine(Program.render, 1408, 244, 1490, 321);
+                NouveauSDLRenderDrawLine(Program.render, 1490, 321, 1527, 433);
+                NouveauSDLRenderDrawLine(Program.render, 1272, 317, 1313, 375);
+                NouveauSDLRenderDrawLine(Program.render, 1313, 375, 1342, 473);
+                NouveauSDLRenderDrawLine(Program.render, 1390, 323, 1296, 531);
+                NouveauSDLRenderDrawLine(Program.render, 1296, 531, 1270, 266);
+                NouveauSDLRenderDrawLine(Program.render, 1290, 342, 1228, 527);
+                NouveauSDLRenderDrawLine(Program.render, 1228, 527, 1212, 256);
                 Program.DessinerCercle(new Vector2(1256, 251), 67, 50);
                 #endregion
 
@@ -2865,13 +2865,13 @@ namespace Dysgenesis
                 SDL_RenderFillRect(Program.render, ref rect);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 800, 100, 1050, 100);
-                SDL_RenderDrawLine(Program.render, 1050, 100, 1050, 400);
-                SDL_RenderDrawLine(Program.render, 1050, 400, 800, 400);
-                SDL_RenderDrawLine(Program.render, 800, 400, 800, 100);
+                NouveauSDLRenderDrawLine(Program.render, 800, 100, 1050, 100);
+                NouveauSDLRenderDrawLine(Program.render, 1050, 100, 1050, 400);
+                NouveauSDLRenderDrawLine(Program.render, 1050, 400, 800, 400);
+                NouveauSDLRenderDrawLine(Program.render, 800, 400, 800, 100);
 
-                SDL_RenderDrawLine(Program.render, 800, 250, 1050, 250);
-                SDL_RenderDrawLine(Program.render, 925, 100, 925, 400);
+                NouveauSDLRenderDrawLine(Program.render, 800, 250, 1050, 250);
+                NouveauSDLRenderDrawLine(Program.render, 925, 100, 925, 400);
 
                 if (Program.gTimer == 1320)
                 {
@@ -2908,62 +2908,62 @@ namespace Dysgenesis
 
                 #region table + médailles
                 SDL_SetRenderDrawColor(Program.render, 120, 50, 0, 255);
-                SDL_RenderDrawLine(Program.render, 20, 200, 700, 200);
-                SDL_RenderDrawLine(Program.render, 700, 200, 700, 250);
-                SDL_RenderDrawLine(Program.render, 700, 250, 20, 250);
+                NouveauSDLRenderDrawLine(Program.render, 20, 200, 700, 200);
+                NouveauSDLRenderDrawLine(Program.render, 700, 200, 700, 250);
+                NouveauSDLRenderDrawLine(Program.render, 700, 250, 20, 250);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                SDL_RenderDrawLine(Program.render, 99, 219, 150, 219);
-                SDL_RenderDrawLine(Program.render, 150, 219, 127, 300);
-                SDL_RenderDrawLine(Program.render, 127, 300, 99, 219);
+                NouveauSDLRenderDrawLine(Program.render, 99, 219, 150, 219);
+                NouveauSDLRenderDrawLine(Program.render, 150, 219, 127, 300);
+                NouveauSDLRenderDrawLine(Program.render, 127, 300, 99, 219);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
-                SDL_RenderDrawLine(Program.render, 252, 221, 300, 221);
-                SDL_RenderDrawLine(Program.render, 300, 221, 276, 301);
-                SDL_RenderDrawLine(Program.render, 276, 301, 252, 221);
+                NouveauSDLRenderDrawLine(Program.render, 252, 221, 300, 221);
+                NouveauSDLRenderDrawLine(Program.render, 300, 221, 276, 301);
+                NouveauSDLRenderDrawLine(Program.render, 276, 301, 252, 221);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 0, 127, 255);
-                SDL_RenderDrawLine(Program.render, 400, 223, 450, 223);
-                SDL_RenderDrawLine(Program.render, 450, 223, 427, 301);
-                SDL_RenderDrawLine(Program.render, 427, 301, 400, 223);
+                NouveauSDLRenderDrawLine(Program.render, 400, 223, 450, 223);
+                NouveauSDLRenderDrawLine(Program.render, 450, 223, 427, 301);
+                NouveauSDLRenderDrawLine(Program.render, 427, 301, 400, 223);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                SDL_RenderDrawLine(Program.render, 127, 300, 101, 323);
-                SDL_RenderDrawLine(Program.render, 101, 323, 127, 348);
-                SDL_RenderDrawLine(Program.render, 127, 348, 154, 324);
-                SDL_RenderDrawLine(Program.render, 154, 324, 127, 300);
+                NouveauSDLRenderDrawLine(Program.render, 127, 300, 101, 323);
+                NouveauSDLRenderDrawLine(Program.render, 101, 323, 127, 348);
+                NouveauSDLRenderDrawLine(Program.render, 127, 348, 154, 324);
+                NouveauSDLRenderDrawLine(Program.render, 154, 324, 127, 300);
 
-                SDL_RenderDrawLine(Program.render, 276, 301, 250, 325);
-                SDL_RenderDrawLine(Program.render, 250, 325, 277, 349);
-                SDL_RenderDrawLine(Program.render, 277, 349, 304, 325);
-                SDL_RenderDrawLine(Program.render, 304, 325, 276, 301);
+                NouveauSDLRenderDrawLine(Program.render, 276, 301, 250, 325);
+                NouveauSDLRenderDrawLine(Program.render, 250, 325, 277, 349);
+                NouveauSDLRenderDrawLine(Program.render, 277, 349, 304, 325);
+                NouveauSDLRenderDrawLine(Program.render, 304, 325, 276, 301);
 
-                SDL_RenderDrawLine(Program.render, 427, 301, 401, 324);
-                SDL_RenderDrawLine(Program.render, 401, 324, 427, 349);
-                SDL_RenderDrawLine(Program.render, 427, 349, 454, 325);
-                SDL_RenderDrawLine(Program.render, 454, 325, 427, 301);
+                NouveauSDLRenderDrawLine(Program.render, 427, 301, 401, 324);
+                NouveauSDLRenderDrawLine(Program.render, 401, 324, 427, 349);
+                NouveauSDLRenderDrawLine(Program.render, 427, 349, 454, 325);
+                NouveauSDLRenderDrawLine(Program.render, 454, 325, 427, 301);
                 #endregion
 
                 #region trophés
                 for (short i = 0; i < 301; i += 150)
                 {
-                    SDL_RenderDrawLine(Program.render, 150 + i, 200, 166 + i, 171);
-                    SDL_RenderDrawLine(Program.render, 166 + i, 171, 221 + i, 172);
-                    SDL_RenderDrawLine(Program.render, 221 + i, 172, 238 + i, 200);
-                    SDL_RenderDrawLine(Program.render, 188 + i, 171, 188 + i, 154);
-                    SDL_RenderDrawLine(Program.render, 201 + i, 171, 201 + i, 154);
-                    SDL_RenderDrawLine(Program.render, 173 + i, 71, 161 + i, 124);
-                    SDL_RenderDrawLine(Program.render, 161 + i, 124, 176 + i, 154);
-                    SDL_RenderDrawLine(Program.render, 176 + i, 154, 215 + i, 154);
-                    SDL_RenderDrawLine(Program.render, 215 + i, 154, 227 + i, 128);
-                    SDL_RenderDrawLine(Program.render, 227 + i, 128, 218 + i, 71);
-                    SDL_RenderDrawLine(Program.render, 218 + i, 71, 173 + i, 71);
-                    SDL_RenderDrawLine(Program.render, 167 + i, 98, 151 + i, 97);
-                    SDL_RenderDrawLine(Program.render, 151 + i, 97, 144 + i, 119);
-                    SDL_RenderDrawLine(Program.render, 144 + i, 119, 166 + i, 133);
-                    SDL_RenderDrawLine(Program.render, 223 + i, 100, 237 + i, 97);
-                    SDL_RenderDrawLine(Program.render, 237 + i, 97, 245 + i, 122);
-                    SDL_RenderDrawLine(Program.render, 245 + i, 122, 224 + i, 136);
+                    NouveauSDLRenderDrawLine(Program.render, 150 + i, 200, 166 + i, 171);
+                    NouveauSDLRenderDrawLine(Program.render, 166 + i, 171, 221 + i, 172);
+                    NouveauSDLRenderDrawLine(Program.render, 221 + i, 172, 238 + i, 200);
+                    NouveauSDLRenderDrawLine(Program.render, 188 + i, 171, 188 + i, 154);
+                    NouveauSDLRenderDrawLine(Program.render, 201 + i, 171, 201 + i, 154);
+                    NouveauSDLRenderDrawLine(Program.render, 173 + i, 71, 161 + i, 124);
+                    NouveauSDLRenderDrawLine(Program.render, 161 + i, 124, 176 + i, 154);
+                    NouveauSDLRenderDrawLine(Program.render, 176 + i, 154, 215 + i, 154);
+                    NouveauSDLRenderDrawLine(Program.render, 215 + i, 154, 227 + i, 128);
+                    NouveauSDLRenderDrawLine(Program.render, 227 + i, 128, 218 + i, 71);
+                    NouveauSDLRenderDrawLine(Program.render, 218 + i, 71, 173 + i, 71);
+                    NouveauSDLRenderDrawLine(Program.render, 167 + i, 98, 151 + i, 97);
+                    NouveauSDLRenderDrawLine(Program.render, 151 + i, 97, 144 + i, 119);
+                    NouveauSDLRenderDrawLine(Program.render, 144 + i, 119, 166 + i, 133);
+                    NouveauSDLRenderDrawLine(Program.render, 223 + i, 100, 237 + i, 97);
+                    NouveauSDLRenderDrawLine(Program.render, 237 + i, 97, 245 + i, 122);
+                    NouveauSDLRenderDrawLine(Program.render, 245 + i, 122, 224 + i, 136);
                 }
                 #endregion
 
@@ -2980,10 +2980,10 @@ namespace Dysgenesis
             if (Program.gTimer > 30 && Program.gTimer < 1830)
             {
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-                SDL_RenderDrawLine(Program.render, 20, 20, 1900, 20);
-                SDL_RenderDrawLine(Program.render, 1900, 20, 1900, 680);
-                SDL_RenderDrawLine(Program.render, 1900, 680, 20, 680);
-                SDL_RenderDrawLine(Program.render, 20, 20, 20, 680);
+                NouveauSDLRenderDrawLine(Program.render, 20, 20, 1900, 20);
+                NouveauSDLRenderDrawLine(Program.render, 1900, 20, 1900, 680);
+                NouveauSDLRenderDrawLine(Program.render, 1900, 680, 20, 680);
+                NouveauSDLRenderDrawLine(Program.render, 20, 20, 20, 680);
             }
 
             if (Program.gTimer > 1860)
@@ -3296,7 +3296,7 @@ namespace Dysgenesis
             foreach (Ennemi e in Program.enemies)
             {
                 e.RenderObject();
-                e.UpdateModele();
+                e.ActualiserModele();
                 e.timer++;
             }
             for (int i = 0; i < Program.explosions.Count; i++)
@@ -3378,9 +3378,40 @@ namespace Dysgenesis
                 Son.JouerMusique(ListeAudioMusique.DYSGENESIS, true);
                 Program.player.Init();
                 Program.player.afficher = true;
+                Program.bouger_etoiles = true;
                 gFade = 0;
                 BombePulsar.HP_bombe = BombePulsar.BOMBE_PULSAR_MAX_HP;
             }
+        }
+
+        // les scènes ont étés hardcodés pour parraître normal à 1920 x 1080,
+        // alors cette fonction me permet de facilement remplacer les vieilles
+        private static void NouveauSDLRenderDrawLine(IntPtr renderer, int x1, int y1, int x2, int y2)
+        {
+            const float OG_RES_HARDCODE_X = 1920.0f;
+            const float OG_RES_HARDCODE_Y = 1080.0f;
+
+            float 
+                newX1 = x1 / OG_RES_HARDCODE_X * Program.W_LARGEUR,
+                newX2 = x2 / OG_RES_HARDCODE_X * Program.W_LARGEUR,
+                newY1 = y1 / OG_RES_HARDCODE_Y * Program.W_HAUTEUR,
+                newY2 = y2 / OG_RES_HARDCODE_Y * Program.W_HAUTEUR
+            ;
+
+            SDL_RenderDrawLineF(renderer, newX1, newY1, newX2, newY2);
+        }
+
+        private static void NouveauSDLRenderDrawPoint(IntPtr renderer, int x1, int y1)
+        {
+            const float OG_RES_HARDCODE_X = 1920.0f;
+            const float OG_RES_HARDCODE_Y = 1080.0f;
+
+            float
+                newX1 = x1 / OG_RES_HARDCODE_X * Program.W_LARGEUR,
+                newY1 = y1 / OG_RES_HARDCODE_Y * Program.W_HAUTEUR
+            ;
+
+            SDL_RenderDrawPointF(renderer, newX1, newY1);
         }
     }
 
