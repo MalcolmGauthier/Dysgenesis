@@ -104,11 +104,11 @@ namespace Dysgenesis
                 for (int i = 0; i < QUANTITE_RAYONS_BOMBE_PULSAR; i++)
                 {
                     SDL_RenderDrawLine(Program.render,
-                        (int)lignes_prefaites[i].x,
-                        (int)lignes_prefaites[i].y,
-                        (int)position.x,
-                        (int)position.y
-                    );
+                            (int)lignes_prefaites[i].x,
+                            (int)lignes_prefaites[i].y,
+                            (int)position.x,
+                            (int)position.y
+                        );
                 }
 
                 return;
@@ -119,12 +119,14 @@ namespace Dysgenesis
             for (int i = 0; i < QUANTITE_RAYONS_BOMBE_PULSAR; i++)
             {
                 angle = Program.RNG.NextSingle() * PI;
+
                 SDL_RenderDrawLineF(Program.render,
                     Program.RNG.Next(-rayon, rayon) * Cos(angle) + position.x,
                     Program.RNG.Next(-rayon, rayon) * Sin(angle) + position.y,
                     position.x,
                     position.y
                 );
+
             }
         }
         public static void DessinerBombePulsar(Vector2 position, byte rayon, SDL_Color couleure, bool hyperbole_bleue)
@@ -166,7 +168,7 @@ namespace Dysgenesis
             else
             {
                 timer = 0;
-                Program.Gamemode = Gamemode.CUTSCENE_GOOD_END;
+                Program.Gamemode = Gamemode.CUTSCENE_BONNE_FIN;
                 HP_bombe = BOMBE_PULSAR_MAX_HP;
             }
 
@@ -206,7 +208,7 @@ namespace Dysgenesis
     }
 
     // classe statique qui gère les étoiles dans le fond d'écran.
-    // les fonctions peuvent êtres appelées avec des spécifications, comme c'est fait dans les scènes
+    // les fonctions peuvent êtres appelées avec des spécifications
     public static class Etoiles
     {
         public const int DENSITE_ETOILES = 100;
@@ -312,9 +314,9 @@ namespace Dysgenesis
         public const int NOIR = 0x000000;
         public const int OPAQUE = 255;
 
-        const float LARGEUR_DEFAUT = 5.0f;
-        const float HAUTEUR_DEFAUT = 10.0f;
-        const float ESPACE_DEFAUT = 3.0f;
+        public const float LARGEUR_DEFAUT = 5.0f;
+        public const float HAUTEUR_DEFAUT = 10.0f;
+        public const float ESPACE_DEFAUT = 3.0f;
 
         static readonly short[] char_draw_info_starting_indexes = {
             1, 18, 47, 60, 81, 98, 111, 132, 145, 158, 171, 184, 193, 210, 223, 240, // a - p
@@ -659,11 +661,11 @@ namespace Dysgenesis
                     if (char_draw_info[current_info_index] == 127)
                         break;
 
-                    SDL_RenderDrawLine(Program.render,
-                        (int)(char_draw_info[current_info_index] * size + x),
-                        (int)(char_draw_info[current_info_index + 1] * size + y),
-                        (int)(char_draw_info[current_info_index + 2] * size + x),
-                        (int)(char_draw_info[current_info_index + 3] * size + y)
+                    SDL_RenderDrawLineF(Program.render,
+                        char_draw_info[current_info_index] * size + x,
+                        char_draw_info[current_info_index + 1] * size + y,
+                        char_draw_info[current_info_index + 2] * size + x,
+                        char_draw_info[current_info_index + 3] * size + y
                     );
 
                     current_info_index += 4;
@@ -699,8 +701,9 @@ namespace Dysgenesis
 
         public static void Cut_0() // intro
         {
-            if (Program.gTimer == 1 && Program.cutscene_skip)
+            if (Program.true_cutscene_skip)
                 Program.gTimer = 451;
+
             if (Program.gTimer == 75)
             {
                 Son.JouerEffet(ListeAudioEffets.PRESENTE);
@@ -726,7 +729,7 @@ namespace Dysgenesis
         }
         public static void Cut_1() // new game
         {
-            if (Program.gTimer == 1 && Program.cutscene_skip)
+            if (Program.partial_cutscene_skip || Program.true_cutscene_skip)
                 Program.gTimer = 2101;
 
             if (Program.gTimer == 60)
@@ -742,11 +745,11 @@ namespace Dysgenesis
                                  "existent à travers la galaxie.", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 60));
 
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                Program.DessinerCercle(new Vector2(960, 440), 200, 50);
+                DessinerCercle(new Vector2(960, 440), 200, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 127, 255);
-                Program.DessinerCercle(new Vector2(260, 390), 100, 50);
+                DessinerCercle(new Vector2(260, 390), 100, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 127, 255);
-                Program.DessinerCercle(new Vector2(1660, 390), 100, 50);
+                DessinerCercle(new Vector2(1660, 390), 100, 50);
 
                 #region planète 1
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
@@ -851,7 +854,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < 50; i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
 
                 if (Program.gTimer % Program.RNG.Next(10, 15) == 0)
@@ -867,6 +870,7 @@ namespace Dysgenesis
                 }
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
+                    Program.explosions[i].RenderObject();
                     if (Program.explosions[i].Exist())
                         i--;
                 }
@@ -889,7 +893,7 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 1261, 417, 1229, 637);
                 NouveauSDLRenderDrawLine(Program.render, 1545, 412, 1624, 337);
                 NouveauSDLRenderDrawLine(Program.render, 1624, 337, 1417, 260);
-                Program.DessinerCercle(new Vector2(1416, 314), 77, 24);
+                DessinerCercle(new Vector2(1416, 314), 77, 24);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 127, 255);
                 NouveauSDLRenderDrawLine(Program.render, 1462, 434, 1503, 434);
@@ -923,8 +927,8 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 311, 452, 194, 500);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                Program.DessinerCercle(new Vector2(479, 232), 91, 24);
-                Program.DessinerCercle(new Vector2(479, 232), 65, 24);
+                DessinerCercle(new Vector2(479, 232), 91, 24);
+                DessinerCercle(new Vector2(479, 232), 65, 24);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
                 NouveauSDLRenderDrawLine(Program.render, 563, 195, 672, 204);
@@ -964,8 +968,8 @@ namespace Dysgenesis
 
                 #region emblême cercle
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                Program.DessinerCercle(new Vector2(832, 384), 30, 24);
-                Program.DessinerCercle(new Vector2(832, 384), 39, 24);
+                DessinerCercle(new Vector2(832, 384), 30, 24);
+                DessinerCercle(new Vector2(832, 384), 39, 24);
                 #endregion
 
                 #region étoile
@@ -1099,7 +1103,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < 50; i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
 
                 #region bleu autour de pôles
@@ -1215,7 +1219,7 @@ namespace Dysgenesis
                 if (Program.gTimer >= 1800) for (int i = 0; i < 30; i++)
                     {
                         if (Abs(stars[i, 0] - 1000.0f) < (Program.gTimer - 1800) * 5)
-                            SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                            NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                     }
 
                 if (Program.gTimer < 1830)
@@ -1241,10 +1245,10 @@ namespace Dysgenesis
                     NouveauSDLRenderDrawLine(Program.render, 972, 566, 952, 586);
 
                 if (Program.gTimer < 1810)
-                    SDL_RenderDrawPoint(Program.render, (int)(Program.gTimer - 1740 + 952 - 70), 585);
+                    NouveauSDLRenderDrawPoint(Program.render, (int)(Program.gTimer - 1740 + 952 - 70), 585);
 
                 if (Program.gTimer >= 1810 && Program.gTimer <= 1815)
-                    SDL_RenderDrawPoint(Program.render, (int)((Program.gTimer - 1810) * 2 + 972 - 20), (int)((1810 - Program.gTimer) * 2 + 603 - 20));
+                    NouveauSDLRenderDrawPoint(Program.render, (int)((Program.gTimer - 1810) * 2 + 972 - 20), (int)((1810 - Program.gTimer) * 2 + 603 - 20));
 
             } // départ
 
@@ -1269,8 +1273,8 @@ namespace Dysgenesis
         }
         public static void Cut_2() // good end
         {
-            if (Program.gTimer == 2 && Program.cutscene_skip)
-                Program.gTimer = 1830;
+            if (Program.partial_cutscene_skip || Program.true_cutscene_skip)
+                Program.gTimer = 2401;
 
             if (Program.gTimer == 60)
             {
@@ -1300,7 +1304,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
@@ -1433,7 +1437,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 for (int i = 0; i < stars_glx.GetLength(0); i++)
                 {
@@ -1444,7 +1448,7 @@ namespace Dysgenesis
                         else
                             SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                     }
-                    SDL_RenderDrawPoint(Program.render, stars_glx[i, 0], stars_glx[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars_glx[i, 0], stars_glx[i, 1]);
                 }
                 #endregion
 
@@ -1551,19 +1555,19 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
                 #region vaisseaux
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                SDL_RenderDrawPoint(Program.render, -Program.gTimer + 1900, Program.W_SEMI_HAUTEUR / 2);
+                NouveauSDLRenderDrawPoint(Program.render, -Program.gTimer + 1900, Program.W_SEMI_HAUTEUR / 2);
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
-                SDL_RenderDrawPoint(Program.render, Program.W_SEMI_LARGEUR, Program.gTimer / -2 + 730);
+                NouveauSDLRenderDrawPoint(Program.render, Program.W_SEMI_LARGEUR, Program.gTimer / -2 + 730);
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                SDL_RenderDrawPoint(Program.render, Program.gTimer - 1, Program.W_SEMI_HAUTEUR / 2);
+                NouveauSDLRenderDrawPoint(Program.render, Program.gTimer - 1, Program.W_SEMI_HAUTEUR / 2);
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                SDL_RenderDrawPoint(Program.render, Program.W_SEMI_LARGEUR, Program.gTimer / 2 - 200);
+                NouveauSDLRenderDrawPoint(Program.render, Program.W_SEMI_LARGEUR, Program.gTimer / 2 - 200);
                 #endregion
 
             } // ranconte - fini
@@ -1584,7 +1588,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
@@ -1669,19 +1673,19 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
                 #region vaisseaux
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
-                SDL_RenderDrawPoint(Program.render, 960, 340);
+                NouveauSDLRenderDrawPoint(Program.render, 960, 340);
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
-                SDL_RenderDrawPoint(Program.render, 950, 345);
+                NouveauSDLRenderDrawPoint(Program.render, 950, 345);
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
-                SDL_RenderDrawPoint(Program.render, 940, 340);
+                NouveauSDLRenderDrawPoint(Program.render, 940, 340);
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
-                SDL_RenderDrawPoint(Program.render, 950, 335);
+                NouveauSDLRenderDrawPoint(Program.render, 950, 335);
                 #endregion
             } // ranconte loin - fini
             else if (Program.gTimer >= 1200 && Program.gTimer < 1380)
@@ -1696,13 +1700,13 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 600, 500, 1350, 500);
                 NouveauSDLRenderDrawLine(Program.render, 1350, 500, 1350, 680);
 
-                Program.DessinerCercle(new Vector2(730, 189), 57, 50);
+                DessinerCercle(new Vector2(730, 189), 57, 50);
                 NouveauSDLRenderDrawLine(Program.render, 648, 500, 606, 238);
                 NouveauSDLRenderDrawLine(Program.render, 606, 238, 836, 255);
                 NouveauSDLRenderDrawLine(Program.render, 836, 255, 806, 500);
                 NouveauSDLRenderDrawLine(Program.render, 606, 238, 593, 470);
 
-                Program.DessinerCercle(new Vector2(1203, 186), 57, 50);
+                DessinerCercle(new Vector2(1203, 186), 57, 50);
                 NouveauSDLRenderDrawLine(Program.render, 1126, 500, 1096, 255);
                 NouveauSDLRenderDrawLine(Program.render, 1096, 255, 1304, 235);
                 NouveauSDLRenderDrawLine(Program.render, 1304, 235, 1278, 500);
@@ -1859,11 +1863,11 @@ namespace Dysgenesis
 
                 #region planètes
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                Program.DessinerCercle(new Vector2(960, 440), 200, 50);
+                DessinerCercle(new Vector2(960, 440), 200, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 127, 255);
-                Program.DessinerCercle(new Vector2(260, 390), 100, 50);
+                DessinerCercle(new Vector2(260, 390), 100, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 127, 255);
-                Program.DessinerCercle(new Vector2(1660, 390), 100, 50);
+                DessinerCercle(new Vector2(1660, 390), 100, 50);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
                 NouveauSDLRenderDrawLine(Program.render, 818, 298, 930, 336);
@@ -1964,19 +1968,19 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < 50; i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
                 #region vols
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
                 short lz = (short)(Program.gTimer - 1560);
-                SDL_RenderDrawPoint(Program.render, 304 + lz, 360);
-                SDL_RenderDrawPoint(Program.render, 631 - lz, 454);
-                SDL_RenderDrawPoint(Program.render, 872 + lz, 354);
-                SDL_RenderDrawPoint(Program.render, 1097 + lz, 479);
-                SDL_RenderDrawPoint(Program.render, 1300 - lz, 372);
-                SDL_RenderDrawPoint(Program.render, 1600 - lz, 418);
+                NouveauSDLRenderDrawPoint(Program.render, 304 + lz, 360);
+                NouveauSDLRenderDrawPoint(Program.render, 631 - lz, 454);
+                NouveauSDLRenderDrawPoint(Program.render, 872 + lz, 354);
+                NouveauSDLRenderDrawPoint(Program.render, 1097 + lz, 479);
+                NouveauSDLRenderDrawPoint(Program.render, 1300 - lz, 372);
+                NouveauSDLRenderDrawPoint(Program.render, 1600 - lz, 418);
                 #endregion
             } // vols entre planètes - fini
             else if (Program.gTimer >= 1740 && Program.gTimer < 1920)
@@ -2002,22 +2006,22 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
                 #region vols
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
                 short lz = (short)(Program.gTimer - 1740);
-                SDL_RenderDrawPoint(Program.render, 152 + lz, 199);
-                SDL_RenderDrawPoint(Program.render, 556 - lz, 104 + lz);
-                SDL_RenderDrawPoint(Program.render, 257, 505 - lz);
-                SDL_RenderDrawPoint(Program.render, 1176 + lz, 643);
-                SDL_RenderDrawPoint(Program.render, 1690, 433 - lz);
-                SDL_RenderDrawPoint(Program.render, 1608 + lz, 214 + lz);
-                SDL_RenderDrawPoint(Program.render, 1429 + lz, 125);
-                SDL_RenderDrawPoint(Program.render, 626 - lz, 643);
-                SDL_RenderDrawPoint(Program.render, 1284 - lz, 176);
+                NouveauSDLRenderDrawPoint(Program.render, 152 + lz, 199);
+                NouveauSDLRenderDrawPoint(Program.render, 556 - lz, 104 + lz);
+                NouveauSDLRenderDrawPoint(Program.render, 257, 505 - lz);
+                NouveauSDLRenderDrawPoint(Program.render, 1176 + lz, 643);
+                NouveauSDLRenderDrawPoint(Program.render, 1690, 433 - lz);
+                NouveauSDLRenderDrawPoint(Program.render, 1608 + lz, 214 + lz);
+                NouveauSDLRenderDrawPoint(Program.render, 1429 + lz, 125);
+                NouveauSDLRenderDrawPoint(Program.render, 626 - lz, 643);
+                NouveauSDLRenderDrawPoint(Program.render, 1284 - lz, 176);
                 #endregion
             } // vols entre étoiles - fini
             else if (Program.gTimer >= 1920 && Program.gTimer < 2310)
@@ -2050,11 +2054,11 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 for (int i = 0; i < stars_glx.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars_glx[i, 0], stars_glx[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars_glx[i, 0], stars_glx[i, 1]);
                 }
                 if (Program.gTimer > 2070 && Program.gTimer % 10 == 0)
                 {
@@ -2134,7 +2138,7 @@ namespace Dysgenesis
 
             if (Program.gTimer > 2400)
             {
-                Program.Gamemode = Gamemode.CREDITS;
+                Program.Gamemode = Gamemode.CUTSCENE_GENERIQUE;
                 Program.player.Init();
                 //Program.gFade = 0;
                 Program.enemies.Clear();
@@ -2142,8 +2146,8 @@ namespace Dysgenesis
         }
         public static void Cut_3() // bad end
         {
-            if (Program.gTimer == 2 && Program.cutscene_skip)
-                Program.gTimer = 1830;
+            if (Program.partial_cutscene_skip || Program.true_cutscene_skip)
+                Program.gTimer = 1861;
 
             if (Program.gTimer == 60)
             {
@@ -2172,7 +2176,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
@@ -2258,7 +2262,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
@@ -2280,8 +2284,8 @@ namespace Dysgenesis
                 }
                 else if (Program.gTimer >= 330)
                 {
-                    Program.DessinerCercle(new Vector2(956, 336), 224, 50);
-                    SDL_SetRenderDrawColor(Program.render, 200, 255, 255, (byte)alpha);
+                    SDL_SetRenderDrawColor(Program.render, BombePulsar.COULEUR_BOMBE.r, BombePulsar.COULEUR_BOMBE.g, BombePulsar.COULEUR_BOMBE.b, (byte)alpha);
+                    DessinerCercle(new Vector2(956, 336), 224, 50);
                     for (int i = 0; i < 50; i++)
                         NouveauSDLRenderDrawLine(Program.render, (int)neutron_slowdown[i].x, (int)neutron_slowdown[i].y, 956, 336);
                 }
@@ -2329,7 +2333,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
@@ -2397,7 +2401,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
@@ -2455,8 +2459,8 @@ namespace Dysgenesis
                     NouveauSDLRenderDrawLine(Program.render, 850, 680 - move, 850, 449 - move);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                    Program.DessinerCercle(new Vector2(1050, 560 - move), 84, 50);
-                    Program.DessinerCercle(new Vector2(1050, 560 - move), 63, 50);
+                    DessinerCercle(new Vector2(1050, 560 - move), 84, 50);
+                    DessinerCercle(new Vector2(1050, 560 - move), 63, 50);
 
                     SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
                     NouveauSDLRenderDrawLine(Program.render, 850, 518 - move, 978, 518 - move);
@@ -2489,7 +2493,7 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 499, 249, 630, 310);
                 NouveauSDLRenderDrawLine(Program.render, 630, 310, 539, 680);
 
-                Program.DessinerCercle(new Vector2(400, 200), 78, 50);
+                DessinerCercle(new Vector2(400, 200), 78, 50);
 
                 NouveauSDLRenderDrawLine(Program.render, 156, 309, 159, 649);
                 NouveauSDLRenderDrawLine(Program.render, 630, 310, 685, 215);
@@ -2526,7 +2530,7 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 1048, 254, 1118, 295);
                 NouveauSDLRenderDrawLine(Program.render, 1118, 295, 1057, 680);
 
-                Program.DessinerCercle(new Vector2(959, 205), 76, 50);
+                DessinerCercle(new Vector2(959, 205), 76, 50);
 
                 NouveauSDLRenderDrawLine(Program.render, 893, 166, 1031, 164);
                 NouveauSDLRenderDrawLine(Program.render, 1031, 164, 1018, 127);
@@ -2608,7 +2612,7 @@ namespace Dysgenesis
                     NouveauSDLRenderDrawLine(Program.render, 1315 + i, 305, 1300 + i, 300);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                    Program.DessinerCercle(new Vector2(1346 + i, 375), 32, 50);
+                    DessinerCercle(new Vector2(1346 + i, 375), 32, 50);
 
                     SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
                     NouveauSDLRenderDrawLine(Program.render, 1368 + i, 352, 1371 + i, 309);
@@ -2648,7 +2652,7 @@ namespace Dysgenesis
                     NouveauSDLRenderDrawLine(Program.render, 1449, 203, 1415, 472);
                     NouveauSDLRenderDrawLine(Program.render, 1513, 253, 1444, 505);
                     NouveauSDLRenderDrawLine(Program.render, 1444, 505, 1249, 508);
-                    Program.DessinerCercle(new Vector2(1555, 157), 70, 50);
+                    DessinerCercle(new Vector2(1555, 157), 70, 50);
                 }
                 else
                 {
@@ -2659,7 +2663,7 @@ namespace Dysgenesis
                     NouveauSDLRenderDrawLine(Program.render, 1180, 494, 1078, 539);
                     NouveauSDLRenderDrawLine(Program.render, 1400, 250, 1482, 323);
                     NouveauSDLRenderDrawLine(Program.render, 1482, 323, 1494, 471);
-                    Program.DessinerCercle(new Vector2(1266, 220), 70, 50);
+                    DessinerCercle(new Vector2(1266, 220), 70, 50);
                 }
                 #endregion
 
@@ -2685,7 +2689,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0) / 2; i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
                 #endregion
 
@@ -2754,6 +2758,7 @@ namespace Dysgenesis
             {
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
+                    Program.explosions[i].RenderObject();
                     if (Program.explosions[i].Exist())
                         i--;
                 }
@@ -2794,7 +2799,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0); i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
 
                 if (lTimer == 0)
@@ -2841,7 +2846,7 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 1296, 531, 1270, 266);
                 NouveauSDLRenderDrawLine(Program.render, 1290, 342, 1228, 527);
                 NouveauSDLRenderDrawLine(Program.render, 1228, 527, 1212, 256);
-                Program.DessinerCercle(new Vector2(1256, 251), 67, 50);
+                DessinerCercle(new Vector2(1256, 251), 67, 50);
                 #endregion
 
                 #region fenêtre
@@ -2850,6 +2855,7 @@ namespace Dysgenesis
 
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
+                    Program.explosions[i].RenderObject();
                     if (Program.explosions[i].Exist())
                         i--;
                 }
@@ -2884,7 +2890,7 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 for (int i = 0; i < stars.GetLength(0) / 2; i++)
                 {
-                    SDL_RenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
+                    NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                 }
 
                 if (lTimer == 0 && Program.gTimer < 1800)
@@ -2988,7 +2994,7 @@ namespace Dysgenesis
 
             if (Program.gTimer > 1860)
             {
-                Program.Gamemode = Gamemode.CREDITS;
+                Program.Gamemode = Gamemode.CUTSCENE_GENERIQUE;
                 Program.player.Init();
                 Program.enemies.Clear();
                 Program.explosions.Clear();
@@ -2996,7 +3002,7 @@ namespace Dysgenesis
         }
         public static void Cut_4() // generique
         {
-            if (Program.gTimer == 2 && Program.cutscene_skip)
+            if (Program.true_cutscene_skip)
                 Program.gTimer = 2601;
 
             if (Program.gTimer == 60)
@@ -3007,7 +3013,6 @@ namespace Dysgenesis
                 //Program.gTimer = 1620;//
             }
             // beats: 60, 300, 540, 780, 1020, 1260, 1500, 1740, 1980, 2240
-            //Program.gTimer += 2;//
 
             #region texte
             if (Program.gTimer >= 60 && Program.gTimer < 500)
@@ -3018,54 +3023,54 @@ namespace Dysgenesis
                 short extra_y = 0;
                 if (Program.gTimer >= 300)
                     extra_y = (short)(Program.gTimer - 300);
-                Text.DisplayText("dysgenesis", new Vector2(Text.CENTRE, 540 - extra_y * 3), 4, alpha: alpha, scroll: (int)((Program.gTimer - 60) / 5));
+                Text.DisplayText("dysgenesis", new Vector2(Text.CENTRE, 540 - extra_y * 3), 4, alpha: alpha, scroll: ((Program.gTimer - 60) / 5));
             }
             if (Program.gTimer >= 300 && Program.gTimer < 700)
-                Text.DisplayText("conception:\nmalcolm gauthier", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 300) * 3), 4, scroll: ((int)Program.gTimer - 330) / 5);
+                Text.DisplayText("conception:\nmalcolm gauthier", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 300) * 3), 4, scroll: (Program.gTimer - 300) / 5);
             if (Program.gTimer >= 540 && Program.gTimer < 940)
-                Text.DisplayText("         modèles:\nmalcolm gauthier", new Vector2(1300, Program.W_HAUTEUR - (Program.gTimer - 540) * 3), 4, scroll: ((int)Program.gTimer - 560) / 5);
+                Text.DisplayText("         modèles:\nmalcolm gauthier", new Vector2(Program.W_LARGEUR - 620, Program.W_HAUTEUR - (Program.gTimer - 540) * 3), 4, scroll: (Program.gTimer - 540) / 5);
             if (Program.gTimer >= 780 && Program.gTimer < 1180)
-                Text.DisplayText("programmation:\nmalcolm gauthier", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 780) * 3), 4, scroll: ((int)Program.gTimer - 800) / 5);
+                Text.DisplayText("programmation:\nmalcolm gauthier", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 780) * 3), 4, scroll: (Program.gTimer - 780) / 5);
             if (Program.gTimer >= 1020 && Program.gTimer < 1420)
-                Text.DisplayText(" effets sonnores:\nmalcolm gauthier", new Vector2(1300, Program.W_HAUTEUR - (Program.gTimer - 1020) * 3), 4, scroll: ((int)Program.gTimer - 1040) / 5);
+                Text.DisplayText(" effets sonnores:\nmalcolm gauthier", new Vector2(Program.W_LARGEUR - 620, Program.W_HAUTEUR - (Program.gTimer - 1020) * 3), 4, scroll: (Program.gTimer - 1020) / 5);
             if (Program.gTimer >= 1260 && Program.gTimer < 1660)
-                Text.DisplayText("musique", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1260) * 3), 4, scroll: ((int)Program.gTimer - 1280) / 5);
+                Text.DisplayText("musique", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1260) * 3), 4, scroll: (Program.gTimer - 1260) / 5);
             if (Program.gTimer >= 1300 && Program.gTimer < 1700)
             {
-                Text.DisplayText("\"dance of the violins\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1300) * 3), 3, scroll: ((int)Program.gTimer - 1320) / 5);
-                Text.DisplayText("jesse valentine (f-777)", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1320) * 3), 3, scroll: ((int)Program.gTimer - 1320) / 5);
+                Text.DisplayText("\"dance of the violins\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1300) * 3), 3, scroll: (Program.gTimer - 1300) / 5);
+                Text.DisplayText("jesse valentine (f-777)", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1320) * 3), 3, scroll: (Program.gTimer - 1320) / 5);
             }
             if (Program.gTimer >= 1400 && Program.gTimer < 1800)
             {
-                Text.DisplayText("\"240 bits per mile\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1400) * 3), 3, scroll: ((int)Program.gTimer - 1420) / 5);
-                Text.DisplayText("leon riskin", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1420) * 3), 3, scroll: ((int)Program.gTimer - 1420) / 5);
+                Text.DisplayText("\"240 bits per mile\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1400) * 3), 3, scroll: (Program.gTimer - 1400) / 5);
+                Text.DisplayText("leon riskin", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1420) * 3), 3, scroll: (Program.gTimer - 1420) / 5);
             }
             if (Program.gTimer >= 1500 && Program.gTimer < 1900)
             {
-                Text.DisplayText("\"dysgenesis\"         \"eugenesis\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1500) * 3), 3, scroll: ((int)Program.gTimer - 1520) / 3);
-                Text.DisplayText("malcolm gauthier", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1520) * 3), 3, scroll: ((int)Program.gTimer - 1520) / 5);
+                Text.DisplayText("\"dysgenesis\"         \"eugenesis\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1500) * 3), 3, scroll: (Program.gTimer - 1500) / 3);
+                Text.DisplayText("malcolm gauthier", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1520) * 3), 3, scroll: (Program.gTimer - 1520) / 5);
             }
             if (Program.gTimer >= 1600 && Program.gTimer < 2000)
             {
-                Text.DisplayText("autres musiques", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1600) * 3), 3, scroll: ((int)Program.gTimer - 1620) / 5);
-                Text.DisplayText("malcolm gauthier, mélodies non-originales", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1620) * 3), 3, scroll: ((int)Program.gTimer - 1620) / 3);
+                Text.DisplayText("autres musiques", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1600) * 3), 3, scroll: (Program.gTimer - 1600) / 5);
+                Text.DisplayText("malcolm gauthier, mélodies non-originales", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1620) * 3), 3, scroll: (Program.gTimer - 1620) / 3);
             }
             if (Program.gTimer >= 1740 && Program.gTimer < 2140)
-                Text.DisplayText("mélodies utilisées", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 1740) * 3), 4, scroll: ((int)Program.gTimer - 1740) / 5);
+                Text.DisplayText("mélodies utilisées", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 1740) * 3), 4, scroll: (Program.gTimer - 1740) / 5);
             if (Program.gTimer >= 1780 && Program.gTimer < 2180)
             {
-                Text.DisplayText("\"can't remove the pain\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1780) * 3), 3, scroll: ((int)Program.gTimer - 1800) / 5);
-                Text.DisplayText("todd porter et herman miller", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1800) * 3), 3, scroll: ((int)Program.gTimer - 1800) / 5);
+                Text.DisplayText("\"can't remove the pain\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1780) * 3), 3, scroll: (Program.gTimer - 1780) / 5);
+                Text.DisplayText("todd porter et herman miller", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1800) * 3), 3, scroll: (Program.gTimer - 1800) / 5);
             }
             if (Program.gTimer >= 1880 && Program.gTimer < 2280)
             {
-                Text.DisplayText("\"pesenka\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1880) * 3), 3, scroll: ((int)Program.gTimer - 1900) / 5);
-                Text.DisplayText("Sergey Zhukov et Aleksey Potekhin", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1900) * 3), 3, scroll: ((int)Program.gTimer - 1900) / 5);
+                Text.DisplayText("\"pesenka\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1880) * 3), 3, scroll: (Program.gTimer - 1880) / 5);
+                Text.DisplayText("Sergey Zhukov et Aleksey Potekhin", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1900) * 3), 3, scroll: (Program.gTimer - 1900) / 5);
             }
             if (Program.gTimer >= 1980 && Program.gTimer < 2380)
             {
-                Text.DisplayText("\"the beginning of time\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1980) * 3), 3, scroll: ((int)Program.gTimer - 2000) / 5);
-                Text.DisplayText("nathan ingalls (dj-nate)", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 2000) * 3), 3, scroll: ((int)Program.gTimer - 2000) / 5);
+                Text.DisplayText("\"the beginning of time\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1980) * 3), 3, scroll: (Program.gTimer - 1980) / 5);
+                Text.DisplayText("nathan ingalls (dj-nate)", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 2000) * 3), 3, scroll: (Program.gTimer - 2000) / 5);
             }
             if (Program.gTimer >= 2250)
             {
@@ -3182,6 +3187,7 @@ namespace Dysgenesis
 
                 if (Program.gTimer == 1829)
                 {
+                    Program.explosions.Clear();
                     new Explosion(new Vector3(ens[1].position.x, ens[1].position.y, 40));
                     Program.enemies.Clear();
                 }
@@ -3234,7 +3240,7 @@ namespace Dysgenesis
 
                     ens[0].position.z = 40 - Pow((Program.gTimer - 1600) / 33f, 3);
                     ens[0].pitch = (Program.gTimer - 1600) / -200f;
-                    ens[0].roll = (1600 - (int)Program.gTimer) * (float)(PI / 600);
+                    ens[0].roll = (1600 - Program.gTimer) * (float)(PI / 600);
 
                     if (Program.gTimer < 1650)
                         ens[0].position.x = 1500 + (Program.gTimer - 1600) * 10;
@@ -3266,14 +3272,15 @@ namespace Dysgenesis
                             new Vector3(line[0], line[1], Program.player.position.z),
                             new Vector3(
                                 Program.player.position.x + 10 + i % 2 * 2 * -10,
-                                Program.player.position.y - 200,
-                                Program.G_MAX_DEPTH
+                                Program.player.position.y - 350,
+                                20
                             ),
                             ProprietaireProjectile.JOUEUR,
                             (byte)(i % 2)
                         );
                     }
                 }
+                
             }
             else if (Program.gTimer >= 1999 && Program.gTimer < 2200)
             {
@@ -3301,6 +3308,7 @@ namespace Dysgenesis
             }
             for (int i = 0; i < Program.explosions.Count; i++)
             {
+                Program.explosions[i].RenderObject();
                 if (Program.explosions[i].Exist())
                     i--;
             }
@@ -3385,13 +3393,12 @@ namespace Dysgenesis
         }
 
         // les scènes ont étés hardcodés pour parraître normal à 1920 x 1080,
-        // alors cette fonction me permet de facilement remplacer les vieilles
-        private static void NouveauSDLRenderDrawLine(IntPtr renderer, int x1, int y1, int x2, int y2)
+        // alors ces fonctions me permet de facilement remplacer les vieilles
+        const float OG_RES_HARDCODE_X = 1920.0f;
+        const float OG_RES_HARDCODE_Y = 1080.0f;
+        private static void NouveauSDLRenderDrawLine(IntPtr renderer, float x1, float y1, float x2, float y2)
         {
-            const float OG_RES_HARDCODE_X = 1920.0f;
-            const float OG_RES_HARDCODE_Y = 1080.0f;
-
-            float 
+            float
                 newX1 = x1 / OG_RES_HARDCODE_X * Program.W_LARGEUR,
                 newX2 = x2 / OG_RES_HARDCODE_X * Program.W_LARGEUR,
                 newY1 = y1 / OG_RES_HARDCODE_Y * Program.W_HAUTEUR,
@@ -3400,18 +3407,33 @@ namespace Dysgenesis
 
             SDL_RenderDrawLineF(renderer, newX1, newY1, newX2, newY2);
         }
-
         private static void NouveauSDLRenderDrawPoint(IntPtr renderer, int x1, int y1)
         {
-            const float OG_RES_HARDCODE_X = 1920.0f;
-            const float OG_RES_HARDCODE_Y = 1080.0f;
-
             float
                 newX1 = x1 / OG_RES_HARDCODE_X * Program.W_LARGEUR,
                 newY1 = y1 / OG_RES_HARDCODE_Y * Program.W_HAUTEUR
             ;
 
             SDL_RenderDrawPointF(renderer, newX1, newY1);
+        }
+        private static void DessinerCercle(Vector2 position, int taille, byte cotes)
+        {
+            float ang;
+            float next_ang;
+
+            for (int i = 0; i < cotes; i++)
+            {
+                // Tau = 2*Pi
+                ang = (i * MathF.Tau) / cotes;
+                next_ang = ((i + 1) * MathF.Tau) / cotes;
+
+                NouveauSDLRenderDrawLine(Program.render,
+                    position.x + taille * MathF.Sin(ang),
+                    position.y + taille * MathF.Cos(ang),
+                    position.x + taille * MathF.Sin(next_ang),
+                    position.y + taille * MathF.Cos(next_ang)
+                );
+            }
         }
     }
 
@@ -3489,7 +3511,7 @@ namespace Dysgenesis
         public override void RenderObject()
         {
             SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
-            for (int i = 0; i < curseur_data.Length - 1; i ++)
+            for (int i = 0; i < curseur_data.Length - 1; i++)
             {
                 SDL_RenderDrawLineF(Program.render,
                     CURSEUR_X_INIT + curseur_data[i].x,
@@ -3538,11 +3560,13 @@ namespace Dysgenesis
         // dessine l'explosion à l'écran
         public override void RenderObject()
         {
+            const int RAYON_MIN_EXPLOSION = 2;
+
             if (Program.player.Mort())
                 return;
 
             // division par zéro évitée dans le constructeur
-            byte rayon = (byte)(Program.G_MAX_DEPTH * 8.0f / (Program.G_MAX_DEPTH - timer) + 5);
+            byte rayon = (byte)(Program.G_MAX_DEPTH * 8.0f / (Program.G_MAX_DEPTH - timer) + RAYON_MIN_EXPLOSION);
 
             for (int i = 0; i < DENSITE_EXPLOSION; i++)
             {
@@ -3721,9 +3745,6 @@ namespace Dysgenesis
                         volume++;
                     if (Program.TouchePesee(Touches.MINUS) && volume > 0)
                         volume--;
-
-                    if (musique == IntPtr.Zero)
-                        return;
 
                     // le jeu utilise 0 à MAX_VOLUME_GUI, SDL utilise 0 à 128
                     volume_SDL = (int)(MIX_MAX_VOLUME * (volume / (float)MAX_VOLUME_GUI));

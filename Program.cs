@@ -50,10 +50,10 @@ namespace Dysgenesis
         GAMEPLAY,
         ARCADE,
         CUTSCENE_INTRO,
-        CUTSCENE_START,
-        CUTSCENE_BAD_END,
-        CUTSCENE_GOOD_END,
-        CREDITS
+        CUTSCENE_NOUVELLE_PARTIE,
+        CUTSCENE_MAUVAISE_FIN,
+        CUTSCENE_BONNE_FIN,
+        CUTSCENE_GENERIQUE
     }
     public enum Touches
     {
@@ -130,9 +130,11 @@ namespace Dysgenesis
         // DEBUG VARS
         static byte debug_fps_count = 0, debug_fps_count_display = 0;
         static long debug_fps_time = DateTime.Now.Ticks;
-        public static bool mute_sound = false, free_items = true, cutscene_skip = false,
-                           show_fps = false, monologue_skip = true, lvl_select = false,
-                           fps_unlock = false, crashtest = false, fullscreen = true;
+        // en temps normal, toutes ces variables sont à faux sauf fullscreen
+        public static bool mute_sound = false, free_items = false, partial_cutscene_skip = false,
+                           show_fps = false, monologue_skip = false, lvl_select = false,
+                           fps_unlock = false, crashtest = false, fullscreen = false,
+                           taille_ecran_dynamique = false, true_cutscene_skip = false;
 
         // point d'entrée du code
         static void Main()
@@ -187,6 +189,7 @@ namespace Dysgenesis
             SDL_Quit();
         }
 
+
         // initializer SDL et tout les objets
         static int Init()
         {
@@ -196,8 +199,48 @@ namespace Dysgenesis
             if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
                 return 1;
 
-            window = SDL_CreateWindow(W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 400, 400,//DEBUG
-                fullscreen ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP : 0 | SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+            //TODO: threading
+            /*//static void VerifierFenetreBougee()
+            //{
+            //    while (true)
+            //        while (SDL_PollEvent(out e) == 1)
+            //        {
+            //            if (e.type == SDL_EventType.SDL_WINDOWEVENT)
+            //                if (e.window.windowEvent == SDL_WindowEventID.SDL_WINDOWEVENT_MOVED)
+            //                {
+            //                    Son.ArreterMusique();
+            //                }
+            //        }
+            //}
+            //ThreadStart ts = VerifierFenetreBougee;
+            //Thread t = new Thread(ts);
+            //t.Start();*/
+
+            // ce jeu à été très hardcodé à 1920x1080 quand je l'ai fait, mais j'ai pu quaisiment tout enlever des limites.
+            // malheureusement, il y a toujours des problèmes avec les scènes, alors c'est mieux de pas les montrer à des écrans trop petits
+            SDL_Rect taille_ecran;
+            SDL_GetDisplayBounds(0, out taille_ecran);
+            taille_ecran = new SDL_Rect() { w = 1280, h = 960 };//DEBUG
+            // si écran trop grand, limite-le
+            if (taille_ecran.w > 1920 || taille_ecran.h > 1080)
+            {
+                fullscreen = false;
+            }
+            // si l'écran est trop petit, ne montre pas les scènes
+            else if (taille_ecran.w < 1920 || taille_ecran.h < 1080)
+            {
+                partial_cutscene_skip = true;
+                W_LARGEUR = taille_ecran.w;
+                W_HAUTEUR = taille_ecran.h;
+                W_SEMI_LARGEUR = W_LARGEUR / 2;
+                W_SEMI_HAUTEUR = W_HAUTEUR / 2;
+            }
+
+            window = SDL_CreateWindow(W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W_LARGEUR, W_HAUTEUR,
+                (fullscreen ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP : 0) |
+                SDL_WindowFlags.SDL_WINDOW_SHOWN | 
+                (taille_ecran_dynamique ? SDL_WindowFlags.SDL_WINDOW_RESIZABLE : 0)
+            );
             render = SDL_CreateRenderer(window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
             SDL_PollEvent(out e);
 
@@ -215,6 +258,7 @@ namespace Dysgenesis
 
             //SaveLoad.Load();
             SDL_ShowCursor((int)SDL_bool.SDL_FALSE);
+
             return 0;
         }
 
@@ -349,13 +393,19 @@ namespace Dysgenesis
         static void Code()
         {
             // ajuster les valeures pour la taille de la fenêtre
-            // TODO: enlever et fixer à fullscreen
-            SDL_GetWindowSize(window, out W_LARGEUR, out W_HAUTEUR);
-            W_SEMI_HAUTEUR = W_HAUTEUR / 2;
-            W_SEMI_LARGEUR = W_LARGEUR / 2;
-            //Text.DisplayText(W_LARGEUR + ", " + W_HAUTEUR, new(500, 500), 2);
+            if (taille_ecran_dynamique && !fullscreen)
+            {
+                SDL_GetWindowSize(window, out W_LARGEUR, out W_HAUTEUR);
+                W_SEMI_HAUTEUR = W_HAUTEUR / 2;
+                W_SEMI_LARGEUR = W_LARGEUR / 2;
+                //Text.DisplayText(W_LARGEUR + ", " + W_HAUTEUR, new(500, 500), 2);
+            }
 
             Son.ChangerVolume();
+
+            // la logique pour les scènes est fait dans le code pour les scènes
+            if (GamemodeCutscene())
+                return;
 
             if (bouger_etoiles)
                 Etoiles.Move();
@@ -403,7 +453,7 @@ namespace Dysgenesis
                             niveau = 0;
                             player.Init();
                             
-                            Gamemode = Gamemode.CUTSCENE_START;
+                            Gamemode = Gamemode.CUTSCENE_NOUVELLE_PARTIE;
                             break;
 
                         case Curseur.OptionsCurseur.CONTINUER:
@@ -447,7 +497,7 @@ namespace Dysgenesis
                     if (timer_generique >= 120)
                     {
                         Son.ArreterMusique();
-                        Gamemode = Gamemode.CREDITS;
+                        Gamemode = Gamemode.CUTSCENE_GENERIQUE;
                         return;
                     }
                 }
@@ -522,6 +572,30 @@ namespace Dysgenesis
         // important de n'éxecuter AUCUNE LOGIQUE ici.
         static void Render()
         {
+            if (GamemodeCutscene())
+            {
+                switch (Gamemode)
+                {
+                    case Gamemode.CUTSCENE_INTRO:
+                        Cutscene.Cut_0();
+                        break;
+                    case Gamemode.CUTSCENE_NOUVELLE_PARTIE:
+                        Cutscene.Cut_1();
+                        break;
+                    case Gamemode.CUTSCENE_BONNE_FIN:
+                        Cutscene.Cut_2();
+                        break;
+                    case Gamemode.CUTSCENE_MAUVAISE_FIN:
+                        Cutscene.Cut_3();
+                        break;
+                    case Gamemode.CUTSCENE_GENERIQUE:
+                        Cutscene.Cut_4();
+                        break;
+                }
+
+                return;
+            }
+
             if (GamemodeAction())
             {
                 Etoiles.Render(Etoiles.DENSITE_ETOILES);
@@ -615,8 +689,11 @@ namespace Dysgenesis
                         2
                     );
                 }
+
+                return;
             }
-            else if (Gamemode == Gamemode.TITLESCREEN)
+
+            if (Gamemode == Gamemode.TITLESCREEN)
             {
                 Etoiles.Render(Etoiles.DENSITE_ETOILES);
 
@@ -644,27 +721,6 @@ namespace Dysgenesis
 
                 curseur.RenderObject();
             }
-            else
-            {
-                switch (Gamemode)
-                {
-                    case Gamemode.CUTSCENE_INTRO:
-                        Cutscene.Cut_0();
-                        break;
-                    case Gamemode.CUTSCENE_START:
-                        Cutscene.Cut_1();
-                        break;
-                    case Gamemode.CUTSCENE_GOOD_END:
-                        Cutscene.Cut_2();
-                        break;
-                    case Gamemode.CUTSCENE_BAD_END:
-                        Cutscene.Cut_3();
-                        break;
-                    case Gamemode.CREDITS:
-                        Cutscene.Cut_4();
-                        break;
-                }
-            }            
         }
 
         // portion render qui devrait toujours rouler, de quoi que ce soit
@@ -697,10 +753,20 @@ namespace Dysgenesis
             SDL_RenderClear(render);
         }
 
-        // retourne vrai si Gamemode est un mode d'action (pas menu ou scène)
+        // retourne vrai si Gamemode est un mode d'action (pas menu ou scène), et l'autre où mode scène
         public static bool GamemodeAction()
         {
             return Gamemode == Gamemode.GAMEPLAY || Gamemode == Gamemode.ARCADE;
+        }
+        public static bool GamemodeCutscene()
+        {
+            return
+                Gamemode == Gamemode.CUTSCENE_INTRO ||
+                Gamemode == Gamemode.CUTSCENE_NOUVELLE_PARTIE ||
+                Gamemode == Gamemode.CUTSCENE_BONNE_FIN ||
+                Gamemode == Gamemode.CUTSCENE_MAUVAISE_FIN ||
+                Gamemode == Gamemode.CUTSCENE_GENERIQUE
+            ;
         }
 
         // retourne vrai si la touche spécifié est enfoncé pendant cette image

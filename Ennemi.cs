@@ -937,7 +937,7 @@ namespace Dysgenesis
 
                     if (timer > 550)
                     {
-                        Program.Gamemode = Gamemode.CUTSCENE_BAD_END;
+                        Program.Gamemode = Gamemode.CUTSCENE_MAUVAISE_FIN;
 
                         Program.enemies.Clear();
                         Program.explosions.Clear();
@@ -1121,6 +1121,8 @@ namespace Dysgenesis
         // ou le même si il n'a pas besoin de changer.
         Vector2 TrouverCible()
         {
+            const int BORD_EVITER = 100;
+            const int BAS_EVITER = 400;
             // si la taille de l'écran ou qqc d'autre cause une boucle infini, on veut éviter cela
             const int LIMITE_BOUCLE = 500;
             int anti_boucle_infini = 0;
@@ -1138,6 +1140,10 @@ namespace Dysgenesis
             {
                 return target;
             }
+
+            // si la résolution de la fenêtre est trop petite, abandonne. le joueur est déjà en misère.
+            if (Program.W_LARGEUR <= BORD_EVITER * 2 || Program.W_HAUTEUR <= BORD_EVITER + BAS_EVITER)
+                return new Vector2(Program.RNG.Next(Program.W_LARGEUR), Program.RNG.Next(Program.W_HAUTEUR));
 
             int dist_player_ennemi = Vector2.Distance(position.x, position.y, Program.player.position.x, Program.player.position.y);
             float nouveauX, nouveauY;
