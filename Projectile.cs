@@ -15,16 +15,17 @@ namespace Dysgenesis
         const float VITESSE_PROJECTILE = 0.95f;
 
         // variable statique pour s'assurer que seulement un effet sonnor de tir s'éxecute par image.
-        // quand t'as l'item qui te fait tirer 6 fois, sa commence à être vraiment bruyant...
+        // quand t'as l'item qui te fait tirer 6 fois, ca commence à être vraiment bruyant...
         public static bool son_cree = false;
 
         public Vector3 destination;
         public ProprietaireProjectile proprietaire;
-        public byte ID;//todo: enlever ID, il dit si c'est le point de tir 1 ou 2 qui l'a tiré
         public bool laser;
 
         // utilisé pour le calcul des positions de tirs ennemis sur l'écran
         float z_init;
+        //todo: enlever ID, il dit si c'est le point de tir 1 ou 2 qui l'a tiré
+        byte ID;
 
         public Projectile(Vector3 position, Vector3 destination, ProprietaireProjectile proprietaire, byte ID)
         {
@@ -141,7 +142,7 @@ namespace Dysgenesis
             // de régler cette stupide formule jusqu'à ce qu'il en aie une seule.
             // 
             // TLDR: "it just works" - Todd Howard
-            if (pos.z > dest.z)
+            if (pos.z >= dest.z)
             {
                 (pos, dest) = (dest, pos);
 
@@ -295,7 +296,7 @@ namespace Dysgenesis
             {
                 // à chaque image, attacher le bout du laser au points de tir du joueur
                 // TODO: ceci est la seule utilisation de ID, trouver comment l'enlever
-                positions = Program.player.RenderLineData(Program.player.indexs_de_tir[ID % Program.player.indexs_de_tir.Length]);
+                positions = Program.player.RenderDataLigne(Program.player.indexs_de_tir[ID % Program.player.indexs_de_tir.Length]);
                 position.x = positions[0];
                 position.y = positions[1];
 

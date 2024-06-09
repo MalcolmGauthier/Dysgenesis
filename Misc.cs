@@ -1266,7 +1266,7 @@ namespace Dysgenesis
                 Program.player.Init();
                 Program.Gamemode = Gamemode.GAMEPLAY;
                 Program.niveau = 0;
-                Program.ens_needed = (byte)Level_Data.lvl_list[Program.niveau].Length;
+                Program.ens_needed = (byte)DataNiveau.lvl_list[Program.niveau].Length;
                 Program.ens_killed = 0;
                 Program.explosions.Clear();
             }
@@ -3026,7 +3026,7 @@ namespace Dysgenesis
                 Text.DisplayText("dysgenesis", new Vector2(Text.CENTRE, 540 - extra_y * 3), 4, alpha: alpha, scroll: ((Program.gTimer - 60) / 5));
             }
             if (Program.gTimer >= 300 && Program.gTimer < 700)
-                Text.DisplayText("conception:\nmalcolm gauthier", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 300) * 3), 4, scroll: (Program.gTimer - 300) / 5);
+                Text.DisplayText("conception:\nmalcolm gauthier", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 300) * 3), 4, scroll: (Program.gTimer - 310) / 5);
             if (Program.gTimer >= 540 && Program.gTimer < 940)
                 Text.DisplayText("         modèles:\nmalcolm gauthier", new Vector2(Program.W_LARGEUR - 620, Program.W_HAUTEUR - (Program.gTimer - 540) * 3), 4, scroll: (Program.gTimer - 540) / 5);
             if (Program.gTimer >= 780 && Program.gTimer < 1180)
@@ -3081,7 +3081,7 @@ namespace Dysgenesis
                     alpha = 255;
                 Text.DisplayText("fin", new Vector2(Text.CENTRE, Text.CENTRE), 5, alpha: alpha);
                 if (Program.gTimer > 2350)
-                    Text.DisplayText("tapez \"arcade\" au menu du jeu pour accéder au mode arcade!", new Vector2(20, 1050), 2, alpha: (short)((Program.gTimer - 2350) * 10));
+                    Text.DisplayText("tapez \"arcade\" au menu du jeu pour accéder au mode arcade!", new Vector2(5, 5), 1, alpha: (short)((Program.gTimer - 2350) * 10));
             }
             #endregion
 
@@ -3267,7 +3267,7 @@ namespace Dysgenesis
                 {
                     for (int i = 0; i < 2; i++)
                     {
-                        float[] line = Program.player.RenderLineData(Program.player.indexs_de_tir[i % 2]);
+                        float[] line = Program.player.RenderDataLigne(Program.player.indexs_de_tir[i % 2]);
                         new Projectile(
                             new Vector3(line[0], line[1], Program.player.position.z),
                             new Vector3(
@@ -3394,6 +3394,10 @@ namespace Dysgenesis
 
         // les scènes ont étés hardcodés pour parraître normal à 1920 x 1080,
         // alors ces fonctions me permet de facilement remplacer les vieilles
+        //MISE À JOUR: les scènes qui devaient utiliser ces fonctions ne sont plus activées quand l'écran est trop petit,
+        // alors le fait que ces fonctions sont utilisées au lieu des officielles ne fait plus rien, car elle vont seulement êtres
+        // activées quand la fenêtre est à 1920x1080. Tu peux réactiver ces scènes pour des petits écrans en modifiant le code dans
+        // Init() dans Program, mais tout qui n'est pas une ligne, un point ou un cercle n'apparaîtera pas correctement (texte, modèles, rectangles, etc.)
         const float OG_RES_HARDCODE_X = 1920.0f;
         const float OG_RES_HARDCODE_Y = 1080.0f;
         private static void NouveauSDLRenderDrawLine(IntPtr renderer, float x1, float y1, float x2, float y2)
@@ -3450,8 +3454,8 @@ namespace Dysgenesis
         }
 
         const int CURSEUR_DAS = Program.G_FPS / 4; // Delayed Auto Shift
-        const int CURSEUR_X_INIT = 810;
-        const int CURSEUR_Y_INIT = 625;
+        readonly int CURSEUR_X_INIT;
+        readonly int CURSEUR_Y_INIT;
         const int CURSEUR_ESPACE = 50;
         readonly int NB_OPTIONS = Enum.GetNames(typeof(OptionsCurseur)).Length;
         readonly Vector3[] curseur_data =
@@ -3470,6 +3474,8 @@ namespace Dysgenesis
         public Curseur()
         {
             modele = curseur_data;
+            CURSEUR_X_INIT = Program.W_SEMI_LARGEUR - 150;
+            CURSEUR_Y_INIT = Program.W_SEMI_HAUTEUR + 85;
         }
 
         // code curseur, retourne vrai si option sélectionnée
@@ -3602,7 +3608,7 @@ namespace Dysgenesis
         {
             x = Program.W_LARGEUR - 360,
             y = 10,
-            w = Program.W_HAUTEUR - 730,
+            w = 350,
             h = 100
         }; // ne peut pas être readonly, RenderRect n'aime pas ca
 

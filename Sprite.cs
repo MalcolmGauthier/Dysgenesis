@@ -50,7 +50,7 @@ namespace Dysgenesis
                 grandeure_ligne * (sinroll * -modele[line_index + 1].x + cosroll * -modele[line_index + 1].y) + position.y + modele[line_index + 1].z * pitch
             };
         }
-        public float[] RenderLineData(int line_index)
+        public float[] RenderDataLigne(int line_index)
         {
             return PositionLigneModele(line_index, modele);
         }

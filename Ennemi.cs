@@ -1,6 +1,4 @@
-﻿using System;
-using System.Numerics;
-using static SDL2.SDL;
+﻿using static SDL2.SDL;
 
 namespace Dysgenesis
 {
@@ -69,9 +67,9 @@ namespace Dysgenesis
         const int NB_TYPES_ENNEMIS = 17;
         const int BOSS_MAX_HP = 150;
         const int DISTANCE_DE_BORD_EVITER_INIT = 200;
-        const float VITESSE_MOYENNE_ENNEMI = 1f;
+        const float VITESSE_MOYENNE_ENNEMI = 0.4f;
         const float VITESSE_MOYENNE_Z_ENNEMI = 2.5f;
-        const float VITESSE_MOYENNE_TIR_ENNEMI = 1f;
+        const float VITESSE_MOYENNE_TIR_ENNEMI = 0.2f;
         const float ENNEMI_FRICTION = 0.8f;
 
         // Data pour ennemi, est seulement utilisé pour le dictionnaire dessous
@@ -394,7 +392,7 @@ namespace Dysgenesis
             { TypeEnnemi.ENERGIE, new EnnemiData()
             {
                 vitesse = 0,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI / 1.5f,
                 vitesse_tir = 0,
                 hp_max = 10,
                 largeur = 50,
@@ -471,7 +469,7 @@ namespace Dysgenesis
 
             { TypeEnnemi.TOURNANT_DUR, new EnnemiData()
             {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 2,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 1.0f,
                 vitesse_z = VITESSE_MOYENNE_Z_ENNEMI,
                 vitesse_tir = 2 * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = 7,
@@ -485,7 +483,7 @@ namespace Dysgenesis
             { TypeEnnemi.ENERGIE_DUR, new EnnemiData()
             {
                 vitesse = VITESSE_MOYENNE_ENNEMI / 2,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 1.5f,
                 vitesse_tir = 1 * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = 15,
                 largeur = 50,
@@ -536,9 +534,9 @@ namespace Dysgenesis
 
             { TypeEnnemi.BOSS, new EnnemiData()
             {
-                vitesse = VITESSE_MOYENNE_ENNEMI * 1.25f,
+                vitesse = VITESSE_MOYENNE_ENNEMI * 4f,
                 vitesse_z = 0,
-                vitesse_tir = 0.5f * VITESSE_MOYENNE_TIR_ENNEMI,
+                vitesse_tir = 3f * VITESSE_MOYENNE_TIR_ENNEMI,
                 hp_max = BOSS_MAX_HP,
                 largeur = 100,
                 couleure = Program.RGBAtoSDLColor(0xFF0000FF),
@@ -550,7 +548,7 @@ namespace Dysgenesis
             { TypeEnnemi.PATRA_MINION, new EnnemiData()
             {
                 vitesse = VITESSE_MOYENNE_ENNEMI,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 1.0f,
                 vitesse_tir = 0,
                 hp_max = 1,
                 largeur = 30,
@@ -563,7 +561,7 @@ namespace Dysgenesis
             { TypeEnnemi.PATRA_MINION_DUR, new EnnemiData()
             {
                 vitesse = VITESSE_MOYENNE_ENNEMI,
-                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 2,
+                vitesse_z = VITESSE_MOYENNE_Z_ENNEMI * 1.5f,
                 vitesse_tir = 0,
                 hp_max = 1,
                 largeur = 30,
@@ -639,9 +637,25 @@ namespace Dysgenesis
             {
                 this.statut = StatusEnnemi.PATRA_8_RESTANT;
             }
-            else if ((type == TypeEnnemi.DUPLIQUEUR || type == TypeEnnemi.DUPLIQUEUR_DUR) && statut == StatusEnnemi.INITIALIZATION)
+            else if (type == TypeEnnemi.DUPLIQUEUR || type == TypeEnnemi.DUPLIQUEUR_DUR)
             {
-                this.statut = StatusEnnemi.DUPLIQUEUR_2_RESTANT;
+                switch (statut)
+                {
+                    case StatusEnnemi.DUPLIQUEUR_0_RESTANT:
+                        HP /= 4;
+                        taille *= 0.5f;
+                        break;
+
+                    case StatusEnnemi.DUPLIQUEUR_1_RESTANT:
+                        HP /= 2;
+                        taille *= 0.75f;
+                        break;
+
+                    // les dupliqueurs sont initializés avec StatusEnnemi.INITIALIZATION
+                    default:
+                        this.statut = StatusEnnemi.DUPLIQUEUR_2_RESTANT;
+                        break;
+                }
             }
             // pas else, car l'ennemi peut être initializé avec un statut autre que init, et c'est important de le garder
             else if (statut == StatusEnnemi.INITIALIZATION)
@@ -965,7 +979,7 @@ namespace Dysgenesis
                     {
                         statut = StatusEnnemi.BOSS_INIT_3;
                         timer = 0;
-                        Program.player.velocity.y = -10;
+                        Program.player.velocite.y = -10;
                         Program.bouger_etoiles = false;
                     }
 
@@ -979,14 +993,27 @@ namespace Dysgenesis
                         timer = 1021;
 
                     if (timer < 240)
-                        Text.DisplayText("allo pilote. ton vaisseau n'est pas le seul.", new Vector2(300, 800), 3, scroll: timer / 2);
+                    {
+                        Text.DisplayText("allo pilote. ton vaisseau n'est pas le seul.", 
+                            new Vector2(Text.CENTRE, Program.W_SEMI_HAUTEUR + 250), 2, scroll: timer / 2);
+                    }
                     else if (timer >= 260 && timer < 480)
-                        Text.DisplayText("un espion nous a transféré les plans.", new Vector2(300, 800), 3, scroll: timer / 2 - 130);
+                    {
+                        Text.DisplayText("un espion nous a transféré les plans.", 
+                            new Vector2(Text.CENTRE, Program.W_SEMI_HAUTEUR + 250), 2, scroll: timer / 2 - 130);
+                    }
                     else if (timer >= 500 && timer < 800)
-                        Text.DisplayText("la bombe à pulsar est très puissante, et\n" +
-                            "encore plus fragile. je ne peux pas te laisser près d'elle.", new Vector2(300, 800), 3, scroll: timer / 2 - 250);
+                    {
+                        Text.DisplayText("la bombe à pulsar est très puissante, et", 
+                            new Vector2(Text.CENTRE, Program.W_SEMI_HAUTEUR + 250), 2, scroll: timer / 2 - 250);
+                        Text.DisplayText("encore plus fragile. je ne peux pas te laisser près d'elle.",
+                            new Vector2(Text.CENTRE, Program.W_SEMI_HAUTEUR + 288), 2, scroll: timer / 2 - 290);
+                    }
                     else if (timer >= 820 && timer < 1020)
-                        Text.DisplayText("que le meilleur pilote gagne. en guarde.", new Vector2(300, 800), 3, scroll: timer / 2 - 410);
+                    {
+                        Text.DisplayText("que le meilleur pilote gagne. en guarde.", 
+                            new Vector2(Text.CENTRE, Program.W_SEMI_HAUTEUR + 250), 2, scroll: timer / 2 - 410);
+                    }
 
                     // effet sonnore qui fait que la musique ne commence pas d'un coup
                     if (timer == 886)
@@ -1048,8 +1075,6 @@ namespace Dysgenesis
                 return 0;
             }
 
-            statut = StatusEnnemi.MORT;
-
             if (type == TypeEnnemi.BOSS)
             {
                 statut = StatusEnnemi.BOSS_MORT;
@@ -1060,6 +1085,7 @@ namespace Dysgenesis
 
             if (type == TypeEnnemi.PATRA_MINION || type == TypeEnnemi.PATRA_MINION_DUR)
             {
+                statut = StatusEnnemi.MORT;
                 return 1;
             }
 
@@ -1075,10 +1101,12 @@ namespace Dysgenesis
                 position.x -= DUPLIQUEUR_DISTANCE_SEPARATION_ENFANT * 2;
                 new Ennemi(type, nouveau_status, this);
 
+                statut = StatusEnnemi.MORT;
                 return 1;
             }
 
             // code pour les ennemis normaux qui peuvent lâcher un item
+            statut = StatusEnnemi.MORT;
             Program.ens_killed++;
             new Item(this);
             return 1;
@@ -1253,14 +1281,27 @@ namespace Dysgenesis
             if (position.z < Program.G_MAX_DEPTH / 4)
                 return;
 
-            float[] line_data;
+            float[] data_ligne;
             for (byte i = 0; i < indexs_de_tir.Length; i++)
             {
                 // indexs_de_tir = id de ligne du modèle auquel le bout est le point de tir
-                line_data = RenderLineData(indexs_de_tir[i]);
+                data_ligne = RenderDataLigne(indexs_de_tir[i]);
+
+                Vector3 cible = Program.player.position;
+                // ce code fait que la cible est non où le joueur est, mais où il VA être.
+                // bien sûr, donner ceci à tous les ennemis rendrait le jeu beaucoup trop dur, alors c'est seulement pour le boss.
+                if (type == TypeEnnemi.BOSS)
+                {
+                    cible = new Vector3(
+                        Program.player.position.x + Program.player.velocite.x * position.z,
+                        Program.player.position.y + Program.player.velocite.y * position.z, 
+                        Program.player.position.z
+                    );
+                }
+
                 new Projectile(
-                    new Vector3(line_data[0], line_data[1], position.z),
-                    Program.player.position,
+                    new Vector3(data_ligne[0], data_ligne[1], position.z),
+                    cible,
                     ProprietaireProjectile.ENNEMI,
                     i
                 );

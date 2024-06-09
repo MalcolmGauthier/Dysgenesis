@@ -3,6 +3,7 @@
  Beta v0.3
  */
 using static SDL2.SDL;
+#pragma warning disable CS8618 // J'AI CRÉÉ LES OBJETS DANS LE FUCKING CONSTRUCTEUR, ARRÊTE DE CHIÂLER
 
 namespace Dysgenesis
 {
@@ -75,10 +76,10 @@ namespace Dysgenesis
     public static class Program
     {
         const string W_TITLE = "Dysgenesis";
-        public static int W_HAUTEUR = 1080;
-        public static int W_LARGEUR = 1920;
-        public static int W_SEMI_HAUTEUR = W_HAUTEUR / 2;
-        public static int W_SEMI_LARGEUR = W_LARGEUR / 2;
+        public static int W_HAUTEUR { get; private set; } = 1080;
+        public static int W_LARGEUR { get; private set; } = 1920;
+        public static int W_SEMI_HAUTEUR { get; private set; } = W_HAUTEUR / 2;
+        public static int W_SEMI_LARGEUR { get; private set; } = W_LARGEUR / 2;
         public const int G_FPS = 60;
         public const int G_MAX_DEPTH = 50;
 
@@ -92,13 +93,12 @@ namespace Dysgenesis
         static SDL_Event e;
         public static SDL_Color couleure_fond_ecran = new SDL_Color() { r = 0, g = 0, b = 0, a = 255 };
 
-        public static Player player = new();
-        public static Curseur curseur = new();
-        //public static BombePulsar bombe = new();
-        public static List<Ennemi> enemies = new(30);
-        public static List<Item> items = new(10);
-        public static List<Projectile> projectiles = new(50);
-        public static List<Explosion> explosions = new(10);
+        public static Player player;
+        public static Curseur curseur;
+        public static List<Ennemi> enemies;
+        public static List<Item> items;
+        public static List<Projectile> projectiles;
+        public static List<Explosion> explosions;
         public static Random RNG = new();
 
         public static Gamemode Gamemode
@@ -132,7 +132,7 @@ namespace Dysgenesis
         static long debug_fps_time = DateTime.Now.Ticks;
         // en temps normal, toutes ces variables sont à faux sauf fullscreen
         public static bool mute_sound = false, free_items = false, partial_cutscene_skip = false,
-                           show_fps = false, monologue_skip = false, lvl_select = false,
+                           show_fps = false, monologue_skip = true, lvl_select = false,
                            fps_unlock = false, crashtest = false, fullscreen = false,
                            taille_ecran_dynamique = false, true_cutscene_skip = false;
 
@@ -189,7 +189,6 @@ namespace Dysgenesis
             SDL_Quit();
         }
 
-
         // initializer SDL et tout les objets
         static int Init()
         {
@@ -242,27 +241,34 @@ namespace Dysgenesis
                 (taille_ecran_dynamique ? SDL_WindowFlags.SDL_WINDOW_RESIZABLE : 0)
             );
             render = SDL_CreateRenderer(window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
-            SDL_PollEvent(out e);
 
+            // active la transparence
             if (SDL_SetRenderDrawBlendMode(render, SDL_BlendMode.SDL_BLENDMODE_BLEND) != 0)
                 return 2;
+
+            SDL_ShowCursor((int)SDL_bool.SDL_FALSE);
 
             SDL_SetRenderDrawColor(render, couleure_fond_ecran.r, couleure_fond_ecran.g, couleure_fond_ecran.b, couleure_fond_ecran.a);
             SDL_RenderPresent(render);
 
-            Etoiles.Spawn(new SDL_Rect() { x = 0, y = 0, w = W_LARGEUR, h = W_HAUTEUR }, Etoiles.DENSITE_ETOILES);
-            frame_time = DateTime.Now.Ticks;
-
             if (Son.InitSDLMixer() != 0)
                 return 3;
 
-            //SaveLoad.Load();
-            SDL_ShowCursor((int)SDL_bool.SDL_FALSE);
+            Etoiles.Spawn(new SDL_Rect() { x = 0, y = 0, w = W_LARGEUR, h = W_HAUTEUR }, Etoiles.DENSITE_ETOILES);
+            frame_time = DateTime.Now.Ticks;
+
+            player = new Player();
+            curseur = new Curseur();
+            enemies = new List<Ennemi>(30);
+            items = new List<Item>(10);
+            projectiles = new List<Projectile>(50);
+            explosions = new List<Explosion>(10);
 
             return 0;
         }
 
         // mettre à jour les valeures pour touches pesées
+        //TODO: threading pour détection de mouvement de fenêtre
         static void Controlls()
         {
             while (SDL_PollEvent(out e) == 1)
@@ -272,6 +278,7 @@ namespace Dysgenesis
                     case SDL_EventType.SDL_QUIT:
                         exit = true;
                         break;
+
                     case SDL_EventType.SDL_KEYDOWN:
                         switch (e.key.keysym.sym)
                         {
@@ -395,7 +402,11 @@ namespace Dysgenesis
             // ajuster les valeures pour la taille de la fenêtre
             if (taille_ecran_dynamique && !fullscreen)
             {
-                SDL_GetWindowSize(window, out W_LARGEUR, out W_HAUTEUR);
+                // on ne peut pas mettre W_LARGEUR et W_HAUTUER directement, car une propriété ne peut pas être une référence
+                int w, h;
+                SDL_GetWindowSize(window, out w, out h);
+                W_LARGEUR = w;
+                W_HAUTEUR = h;
                 W_SEMI_HAUTEUR = W_HAUTEUR / 2;
                 W_SEMI_LARGEUR = W_LARGEUR / 2;
                 //Text.DisplayText(W_LARGEUR + ", " + W_HAUTEUR, new(500, 500), 2);
@@ -463,7 +474,7 @@ namespace Dysgenesis
                             // ment au jeu en dissant que tout les ennemis sont morts pour pouvoir
                             // rejouer l'animation qui dit le niveau
                             niveau = nv_continue - 1;
-                            ens_killed = Level_Data.lvl_list[niveau].Length;
+                            ens_killed = DataNiveau.lvl_list[niveau].Length;
                             ens_needed = 0;
 
                             player.Init();
@@ -540,9 +551,9 @@ namespace Dysgenesis
                 int verif = enemies.Count;
 
                 if (Gamemode == Gamemode.GAMEPLAY)
-                    new Ennemi(Level_Data.lvl_list[niveau][ens_needed - 1], StatusEnnemi.INITIALIZATION);
+                    new Ennemi(DataNiveau.lvl_list[niveau][ens_needed - 1], StatusEnnemi.INITIALIZATION);
                 else
-                    new Ennemi(Level_Data.arcade_ens[ens_needed - 1], StatusEnnemi.INITIALIZATION);
+                    new Ennemi(DataNiveau.arcade_ens[ens_needed - 1], StatusEnnemi.INITIALIZATION);
 
                 // vérifie si un ennemi a bien été créé avent de décrementer le nb d'ennemis à créér
                 if (enemies.Count > verif)
@@ -552,10 +563,10 @@ namespace Dysgenesis
             // vérifie si niveau complété
             if (enemies.Count == 0)
             {
-                if ((Gamemode == Gamemode.GAMEPLAY && ens_killed >= Level_Data.lvl_list[niveau].Length) ||
-                    (Gamemode == Gamemode.ARCADE && ens_killed >= Level_Data.arcade_ens.Length))
+                if ((Gamemode == Gamemode.GAMEPLAY && ens_killed >= DataNiveau.lvl_list[niveau].Length) ||
+                    (Gamemode == Gamemode.ARCADE && ens_killed >= DataNiveau.arcade_ens.Length))
                 {
-                    Level_Data.ChangerNiveau();
+                    DataNiveau.ChangerNiveau();
                 }
             }
 
@@ -685,7 +696,7 @@ namespace Dysgenesis
                         "wasd pour bouger\n" +
                         "j pour tirer\n" +
                         "k pour activer une vague électrique",
-                        new Vector2(Program.W_SEMI_LARGEUR - 300, Program.W_SEMI_HAUTEUR + 400),
+                        new Vector2(Program.W_SEMI_LARGEUR - 300, Program.W_SEMI_HAUTEUR + 100),
                         2
                     );
                 }
@@ -709,7 +720,7 @@ namespace Dysgenesis
                     new Vector2(10, Program.W_HAUTEUR - 40), 1);
 
                 Text.DisplayText("v 0.3 (beta)",
-                    new Vector2(Text.CENTRE, Program.W_HAUTEUR - 30), 2);
+                    new Vector2(Program.W_LARGEUR - 200, Program.W_HAUTEUR - 30), 2);
 
                 if (curseur.curseur_max_selection >= 2)
                     Text.DisplayText("continuer: niveau " + nv_continue,
@@ -832,7 +843,8 @@ namespace Dysgenesis
             };
         }
 
-        // écran à montrer si le jeu plante. ce code-ci ne devrait jamais donner d'erreure, mais il y a un try finally quand même.
+        // écran à montrer si le jeu plante. ce code-ci ne devrait jamais donner d'erreure
+        // si SDL est initializé, mais il y a un try finally quand même.
         public static void CrashReport(Exception e)
         {
             try
@@ -850,9 +862,14 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
                 SDL_RenderPresent(render);
                 // ne fait absolument rien sauf vérifier quand le joueur pèse la touche échapper
+                //TODO: ajouter limite à boucle
                 while (!exit)
                 {
                     SDL_PollEvent(out Program.e);
+
+                    if (Program.e.type == SDL_EventType.SDL_QUIT)
+                        exit = true;
+
                     if (Program.e.type == SDL_EventType.SDL_KEYDOWN)
                         if (Program.e.key.keysym.sym == SDL_Keycode.SDLK_ESCAPE)
                             exit = true;

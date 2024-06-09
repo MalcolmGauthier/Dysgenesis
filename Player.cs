@@ -77,7 +77,7 @@ namespace Dysgenesis
         };
         public static readonly int[] MODELE_P_SAUTS = { -1 };
 
-        public Vector2 velocity;
+        public Vector2 velocite;
         public TypeItem powerup = TypeItem.NONE;
 
         public float vagues = 0;
@@ -127,7 +127,7 @@ namespace Dysgenesis
             vagues = JOUEUR_MAX_VAGUES;
             // ces deux lignes sont fait pourque le joueur commence le jeu en volant très vite du bas de l'écran, comme si il arrivait
             position = new Vector3(Program.W_SEMI_LARGEUR, Program.W_HAUTEUR, 0);
-            velocity = new Vector2(0, -30);
+            velocite = new Vector2(0, -30);
             afficher = true;
             pitch = 0;
             roll = 0;
@@ -171,7 +171,7 @@ namespace Dysgenesis
             for (int i = 0; i < iterations; i++)
             {
                 // la moitié des tirs se font du point de tir 1, l'autre moitié du point de tir 2
-                float[] line = RenderLineData(indexs_de_tir[i % indexs_de_tir.Length]);
+                float[] line = RenderDataLigne(indexs_de_tir[i % indexs_de_tir.Length]);
                 indexs.Add(new Projectile(
                     new Vector3(line[0], line[1], position.z),
                     // destination du projectile
@@ -276,6 +276,7 @@ namespace Dysgenesis
 
             if (timer > IMAGES_AVANT_TEXTE)
             {
+                //BUG: à cause que le texte est dessiné dans Program.Code(), le reste du jeu sera dessiné par dessus le texte dans Program.Render()
                 Text.DisplayText("game over",
                     new Vector2(Text.CENTRE, Text.CENTRE), 5, Text.BLANC, timer - 120, Text.NO_SCROLL);
 
@@ -321,32 +322,32 @@ namespace Dysgenesis
 
             if (Program.TouchePesee(Touches.W))
             {
-                velocity.y -= JOUEUR_VITESSE;
+                velocite.y -= JOUEUR_VITESSE;
                 pitch += JOUEUR_PITCH_ACCELERATION;
             }
             if (Program.TouchePesee(Touches.A))
             {
-                velocity.x -= JOUEUR_VITESSE;
+                velocite.x -= JOUEUR_VITESSE;
                 roll -= JOUEUR_ROLL_ACCELERATION;
             }
             if (Program.TouchePesee(Touches.S))
             {
-                velocity.y += JOUEUR_VITESSE;
+                velocite.y += JOUEUR_VITESSE;
                 pitch -= JOUEUR_PITCH_ACCELERATION;
             }
             if (Program.TouchePesee(Touches.D))
             {
-                velocity.x += JOUEUR_VITESSE;
+                velocite.x += JOUEUR_VITESSE;
                 roll += JOUEUR_ROLL_ACCELERATION;
             }
 
-            velocity.x *= JOUEUR_FRICTION;
-            velocity.y *= JOUEUR_FRICTION;
+            velocite.x *= JOUEUR_FRICTION;
+            velocite.y *= JOUEUR_FRICTION;
             pitch = (pitch - JOUEUR_PITCH_CONSTANT) * JOUEUR_PITCH_FRICTION + JOUEUR_PITCH_CONSTANT;
             roll *= JOUEUR_ROLL_FRICTION;
 
-            position.x += velocity.x;
-            position.y += velocity.y;
+            position.x += velocite.x;
+            position.y += velocite.y;
 
             if (position.x - JOUEUR_LARGEUR < 0)
                 position.x = JOUEUR_LARGEUR;

@@ -2,7 +2,8 @@
 
 namespace Dysgenesis
 {
-    public static class Level_Data
+    // contient le data pour les niveaux et gère les transitions de niveau en mode normal et arcade
+    public static class DataNiveau
     {
         // liste de tous les ennemis que chaque niveau contient
         public static TypeEnnemi[][] lvl_list =
@@ -44,8 +45,8 @@ namespace Dysgenesis
         // retourne la longeure de la liste crée
         static int GenererListeArcade()
         {
-            const int VARIABLITE_ENNEMI_CHOISI = 3;
-            const float RAPIDITE_DE_DIFFICULTE = 5.0f;
+            const int VARIABLITE_ENNEMI_CHOISI = 2;
+            const float RAPIDITE_DE_DIFFICULTE = 8.0f; // +grand = moins rapide, ne pas mettre négatif!
 
             if (Program.niveau < 0)
                 return 0;
@@ -54,9 +55,8 @@ namespace Dysgenesis
             // formule magique
             arcade_ens = new TypeEnnemi[(int)MathF.Sqrt(Program.niveau * 10) + 2]; // overflow à niveau 214748365
 
-            // i = index ennemi à créér
             int next_entry;
-            // https://www.desmos.com/calculator/c7nlh1k17t
+            // https://www.desmos.com/calculator/c7nlh1k17t formule moins magique
             int formule = (int)(ennemis_valides_arcade.Length * Program.niveau / (Program.niveau + RAPIDITE_DE_DIFFICULTE));
             for (int i = 0; i < arcade_ens.Length; i++)
             {
