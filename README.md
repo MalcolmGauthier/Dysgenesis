@@ -7,3 +7,5 @@ Ce jeu est fait dans SDL, et ne contient aucune texture ou image. Tout est dessi
 Ce jeu est fait pour être joué en 1920 x 1080, mais c'est aussi possible de jouer à des résolution un peu plus petites.
 
 Les contrôles globaux fonctioneront toujours et sont écrits au menu du jeu, mais je vais les répéter ici: +/- pour ajuster le volume, et échapp. pour quitter.
+
+Le texte du jeu est tout écrit en anglais, mais je vais probablement ajouter une option pour français bientôt.
