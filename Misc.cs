@@ -1498,6 +1498,7 @@ namespace Dysgenesis
                 }
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
+		    Program.explosions[i].RenderObjet();
                     if (Program.explosions[i].Exist())
                         i--;
                 }
