@@ -6,7 +6,7 @@ namespace Dysgenesis
     public static class DataNiveau
     {
         // liste de tous les ennemis que chaque niveau contient
-        public static TypeEnnemi[][] lvl_list =
+        public static TypeEnnemi[][] liste_niveaux =
         {
             new TypeEnnemi[] { }, // niveau 0
             new TypeEnnemi[] { TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON }, // niveau 1
@@ -37,7 +37,7 @@ namespace Dysgenesis
             TypeEnnemi.OCTAHEDRON_DUR, TypeEnnemi.DIAMANT_DUR, TypeEnnemi.TOURNANT_DUR, TypeEnnemi.ENERGIE_DUR, TypeEnnemi.CROISSANT_DUR, TypeEnnemi.DUPLIQUEUR_DUR, TypeEnnemi.PATRA_DUR
         };
 
-        public static TypeEnnemi[] arcade_ens = Array.Empty<TypeEnnemi>();
+        public static TypeEnnemi[] liste_ennemis_arcade = Array.Empty<TypeEnnemi>();
 
         static int timer;
 
@@ -53,21 +53,21 @@ namespace Dysgenesis
 
             // nb d'ennemis à tuer pour le prochain niveau
             // formule magique
-            arcade_ens = new TypeEnnemi[(int)MathF.Sqrt(Program.niveau * 10) + 2]; // overflow à niveau 214748365
+            liste_ennemis_arcade = new TypeEnnemi[(int)MathF.Sqrt(Program.niveau * 10) + 2]; // overflow à niveau 214748365
 
             int next_entry;
             // https://www.desmos.com/calculator/c7nlh1k17t formule moins magique
             int formule = (int)(ennemis_valides_arcade.Length * Program.niveau / (Program.niveau + RAPIDITE_DE_DIFFICULTE));
-            for (int i = 0; i < arcade_ens.Length; i++)
+            for (int i = 0; i < liste_ennemis_arcade.Length; i++)
             {
                 next_entry = formule + Program.RNG.Next(-VARIABLITE_ENNEMI_CHOISI, VARIABLITE_ENNEMI_CHOISI + 1);
 
                 next_entry = Math.Clamp(next_entry, 0, ennemis_valides_arcade.Length);
 
-                arcade_ens[i] = (TypeEnnemi)next_entry;
+                liste_ennemis_arcade[i] = (TypeEnnemi)next_entry;
             }
 
-            return arcade_ens.Length;
+            return liste_ennemis_arcade.Length;
         }
 
         // animation pour changement de niveau + mise à jours des nb d'ennemis pour le prochain
@@ -96,14 +96,14 @@ namespace Dysgenesis
 
                 if (Program.Gamemode == Gamemode.GAMEPLAY)
                 {
-                    Program.ens_needed = lvl_list[Program.niveau].Length;
+                    Program.ennemis_a_creer = liste_niveaux[Program.niveau].Length;
                 }
                 else
                 {
-                    Program.ens_needed = GenererListeArcade();
+                    Program.ennemis_a_creer = GenererListeArcade();
                 }
 
-                Program.ens_killed = 0;
+                Program.ennemis_tues = 0;
             }
 
             timer++;

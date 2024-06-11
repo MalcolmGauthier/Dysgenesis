@@ -296,7 +296,7 @@ namespace Dysgenesis
         public Item(Ennemi parent)
         {
             // nombre entre 0 et 100. le plus grand le nombre, le meilleur que l'item sera
-            float roll = Program.RNG.Next(100);
+            float nb_hasard = Program.RNG.Next(100);
 
             // les items doivent êtres plus rares en mode arcade.
             byte facteur = 30;
@@ -304,40 +304,40 @@ namespace Dysgenesis
                 facteur = 40;
 
             // il est plus difficile d'avoir des items dans les premiers nivaux, et impossible d'avoir des forts
-            roll -= facteur * MathF.Pow(0.8f, Program.niveau);
+            nb_hasard -= facteur * MathF.Pow(0.8f, Program.niveau);
 
-            // debug flag
-            if (Program.free_items)
-                roll = 101;
+            // debug
+            if (Program.items_gratuit)
+                nb_hasard = 101;
 
-            // si roll est moins que 60, aucun item ne vas apparaître
-            if (roll < 60)
+            // si roll est moins que 80, aucun item ne vas apparaître
+            if (nb_hasard < 80)
                 return;
 
             type = TypeItem.NONE;
-            pitch = 1.0f;//TODO: nécéssaire?
+            //pitch = 1.0f;//TODO: nécéssaire?
             afficher = true;
             position = parent.position;
 
             // le plus grand que roll est, le meilleur l'item.
             // ces items sont ordonnées de façon pire au meilleur, trouvé en testant le jeu assez
-            if (roll < 70)
+            if (nb_hasard < 85)
                 type = TypeItem.VAGUE;
-            else if (roll < 80)
+            else if (nb_hasard < 90)
                 type = TypeItem.HP;
-            else if (roll < 85)
+            else if (nb_hasard < 92)
                 type = TypeItem.HOMING;
-            else if (roll < 90)
+            else if (nb_hasard < 94)
                 type = TypeItem.X2_SHOT;
-            else if (roll < 94)
+            else if (nb_hasard < 96)
                 type = TypeItem.LASER;
-            else if (roll < 97)
+            else if (nb_hasard < 98)
                 type = TypeItem.SPREAD;
             else
                 type = TypeItem.X3_SHOT;
 
             // le debug freeitems fait que tout les ennemis lachent un item au hasard
-            if (Program.free_items)
+            if (Program.items_gratuit)
                 type = (TypeItem)Program.RNG.Next(1, NB_TYPES_ITEM - 1);
 
             // si l'item choisi ne contient pas de data (ne devrait jamais arriver sauf si quelqu'un ajoute des nouveaux et oublie le data)
@@ -355,10 +355,10 @@ namespace Dysgenesis
         // retourne vrai si l'item est détruit
         public override bool Exist()
         {
-            if (Move() != 0)
+            if (Bouger() != 0)
                 return true;
 
-            if (CheckPlayerCollision() != 0)
+            if (VerifierCollisionJoueur() != 0)
                 return true;
 
             return false;
@@ -366,7 +366,7 @@ namespace Dysgenesis
 
         // retourne >0 si item détruit, 0 sinon
         // l'item bouge de manière exponentiellement lent vers l'écran, et dès que l'item peut être touché par le joueur, il disparaît après 2 secondes
-        int Move()
+        int Bouger()
         {
             position.z *= FACTEUR_VITESSE_ITEM;
             
@@ -388,7 +388,7 @@ namespace Dysgenesis
 
         // vérifie si le joueur touche l'item, et applique l'effet si oui.
         // retourne 1 si collision, 0 sinon
-        int CheckPlayerCollision()
+        int VerifierCollisionJoueur()
         {
             if (position.z > POS_Z_COLLISION_JOUEUR)
                 return 0;
@@ -435,7 +435,7 @@ namespace Dysgenesis
         }
 
         // dessine l'item à l'écran. la vague n'a pas de modèle, c'est juste 3 cercles.
-        public override void RenderObject()
+        public override void RenderObjet()
         {
             if (type == TypeItem.VAGUE)
             {
@@ -450,7 +450,7 @@ namespace Dysgenesis
                 return;
             }
 
-            base.RenderObject();
+            base.RenderObjet();
         }
     }
 }

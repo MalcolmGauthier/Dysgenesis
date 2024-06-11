@@ -78,7 +78,7 @@ namespace Dysgenesis
 
         // fonction pour quand le joueur a l'item qui tir vers l'ennemi le plus proche
         // modifie la destination à l'ennemi le plus proche, mais ne le change pas si aucun ennemi est trouvé
-        public void FindTarget()
+        public void TrouverCible()
         {
             if (Program.enemies.Count == 0)
                 return;
@@ -142,7 +142,7 @@ namespace Dysgenesis
             // de régler cette stupide formule jusqu'à ce qu'il en aie une seule.
             // 
             // TLDR: "it just works" - Todd Howard
-            if (pos.z >= dest.z)
+            if (proprietaire == ProprietaireProjectile.ENNEMI)
             {
                 (pos, dest) = (dest, pos);
 
@@ -256,7 +256,7 @@ namespace Dysgenesis
         }
 
         // dessine le projectile à l'écran
-        public override void RenderObject()
+        public override void RenderObjet()
         {
             if (Program.player.Mort())
                 return;
@@ -389,7 +389,7 @@ namespace Dysgenesis
                 // si l'ennemi meurt
                 if (Program.enemies[i].HP <= 0)
                 {
-                    Program.ens_killed++;
+                    Program.ennemis_tues++;
                     Program.enemies[i].afficher = false;
                     Program.enemies.RemoveAt(i);
                 }

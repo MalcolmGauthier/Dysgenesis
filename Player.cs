@@ -106,9 +106,9 @@ namespace Dysgenesis
                 return true;
             }
 
-            Move();
+            Bouger();
 
-            if (Proj_Collision() != 0)
+            if (ProjCollision() != 0)
                 return true;
 
             if (BombePulsar.HP_bombe > 0)
@@ -187,15 +187,15 @@ namespace Dysgenesis
 
             if (powerup == TypeItem.HOMING)
             {
-                indexs[0].FindTarget();
-                indexs[1].FindTarget();
+                indexs[0].TrouverCible();
+                indexs[1].TrouverCible();
             }
 
             return 1;
         }
 
         // retourne >0 si mort, 0 si vivant
-        int Proj_Collision()
+        int ProjCollision()
         {
             if (Mort())
                 return 2;
@@ -306,7 +306,7 @@ namespace Dysgenesis
         }
 
         // bouge le joueur
-        void Move()
+        void Bouger()
         {
             const float JOUEUR_FRICTION = 0.9f;
             //const float JOUEUR_MAX_PITCH = 0.5f; //inutilisé

@@ -576,13 +576,13 @@ namespace Dysgenesis
         public int HP;
 
         float intervale_tir;
-        float speed;
-        float z_speed;
+        float vitesse;
+        float vitesse_z;
 
         public TypeEnnemi type;
         public StatusEnnemi statut = StatusEnnemi.VIDE;
         Vector2 velocite;
-        Vector2 target;
+        Vector2 cible;
         // on a besoin d'un deuxième tableau pour le modèle pour pouvoir envoyer à la
         // méthode render, car le tableau modele est copié poar valeure, et on veut
         // que chaque ennemi aie un modèle qui bouge différent des autres
@@ -593,15 +593,15 @@ namespace Dysgenesis
             this.type = type;
             this.statut = statut;
             velocite = new Vector2();
-            target = new Vector2(Program.player.position.x, Program.player.position.y);
+            cible = new Vector2(Program.player.position.x, Program.player.position.y);
 
             if (!DataEnnemi.TryGetValue(type, out EnnemiData data))
                 return;
 
             largeur = data.largeur;
             HP = data.hp_max;
-            speed = data.vitesse;
-            z_speed = data.vitesse_z;
+            vitesse = data.vitesse;
+            vitesse_z = data.vitesse_z;
             indexs_de_tir = data.indexs_tir;
             intervale_tir = Program.G_FPS / data.vitesse_tir;//TODO: enlever gfps
             couleure = data.couleure;
@@ -632,6 +632,8 @@ namespace Dysgenesis
             if (type == TypeEnnemi.BOSS)
             {
                 this.statut = StatusEnnemi.BOSS_INIT;
+                // ce code est normalement éxecuté dans INIT1 après 1 image, mais on veut que le boss apparaîsse au fond immédiatement
+                position.z = 99;
             }
             else if (type == TypeEnnemi.PATRA || type == TypeEnnemi.PATRA_DUR)
             {
@@ -690,7 +692,7 @@ namespace Dysgenesis
 
             ActualiserModele();
 
-            target = TrouverCible();
+            cible = TrouverCible();
 
             for (int i = 0; i < Program.projectiles.Count; i++)
             {
@@ -698,7 +700,7 @@ namespace Dysgenesis
                     return true;
             }
 
-            if (PlayerCollision(Program.player) != 0)
+            if (CollisionJoueur(Program.player) != 0)
             {
                 return true;
             }
@@ -892,13 +894,13 @@ namespace Dysgenesis
                     if (Vector2.Distance(position.x, position.y, Program.W_SEMI_LARGEUR, Program.W_SEMI_HAUTEUR) > 30)
                     {
                         if (position.x > Program.W_SEMI_LARGEUR)
-                            position.x -= speed;
+                            position.x -= vitesse;
                         else
-                            position.x += speed;
+                            position.x += vitesse;
                         if (position.y > Program.W_SEMI_HAUTEUR)
-                            position.y -= speed;
+                            position.y -= vitesse;
                         else
-                            position.y += speed;
+                            position.y += vitesse;
                     }
                     else
                     {
@@ -1107,14 +1109,14 @@ namespace Dysgenesis
 
             // code pour les ennemis normaux qui peuvent lâcher un item
             statut = StatusEnnemi.MORT;
-            Program.ens_killed++;
+            Program.ennemis_tues++;
             new Item(this);
             return 1;
         }
 
         // code pour détecter si un ennemi touche le joueur.
         // retourne 1 si touché, 0 sinon.
-        int PlayerCollision(Player player)
+        int CollisionJoueur(Player player)
         {
             const int DOMMAGES_COLLISION_JOUEUR = 3;
 
@@ -1136,7 +1138,7 @@ namespace Dysgenesis
                 || (statut >= StatusEnnemi.PATRA_1_RESTANT && statut <= StatusEnnemi.PATRA_8_RESTANT))
                 )
             {
-                Program.ens_needed++;
+                Program.ennemis_a_creer++;
             }
 
             // tue l'ennemi
@@ -1161,12 +1163,12 @@ namespace Dysgenesis
                 return Program.player.position;
             }
 
-            int dist_ennemi_cible = Vector2.Distance(target.x, target.y, position.x, position.y);
+            int dist_ennemi_cible = Vector2.Distance(cible.x, cible.y, position.x, position.y);
 
             // si l'ennemi n'est pas à sa cible, ne la change pas
             if (dist_ennemi_cible > 30)
             {
-                return target;
+                return cible;
             }
 
             // si la résolution de la fenêtre est trop petite, abandonne. le joueur est déjà en misère.
@@ -1186,7 +1188,7 @@ namespace Dysgenesis
                     nouveauY = Program.RNG.Next(100, Program.W_HAUTEUR - 400);
 
                     if (++anti_boucle_infini > LIMITE_BOUCLE)
-                        return target;
+                        return new Vector2(Program.RNG.Next(Program.W_LARGEUR), Program.RNG.Next(Program.W_HAUTEUR));
                 }
                 while (Vector2.Distance(nouveauX, nouveauY, Program.player.position.x, Program.player.position.y) < 800);
 
@@ -1207,7 +1209,7 @@ namespace Dysgenesis
                 nouveauY = Program.RNG.Next(100, Program.W_HAUTEUR - 400);
 
                 if (++anti_boucle_infini > LIMITE_BOUCLE)
-                    return target;
+                    return new Vector2(Program.RNG.Next(Program.W_LARGEUR), Program.RNG.Next(Program.W_HAUTEUR));
 
             }
             while (Vector2.Distance(nouveauX, nouveauY, Program.player.position.x, Program.player.position.y) > 800);
@@ -1223,26 +1225,26 @@ namespace Dysgenesis
             const float MAX_PITCH = 0.25f;
 
             // mouvement avant/arrière
-            if (z_speed != 0 && position.z != 0)
+            if (vitesse_z != 0 && position.z != 0)
             {
-                position.z -= z_speed / Program.G_FPS;
+                position.z -= vitesse_z / Program.G_FPS;
 
                 if (position.z < LIM_MIN_Z_ENNEMI)
                     position.z = 0;
             }
 
             // mouvement haut/bas/gauche/droite
-            if (speed != 0)
+            if (vitesse != 0)
             {
-                if (position.x < target.x)
-                    velocite.x += speed;
-                else if (position.x > target.x)
-                    velocite.x -= speed;
+                if (position.x < cible.x)
+                    velocite.x += vitesse;
+                else if (position.x > cible.x)
+                    velocite.x -= vitesse;
 
-                if (position.y < target.y)
-                    velocite.y += speed;
-                else if (position.y > target.y)
-                    velocite.y -= speed;
+                if (position.y < cible.y)
+                    velocite.y += vitesse;
+                else if (position.y > cible.y)
+                    velocite.y -= vitesse;
 
                 velocite.x *= ENNEMI_FRICTION;
                 velocite.y *= ENNEMI_FRICTION;
@@ -1253,7 +1255,7 @@ namespace Dysgenesis
             // quand les ennemis sont à la profondeur du joueur, ils accélèrent exponentiellement pour
             // rapidement et assurément frapper le joueur
             if (position.z == 0)
-                speed *= ACCELERATION_ENNEMI_Z0;
+                vitesse *= ACCELERATION_ENNEMI_Z0;
 
             // le pitch de l'ennemi dépend de sa position verticale sur l'écran, et peux aller de +0.25 à -0.25
             pitch = ((position.y - Program.W_SEMI_HAUTEUR) / Program.W_SEMI_HAUTEUR) * MAX_PITCH;
@@ -1309,7 +1311,7 @@ namespace Dysgenesis
         }
 
         // render avec le modèle capable de bouger au lieu de celui qui est statique
-        public override void RenderObject()
+        public override void RenderObjet()
         {
             // les ennemis énergis sont les seuls à ne pas utiliser de modèle
             if (type is (TypeEnnemi.ENERGIE or TypeEnnemi.ENERGIE_DUR))

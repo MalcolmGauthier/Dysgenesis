@@ -26,14 +26,6 @@ namespace Dysgenesis
         EUGENESIS,
         DCQBPM
     }
-    public enum CutsceneIndex
-    {
-        STARTUP,
-        INTRO,
-        GOOD_END,
-        BAD_END,
-        CREDITS
-    }
 
     // classe statique qui gère la bombe pulsar, ou n'importe quoi qui à a faire avec
     // la bombe pulsar
@@ -218,7 +210,7 @@ namespace Dysgenesis
         public static List<Vector2> positions_etoiles = new();
 
         // remplit positions_etoiles avec des positions dans bounds
-        public static void Spawn(SDL_Rect bounds, int limite)
+        public static void CreerEtoiles(SDL_Rect bounds, int limite)
         {
             positions_etoiles = new List<Vector2>(limite);
 
@@ -232,7 +224,7 @@ namespace Dysgenesis
         }
 
         // bouge les étoiles, pourqu'ils vont vers le bord de l'écran
-        public static void Move()
+        public static void Bouger()
         {
             for (int i = 0; i < positions_etoiles.Count; i++)
             {
@@ -701,7 +693,7 @@ namespace Dysgenesis
 
         public static void Cut_0() // intro
         {
-            if (Program.true_cutscene_skip)
+            if (Program.cutscene_skip_complet)
                 Program.gTimer = 451;
 
             if (Program.gTimer == 75)
@@ -729,7 +721,7 @@ namespace Dysgenesis
         }
         public static void Cut_1() // new game
         {
-            if (Program.partial_cutscene_skip || Program.true_cutscene_skip)
+            if (Program.cutscene_skip_partiel || Program.cutscene_skip_complet)
                 Program.gTimer = 2101;
 
             if (Program.gTimer == 60)
@@ -870,7 +862,7 @@ namespace Dysgenesis
                 }
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
-                    Program.explosions[i].RenderObject();
+                    Program.explosions[i].RenderObjet();
                     if (Program.explosions[i].Exist())
                         i--;
                 }
@@ -1032,13 +1024,13 @@ namespace Dysgenesis
                 Program.player.pitch = 4;
                 Program.player.roll = 0;
                 Program.player.taille = 6;
-                Program.player.RenderObject();
+                Program.player.RenderObjet();
 
                 Program.player.position = new Vector3(1400, 200, 0);
                 Program.player.pitch = 0;
                 Program.player.roll = 0.25f * (float)Sin(Program.gTimer / 30f);
                 Program.player.taille = 5;
-                Program.player.RenderObject();
+                Program.player.RenderObjet();
                 #endregion
 
                 #region lignes
@@ -1228,7 +1220,7 @@ namespace Dysgenesis
                     Program.player.pitch = 0;
                     Program.player.roll = 0;
                     Program.player.taille = 2;
-                    Program.player.RenderObject();
+                    Program.player.RenderObjet();
                 }
                 if (Program.gTimer >= 1830 && Program.gTimer <= 1860)
                 {
@@ -1238,7 +1230,7 @@ namespace Dysgenesis
                         0
                     );
                     Program.player.taille = 2 * (float)Pow(0.9f, Program.gTimer - 1830);
-                    Program.player.RenderObject();
+                    Program.player.RenderObjet();
                 }
 
                 if (Program.gTimer < 1815)
@@ -1266,14 +1258,14 @@ namespace Dysgenesis
                 Program.player.Init();
                 Program.Gamemode = Gamemode.GAMEPLAY;
                 Program.niveau = 0;
-                Program.ens_needed = (byte)DataNiveau.lvl_list[Program.niveau].Length;
-                Program.ens_killed = 0;
+                Program.ennemis_a_creer = (byte)DataNiveau.liste_niveaux[Program.niveau].Length;
+                Program.ennemis_tues = 0;
                 Program.explosions.Clear();
             }
         }
         public static void Cut_2() // good end
         {
-            if (Program.partial_cutscene_skip || Program.true_cutscene_skip)
+            if (Program.cutscene_skip_partiel || Program.cutscene_skip_complet)
                 Program.gTimer = 2401;
 
             if (Program.gTimer == 60)
@@ -1313,7 +1305,7 @@ namespace Dysgenesis
                 Program.player.pitch = 0.7f;
                 Program.player.roll = 0.8f;
                 Program.player.taille = 2;
-                Program.player.RenderObject();
+                Program.player.RenderObjet();
                 #endregion
 
                 #region enemy 15
@@ -2146,7 +2138,7 @@ namespace Dysgenesis
         }
         public static void Cut_3() // bad end
         {
-            if (Program.partial_cutscene_skip || Program.true_cutscene_skip)
+            if (Program.cutscene_skip_partiel || Program.cutscene_skip_complet)
                 Program.gTimer = 1861;
 
             if (Program.gTimer == 60)
@@ -2185,7 +2177,7 @@ namespace Dysgenesis
                 Program.player.pitch = 0.7f;
                 Program.player.roll = 0.8f;
                 Program.player.taille = 2;
-                Program.player.RenderObject();
+                Program.player.RenderObjet();
                 #endregion
 
                 #region enemy 15
@@ -2215,7 +2207,7 @@ namespace Dysgenesis
                 #endregion
 
                 #region pulsar bomb
-                BombePulsar.DessinerBombePulsar(new Vector2(1522, 264), 133, true);
+                BombePulsar.DessinerBombePulsar(new Vector2(1522, 264), 133, false);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
                 NouveauSDLRenderDrawLine(Program.render, 1463, 144, 1445, 97);
@@ -2758,7 +2750,7 @@ namespace Dysgenesis
             {
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
-                    Program.explosions[i].RenderObject();
+                    Program.explosions[i].RenderObjet();
                     if (Program.explosions[i].Exist())
                         i--;
                 }
@@ -2855,7 +2847,7 @@ namespace Dysgenesis
 
                 for (int i = 0; i < Program.explosions.Count; i++)
                 {
-                    Program.explosions[i].RenderObject();
+                    Program.explosions[i].RenderObjet();
                     if (Program.explosions[i].Exist())
                         i--;
                 }
@@ -3002,7 +2994,7 @@ namespace Dysgenesis
         }
         public static void Cut_4() // generique
         {
-            if (Program.true_cutscene_skip)
+            if (Program.cutscene_skip_complet)
                 Program.gTimer = 2601;
 
             if (Program.gTimer == 60)
@@ -3096,7 +3088,7 @@ namespace Dysgenesis
                     Program.player.roll = (Program.gTimer - 440) * (float)(PI / 10) + 0.3f;
                 else
                     Program.player.roll = (500 - Program.gTimer) * (float)(PI / 300);
-                Program.player.RenderObject();
+                Program.player.RenderObjet();
             }
             else if (Program.gTimer >= 600 && Program.gTimer < 900)
             {
@@ -3224,7 +3216,7 @@ namespace Dysgenesis
                 else
                     alpha = 255;
                 Program.player.couleure.a = alpha;
-                Program.player.RenderObject();
+                Program.player.RenderObjet();
             }
 
             if (Program.gTimer >= 1600 && Program.gTimer < 1750)
@@ -3261,7 +3253,7 @@ namespace Dysgenesis
                     Program.player.position.y = 750;
                 }
                 Program.player.position.x = 2050 - (Program.gTimer - 1770) * 30;
-                Program.player.RenderObject();
+                Program.player.RenderObjet();
 
                 if (Program.gTimer == 1805)
                 {
@@ -3302,19 +3294,19 @@ namespace Dysgenesis
 
             foreach (Ennemi e in Program.enemies)
             {
-                e.RenderObject();
+                e.RenderObjet();
                 e.ActualiserModele();
                 e.timer++;
             }
             for (int i = 0; i < Program.explosions.Count; i++)
             {
-                Program.explosions[i].RenderObject();
+                Program.explosions[i].RenderObjet();
                 if (Program.explosions[i].Exist())
                     i--;
             }
             for (int i = 0; i < Program.projectiles.Count; i++)
             {
-                Program.projectiles[i].RenderObject();
+                Program.projectiles[i].RenderObjet();
                 if (Program.projectiles[i].Exist())
                     i--;
             }
@@ -3514,7 +3506,7 @@ namespace Dysgenesis
             return false;
         }
 
-        public override void RenderObject()
+        public override void RenderObjet()
         {
             SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
             for (int i = 0; i < curseur_data.Length - 1; i++)
@@ -3564,7 +3556,7 @@ namespace Dysgenesis
         }
 
         // dessine l'explosion à l'écran
-        public override void RenderObject()
+        public override void RenderObjet()
         {
             const int RAYON_MIN_EXPLOSION = 2;
 
@@ -3674,7 +3666,7 @@ namespace Dysgenesis
         // une musique qui joue à la fois.
         public static int JouerMusique(ListeAudioMusique musique_a_jouer, bool boucle)
         {
-            if (Program.mute_sound)
+            if (Program.mute_son)
                 return 0;
 
             // -1 boucles dit à SDL de jouer la musique infiniment
@@ -3701,7 +3693,7 @@ namespace Dysgenesis
         // Joue un effet sonnore de la liste d'effets sonnores dans le prochain "chunk" de la boucle
         public static int JouerEffet(ListeAudioEffets effet_a_jouer)
         {
-            if (Program.mute_sound)
+            if (Program.mute_son)
                 return 0;
 
             chemins_pour_effets.TryGetValue(effet_a_jouer, out string? chemin);

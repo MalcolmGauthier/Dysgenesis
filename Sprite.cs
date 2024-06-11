@@ -81,7 +81,7 @@ namespace Dysgenesis
                 SDL_RenderDrawLineF(Program.render, positions_ligne[0], positions_ligne[1], positions_ligne[2], positions_ligne[3]);
             }
         }
-        public virtual void RenderObject()
+        public virtual void RenderObjet()
         {
             RenderObject(modele);
         }

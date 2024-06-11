@@ -115,14 +115,14 @@ namespace Dysgenesis
         public static int niveau;
         public static int nv_continue = 1;
         public static int gTimer = 0;
-        public static int ens_killed = 0;
-        public static int ens_needed = 0;
+        public static int ennemis_tues = 0;
+        public static int ennemis_a_creer = 0;
         public static bool bouger_etoiles = true;
 
         static long frame_time;
         static bool exit = false;
         static bool arcade_unlock = false;
-        static byte arcade_steps = 0;
+        static byte arcade_etapes = 0;
         static int touches_peses = 0;
         static int timer_generique = 0;
         static long temps_entre_60_images_todo_enlever = TimeSpan.TicksPerSecond;
@@ -131,10 +131,10 @@ namespace Dysgenesis
         static byte debug_fps_count = 0, debug_fps_count_display = 0;
         static long debug_fps_time = DateTime.Now.Ticks;
         // en temps normal, toutes ces variables sont à faux sauf fullscreen
-        public static bool mute_sound = false, free_items = false, partial_cutscene_skip = false,
-                           show_fps = false, monologue_skip = true, lvl_select = false,
-                           fps_unlock = false, crashtest = false, fullscreen = false,
-                           taille_ecran_dynamique = false, true_cutscene_skip = false;
+        public static bool mute_son = false, items_gratuit = false, cutscene_skip_partiel = false,
+                           afficher_fps = false, monologue_skip = false, lvl_select = false,
+                           fps_infini = false, crashtest = false, plein_ecran = false,
+                           taille_ecran_dynamique = false, cutscene_skip_complet = false;
 
         // point d'entrée du code
         static void Main()
@@ -160,12 +160,12 @@ namespace Dysgenesis
             {
                 while (!exit)
                 {
-                    Controlls();
+                    Controles();
                     Code();
                     Render();
                     SDLRender();
 
-                    if (!fps_unlock)
+                    if (!fps_infini)
                         while (frame_time > DateTime.Now.Ticks - temps_entre_60_images_todo_enlever / G_FPS) ;
                     frame_time = DateTime.Now.Ticks;
 
@@ -219,16 +219,16 @@ namespace Dysgenesis
             // malheureusement, il y a toujours des problèmes avec les scènes, alors c'est mieux de pas les montrer à des écrans trop petits
             SDL_Rect taille_ecran;
             SDL_GetDisplayBounds(0, out taille_ecran);
-            taille_ecran = new SDL_Rect() { w = 1280, h = 960 };//DEBUG
+            //taille_ecran = new SDL_Rect() { w = 1280, h = 960 };//debug pour tester autre résolutions
             // si écran trop grand, limite-le
             if (taille_ecran.w > 1920 || taille_ecran.h > 1080)
             {
-                fullscreen = false;
+                plein_ecran = false;
             }
             // si l'écran est trop petit, ne montre pas les scènes
             else if (taille_ecran.w < 1920 || taille_ecran.h < 1080)
             {
-                partial_cutscene_skip = true;
+                cutscene_skip_partiel = true;
                 W_LARGEUR = taille_ecran.w;
                 W_HAUTEUR = taille_ecran.h;
                 W_SEMI_LARGEUR = W_LARGEUR / 2;
@@ -236,7 +236,7 @@ namespace Dysgenesis
             }
 
             window = SDL_CreateWindow(W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W_LARGEUR, W_HAUTEUR,
-                (fullscreen ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP : 0) |
+                (plein_ecran ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP : 0) |
                 SDL_WindowFlags.SDL_WINDOW_SHOWN | 
                 (taille_ecran_dynamique ? SDL_WindowFlags.SDL_WINDOW_RESIZABLE : 0)
             );
@@ -254,7 +254,7 @@ namespace Dysgenesis
             if (Son.InitSDLMixer() != 0)
                 return 3;
 
-            Etoiles.Spawn(new SDL_Rect() { x = 0, y = 0, w = W_LARGEUR, h = W_HAUTEUR }, Etoiles.DENSITE_ETOILES);
+            Etoiles.CreerEtoiles(new SDL_Rect() { x = 0, y = 0, w = W_LARGEUR, h = W_HAUTEUR }, Etoiles.DENSITE_ETOILES);
             frame_time = DateTime.Now.Ticks;
 
             player = new Player();
@@ -269,7 +269,7 @@ namespace Dysgenesis
 
         // mettre à jour les valeures pour touches pesées
         //TODO: threading pour détection de mouvement de fenêtre
-        static void Controlls()
+        static void Controles()
         {
             while (SDL_PollEvent(out e) == 1)
             {
@@ -400,7 +400,7 @@ namespace Dysgenesis
         static void Code()
         {
             // ajuster les valeures pour la taille de la fenêtre
-            if (taille_ecran_dynamique && !fullscreen)
+            if (taille_ecran_dynamique && !plein_ecran)
             {
                 // on ne peut pas mettre W_LARGEUR et W_HAUTUER directement, car une propriété ne peut pas être une référence
                 int w, h;
@@ -419,18 +419,18 @@ namespace Dysgenesis
                 return;
 
             if (bouger_etoiles)
-                Etoiles.Move();
+                Etoiles.Bouger();
 
             if (Gamemode == Gamemode.TITLESCREEN)
             {
                 if (!arcade_unlock)
                 {
                     // vérifie si la prochaine touche requise pour débloquer arcade est pesée, et pas la dernière
-                    if (!TouchePesee((Touches)CODE_ARCADE[arcade_steps]) && TouchePesee((Touches)CODE_ARCADE[arcade_steps + 1]))
+                    if (!TouchePesee((Touches)CODE_ARCADE[arcade_etapes]) && TouchePesee((Touches)CODE_ARCADE[arcade_etapes + 1]))
                     {
-                        arcade_steps++;
+                        arcade_etapes++;
                         Son.JouerEffet(ListeAudioEffets.EXPLOSION_ENNEMI);
-                        if (arcade_steps >= CODE_ARCADE.Length - 1)
+                        if (arcade_etapes >= CODE_ARCADE.Length - 1)
                         {
                             arcade_unlock = true;
                             curseur.curseur_max_selection = 3;
@@ -439,9 +439,9 @@ namespace Dysgenesis
                         }
                     }
                     // vérifie si une touche autre que la prochaine requise ou la dernière est pesée
-                    else if (TouchePesee((Touches)TOUCHES_VALIDES_ARCADE - CODE_ARCADE[arcade_steps] - CODE_ARCADE[arcade_steps + 1]))
+                    else if (TouchePesee((Touches)TOUCHES_VALIDES_ARCADE - CODE_ARCADE[arcade_etapes] - CODE_ARCADE[arcade_etapes + 1]))
                     {
-                        arcade_steps = 0;
+                        arcade_etapes = 0;
                     }
                 }
 
@@ -474,8 +474,8 @@ namespace Dysgenesis
                             // ment au jeu en dissant que tout les ennemis sont morts pour pouvoir
                             // rejouer l'animation qui dit le niveau
                             niveau = nv_continue - 1;
-                            ens_killed = DataNiveau.lvl_list[niveau].Length;
-                            ens_needed = 0;
+                            ennemis_tues = DataNiveau.liste_niveaux[niveau].Length;
+                            ennemis_a_creer = 0;
 
                             player.Init();
                             player.afficher = true;
@@ -546,25 +546,25 @@ namespace Dysgenesis
             // les ennemis apparaîssent plus vite dépandant du niveau
             int timer_enemy_spawn = 400 / (niveau + 1);
             if (gTimer % timer_enemy_spawn == timer_enemy_spawn - 1 &&
-                ens_needed > 0 && !player.Mort())
+                ennemis_a_creer > 0 && !player.Mort())
             {
                 int verif = enemies.Count;
 
                 if (Gamemode == Gamemode.GAMEPLAY)
-                    new Ennemi(DataNiveau.lvl_list[niveau][ens_needed - 1], StatusEnnemi.INITIALIZATION);
+                    new Ennemi(DataNiveau.liste_niveaux[niveau][ennemis_a_creer - 1], StatusEnnemi.INITIALIZATION);
                 else
-                    new Ennemi(DataNiveau.arcade_ens[ens_needed - 1], StatusEnnemi.INITIALIZATION);
+                    new Ennemi(DataNiveau.liste_ennemis_arcade[ennemis_a_creer - 1], StatusEnnemi.INITIALIZATION);
 
                 // vérifie si un ennemi a bien été créé avent de décrementer le nb d'ennemis à créér
                 if (enemies.Count > verif)
-                    ens_needed--;
+                    ennemis_a_creer--;
             }
 
             // vérifie si niveau complété
             if (enemies.Count == 0)
             {
-                if ((Gamemode == Gamemode.GAMEPLAY && ens_killed >= DataNiveau.lvl_list[niveau].Length) ||
-                    (Gamemode == Gamemode.ARCADE && ens_killed >= DataNiveau.arcade_ens.Length))
+                if ((Gamemode == Gamemode.GAMEPLAY && ennemis_tues >= DataNiveau.liste_niveaux[niveau].Length) ||
+                    (Gamemode == Gamemode.ARCADE && ennemis_tues >= DataNiveau.liste_ennemis_arcade.Length))
                 {
                     DataNiveau.ChangerNiveau();
                 }
@@ -621,18 +621,18 @@ namespace Dysgenesis
                 }
 
                 foreach (Ennemi e in enemies)
-                    e.RenderObject();
+                    e.RenderObjet();
 
                 foreach (Item i in items)
-                    i.RenderObject();
+                    i.RenderObjet();
 
                 foreach (Projectile p in projectiles)
-                    p.RenderObject();
+                    p.RenderObjet();
 
                 foreach (Explosion e in explosions)
-                    e.RenderObject();
+                    e.RenderObjet();
 
-                player.RenderObject();
+                player.RenderObjet();
 
                 if (BombePulsar.HP_bombe <= 0)
                     return;
@@ -730,7 +730,7 @@ namespace Dysgenesis
                     Text.DisplayText("arcade",
                     new Vector2(Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 175), 2);
 
-                curseur.RenderObject();
+                curseur.RenderObjet();
             }
         }
 
@@ -738,7 +738,7 @@ namespace Dysgenesis
         public static void SDLRender()
         {
             // debug
-            if (show_fps)
+            if (afficher_fps)
             {
                 if (debug_fps_time < DateTime.Now.Ticks - TimeSpan.TicksPerSecond) // fps
                 {
