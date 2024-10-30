@@ -8,4 +8,7 @@ Ce jeu est fait pour être joué en 1920 x 1080, mais c'est aussi possible de jo
 
 Les contrôles globaux fonctioneront toujours et sont écrits au menu du jeu, mais je vais les répéter ici: +/- pour ajuster le volume, et échapp. pour quitter.
 
-Le texte du jeu est tout écrit en anglais, mais je vais probablement ajouter une option pour français bientôt.
+Le texte du jeu est tout écrit en français, mais je vais peut-être ajouter une option pour anglais bientôt.
+
+
+Le jeu peut être téléchargé dans la section "Releases" de la page GitHub.
