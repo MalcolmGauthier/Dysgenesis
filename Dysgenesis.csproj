@@ -25,6 +25,9 @@
     <None Update="audio\Dance of The Violins.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="audio\dotv.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="audio\eugenesis.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

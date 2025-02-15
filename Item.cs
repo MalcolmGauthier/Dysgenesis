@@ -240,49 +240,49 @@ namespace Dysgenesis
         {
             { TypeItem.HP, new ItemData()
             {
-                couleure = Program.RGBAtoSDLColor(0xFF0000FF),
+                couleure = Program.RGBtoSDLColor(0xFF0000),
                 modele = MODELE_I1,
                 modele_sauts = MODELE_I1_SAUTS,
             }},
 
             { TypeItem.VAGUE, new ItemData()
             {
-                couleure = Program.RGBAtoSDLColor(0x00FFFFFF),
+                couleure = Program.RGBtoSDLColor(0x00FFFF),
                 modele = Array.Empty<Vector3>(),
                 modele_sauts = Array.Empty<int>(),
             }},
 
             { TypeItem.X2_SHOT, new ItemData()
             {
-                couleure = Program.RGBAtoSDLColor(0xFF8000FF),
+                couleure = Program.RGBtoSDLColor(0xFF8000),
                 modele = MODELE_I3,
                 modele_sauts = MODELE_I3_SAUTS,
             }},
 
             { TypeItem.X3_SHOT, new ItemData()
             {
-                couleure = Program.RGBAtoSDLColor(0xFFFF00FF),
+                couleure = Program.RGBtoSDLColor(0xFFFF00),
                 modele = MODELE_I4,
                 modele_sauts = MODELE_I4_SAUTS,
             }},
 
             { TypeItem.HOMING, new ItemData()
             {
-                couleure = Program.RGBAtoSDLColor(0x40FF40FF),
+                couleure = Program.RGBtoSDLColor(0x40FF40),
                 modele = MODELE_I5,
                 modele_sauts = MODELE_I5_SAUTS,
             }},
 
             { TypeItem.SPREAD, new ItemData()
             {
-                couleure = Program.RGBAtoSDLColor(0x0000FFFF),
+                couleure = Program.RGBtoSDLColor(0x0000FF),
                 modele = MODELE_I6,
                 modele_sauts = MODELE_I6_SAUTS,
             }},
 
             { TypeItem.LASER, new ItemData()
             {
-                couleure = Program.RGBAtoSDLColor(0x8000FFFF),
+                couleure = Program.RGBtoSDLColor(0x8000FF),
                 modele = MODELE_I7,
                 modele_sauts = MODELE_I7_SAUTS,
             }},

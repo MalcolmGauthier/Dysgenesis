@@ -28,8 +28,11 @@ namespace Dysgenesis
             return Distance(x1, y1, x2, y2, 1, 1);
         }
 
-        public static implicit operator Vector2(Vector3 vector) => new Vector2(vector.x, vector.y);
+        public static implicit operator Vector2(Vector3 vector) => new(vector.x, vector.y);
+        public static implicit operator Vector2((int x, int y) tuple) => new(tuple.x, tuple.y);
+        public static implicit operator Vector2((float x, float y) tuple) => new(tuple.x, tuple.y);
     }
+
     public struct Vector3
     {
         public float x;
@@ -44,7 +47,10 @@ namespace Dysgenesis
         }
 
         public static implicit operator Vector3(Vector2 vector) => new Vector3(vector.x, vector.y, 0);
+        public static implicit operator Vector3((int x, int y, int z) tuple) => new(tuple.x, tuple.y, tuple.z);
+        public static implicit operator Vector3((float x, float y, float z) tuple) => new(tuple.x, tuple.y, tuple.z);
     }
+
     public enum Gamemode
     {
         TITLESCREEN,
@@ -56,6 +62,7 @@ namespace Dysgenesis
         CUTSCENE_BONNE_FIN,
         CUTSCENE_GENERIQUE
     }
+
     public enum Touches
     {
         W = 1,
@@ -72,10 +79,10 @@ namespace Dysgenesis
         M = 4096,
     }
 
-    // Classe Main. contient les variables importantes
+    // Classe Main. contient le jeu
     public static class Program
     {
-        const string W_TITLE = "Dysgenesis";
+        const string W_TITLE = "Dysgenesis 0.3.1";
         public static int W_HAUTEUR { get; private set; } = 1080;
         public static int W_LARGEUR { get; private set; } = 1920;
         public static int W_SEMI_HAUTEUR { get; private set; } = W_HAUTEUR / 2;
@@ -113,7 +120,7 @@ namespace Dysgenesis
         static Gamemode _gamemode = Gamemode.CUTSCENE_INTRO;
 
         public static int niveau;
-        public static int nv_continue = 1;
+        public static int nv_continue = 20;
         public static int gTimer = 0;
         public static int ennemis_tues = 0;
         public static int ennemis_a_creer = 0;
@@ -133,10 +140,9 @@ namespace Dysgenesis
         // en temps normal, toutes ces variables sont à faux sauf fullscreen
         public static bool mute_son = false, items_gratuit = false, cutscene_skip_partiel = false,
                            afficher_fps = false, monologue_skip = false, lvl_select = false,
-                           fps_infini = false, crashtest = false, plein_ecran = false,
+                           fps_infini = false, crashtest = false, plein_ecran = true,
                            taille_ecran_dynamique = false, cutscene_skip_complet = false;
 
-        // point d'entrée du code
         static void Main()
         {
             if (Init() != 0)
@@ -236,7 +242,7 @@ namespace Dysgenesis
             }
 
             window = SDL_CreateWindow(W_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W_LARGEUR, W_HAUTEUR,
-                (plein_ecran ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP : 0) |
+                (plein_ecran ? SDL_WindowFlags.SDL_WINDOW_FULLSCREEN : 0) |
                 SDL_WindowFlags.SDL_WINDOW_SHOWN | 
                 (taille_ecran_dynamique ? SDL_WindowFlags.SDL_WINDOW_RESIZABLE : 0)
             );
@@ -551,9 +557,9 @@ namespace Dysgenesis
                 int verif = enemies.Count;
 
                 if (Gamemode == Gamemode.GAMEPLAY)
-                    new Ennemi(DataNiveau.liste_niveaux[niveau][ennemis_a_creer - 1], StatusEnnemi.INITIALIZATION);
+                    Ennemi.CreerEnnemi(DataNiveau.liste_niveaux[niveau][ennemis_a_creer - 1]);
                 else
-                    new Ennemi(DataNiveau.liste_ennemis_arcade[ennemis_a_creer - 1], StatusEnnemi.INITIALIZATION);
+                    Ennemi.CreerEnnemi(DataNiveau.liste_ennemis_arcade[ennemis_a_creer - 1]);
 
                 // vérifie si un ennemi a bien été créé avent de décrementer le nb d'ennemis à créér
                 if (enemies.Count > verif)
@@ -563,7 +569,9 @@ namespace Dysgenesis
             // vérifie si niveau complété
             if (enemies.Count == 0)
             {
-                if ((Gamemode == Gamemode.GAMEPLAY && ennemis_tues >= DataNiveau.liste_niveaux[niveau].Length) ||
+                // j'ai un bug qui fait que le nb d'ennemis tué ne se rend pas au bon chiffre desfois??? chépa la cause, mais la solution temporaire
+                // est de mettre une clause que le niveau peut terminer si il ne reste plus d'ennemis à créér.
+                if ((Gamemode == Gamemode.GAMEPLAY && (ennemis_tues >= DataNiveau.liste_niveaux[niveau].Length || ennemis_a_creer == 0)) ||
                     (Gamemode == Gamemode.ARCADE && ennemis_tues >= DataNiveau.liste_ennemis_arcade.Length))
                 {
                     DataNiveau.ChangerNiveau();
@@ -667,11 +675,11 @@ namespace Dysgenesis
                 barre_hud.w = (int)(MathF.Round(vagues_reste, 2) * 100);
                 SDL_RenderFillRect(render, ref barre_hud);
 
-                Text.DisplayText("    hp:\nvagues:", new Vector2(10, 15), 2);
+                Text.DisplayText("    hp:\nvagues:", (10, 15), 2);
 
                 if (VerifBoss())
                 {
-                    Text.DisplayText("    hp:\nennemi", new Vector2(10, 85), 2);
+                    Text.DisplayText("    hp:\nennemi", (10, 85), 2);
                     barre_hud = BARRE_HP;
                     barre_hud.y += 70;
                     for (int i = 0; i < enemies[0].HP; i++)
@@ -696,7 +704,7 @@ namespace Dysgenesis
                         "wasd pour bouger\n" +
                         "j pour tirer\n" +
                         "k pour activer une vague électrique",
-                        new Vector2(Program.W_SEMI_LARGEUR - 300, Program.W_SEMI_HAUTEUR + 100),
+                        (Program.W_SEMI_LARGEUR - 300, Program.W_SEMI_HAUTEUR + 100),
                         2
                     );
                 }
@@ -709,26 +717,26 @@ namespace Dysgenesis
                 Etoiles.Render(Etoiles.DENSITE_ETOILES);
 
                 Text.DisplayText("dysgenesis",
-                    new Vector2(Text.CENTRE, Text.CENTRE), 5);
+                    (Text.CENTRE, Text.CENTRE), 5);
 
                 Text.DisplayText("nouvelle partie",
-                    new Vector2(Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 75), 2);
+                    (Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 75), 2);
 
                 Text.DisplayText("controles menu: w et s pour bouger le curseur, " +
                     "j pour sélectionner\n\ncontroles globaux: esc. pour quitter, " +
                     "+/- pour monter ou baisser le volume",
-                    new Vector2(10, Program.W_HAUTEUR - 40), 1);
+                    (10, Program.W_HAUTEUR - 40), 1);
 
-                Text.DisplayText("v 0.3 (beta)",
-                    new Vector2(Program.W_LARGEUR - 200, Program.W_HAUTEUR - 30), 2);
+                Text.DisplayText("v 0.3.1",
+                    (Program.W_LARGEUR - 200, Program.W_HAUTEUR - 30), 2);
 
                 if (curseur.curseur_max_selection >= 2)
                     Text.DisplayText("continuer: niveau " + nv_continue,
-                    new Vector2(Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 125), 2);
+                    (Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 125), 2);
 
                 if (curseur.curseur_max_selection >= 3)
                     Text.DisplayText("arcade",
-                    new Vector2(Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 175), 2);
+                    (Program.W_SEMI_LARGEUR - 114, Program.W_SEMI_HAUTEUR + 175), 2);
 
                 curseur.RenderObjet();
             }
@@ -753,7 +761,7 @@ namespace Dysgenesis
                 }
 
                 SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-                Text.DisplayText(debug_fps_count_display.ToString(), new Vector2(1828, 52), 3);
+                Text.DisplayText(debug_fps_count_display.ToString(), (1828, 52), 3);
             }
 
             // le son est dans cette fonction et non l'autre cars elle doit toujours être éxecutée, mais aussi la dernière chose dessinée
@@ -765,10 +773,7 @@ namespace Dysgenesis
         }
 
         // retourne vrai si Gamemode est un mode d'action (pas menu ou scène), et l'autre où mode scène
-        public static bool GamemodeAction()
-        {
-            return Gamemode == Gamemode.GAMEPLAY || Gamemode == Gamemode.ARCADE;
-        }
+        public static bool GamemodeAction() => Gamemode == Gamemode.GAMEPLAY || Gamemode == Gamemode.ARCADE;
         public static bool GamemodeCutscene()
         {
             return
@@ -776,8 +781,7 @@ namespace Dysgenesis
                 Gamemode == Gamemode.CUTSCENE_NOUVELLE_PARTIE ||
                 Gamemode == Gamemode.CUTSCENE_BONNE_FIN ||
                 Gamemode == Gamemode.CUTSCENE_MAUVAISE_FIN ||
-                Gamemode == Gamemode.CUTSCENE_GENERIQUE
-            ;
+                Gamemode == Gamemode.CUTSCENE_GENERIQUE;
         }
 
         // retourne vrai si la touche spécifié est enfoncé pendant cette image
@@ -792,7 +796,7 @@ namespace Dysgenesis
             if (enemies.Count != 1)
                 return false;
 
-            return enemies[0].type == TypeEnnemi.BOSS;
+            return enemies[0] is Boss;
         }
 
         // éxecute .Exist dans une liste de sprites, en tenant compte de ceux qui se font enlever
@@ -842,6 +846,10 @@ namespace Dysgenesis
                 a = (byte)((RGBA >> 0) & 0xFF),
             };
         }
+        public static SDL_Color RGBtoSDLColor(uint RGB)
+        {
+            return RGBAtoSDLColor((RGB << 8) | 0xFF);
+        }
 
         // écran à montrer si le jeu plante. ce code-ci ne devrait jamais donner d'erreure
         // si SDL est initializé, mais il y a un try finally quand même.
@@ -856,7 +864,7 @@ namespace Dysgenesis
                 Text.DisplayText("erreure fatale!\n\n"
                     + e.Message + "\n"
                     + e.StackTrace + "\n" +
-                    "\n\ntapez sur échapp. pour quitter l'application.", new Vector2(10, 10), 1
+                    "\n\ntapez sur échapp. pour quitter l'application.", (10, 10), 1
                 );
                 // le texte vas mettre le RenderDrawColor à blanc, alors on le remets à noir pour présenter l'écran
                 SDL_SetRenderDrawColor(render, 0, 0, 0, 255);

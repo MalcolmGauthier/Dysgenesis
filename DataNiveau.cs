@@ -9,7 +9,7 @@ namespace Dysgenesis
         public static TypeEnnemi[][] liste_niveaux =
         {
             new TypeEnnemi[] { }, // niveau 0
-            new TypeEnnemi[] { TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON }, // niveau 1
+            new TypeEnnemi[] { TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON}, // niveau 1
             new TypeEnnemi[] { TypeEnnemi.DIAMANT, TypeEnnemi.DIAMANT, TypeEnnemi.DIAMANT, TypeEnnemi.OCTAHEDRON, TypeEnnemi.OCTAHEDRON, TypeEnnemi.DIAMANT, TypeEnnemi.DIAMANT, TypeEnnemi.OCTAHEDRON }, // niveau 2
             new TypeEnnemi[] { TypeEnnemi.TOURNANT, TypeEnnemi.OCTAHEDRON, TypeEnnemi.DIAMANT, TypeEnnemi.DIAMANT, TypeEnnemi.OCTAHEDRON, TypeEnnemi.TOURNANT, TypeEnnemi.TOURNANT, TypeEnnemi.TOURNANT, TypeEnnemi.OCTAHEDRON, TypeEnnemi.TOURNANT }, // niveau 3
             new TypeEnnemi[] { TypeEnnemi.TOURNANT, TypeEnnemi.TOURNANT, TypeEnnemi.DIAMANT, TypeEnnemi.DIAMANT, TypeEnnemi.DIAMANT, TypeEnnemi.DIAMANT, TypeEnnemi.TOURNANT, TypeEnnemi.TOURNANT, TypeEnnemi.TOURNANT, TypeEnnemi.DIAMANT }, // niveau 4

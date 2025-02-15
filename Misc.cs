@@ -1,7 +1,6 @@
 ﻿using static SDL2.SDL;
 using static SDL2.SDL_mixer;
-using static System.MathF;
-#pragma warning disable CA1806 // c# me demande de regarder le résultat de SDL_RenderDrawLine lolololololol
+#pragma warning disable CA1806
 
 namespace Dysgenesis
 {
@@ -110,11 +109,11 @@ namespace Dysgenesis
             float angle;
             for (int i = 0; i < QUANTITE_RAYONS_BOMBE_PULSAR; i++)
             {
-                angle = Program.RNG.NextSingle() * PI;
+                angle = Program.RNG.NextSingle() * MathF.PI;
 
                 SDL_RenderDrawLineF(Program.render,
-                    Program.RNG.Next(-rayon, rayon) * Cos(angle) + position.x,
-                    Program.RNG.Next(-rayon, rayon) * Sin(angle) + position.y,
+                    Program.RNG.Next(-rayon, rayon) * MathF.Cos(angle) + position.x,
+                    Program.RNG.Next(-rayon, rayon) * MathF.Sin(angle) + position.y,
                     position.x,
                     position.y
                 );
@@ -171,7 +170,7 @@ namespace Dysgenesis
         public static void VerifCollision()
         {
             // ce code roule seulement si niveau 20 et monologue fini
-            if (Program.enemies[0].statut != StatusEnnemi.BOSS_NORMAL)
+            if (Program.enemies[0].status != StatusEnnemi.BOSS_NORMAL)
                 return;
 
             for (int i = 0; i < Program.projectiles.Count; i++)
@@ -703,14 +702,14 @@ namespace Dysgenesis
 
             if (Program.gTimer >= 75 && Program.gTimer < 150)
             {
-                Text.DisplayText("malcolm gauthier", new Vector2(Text.CENTRE, Text.CENTRE), 2);
-                Text.DisplayText("\n présente", new Vector2(Text.CENTRE, Text.CENTRE), 2);
+                Text.DisplayText("malcolm gauthier", (Text.CENTRE, Text.CENTRE), 2);
+                Text.DisplayText("\n présente", (Text.CENTRE, Text.CENTRE), 2);
 
             }
             else if (Program.gTimer >= 150 && Program.gTimer <= 225)
             {
-                Text.DisplayText("malcolm gauthier", new Vector2(Text.CENTRE, Text.CENTRE), 2, alpha: (short)((225 - Program.gTimer) * 3.4f));
-                Text.DisplayText("\n présente", new Vector2(Text.CENTRE, Text.CENTRE), 2, alpha: (short)((225 - Program.gTimer) * 3.4f));
+                Text.DisplayText("malcolm gauthier", (Text.CENTRE, Text.CENTRE), 2, alpha: (short)((225 - Program.gTimer) * 3.4f));
+                Text.DisplayText("\n présente", (Text.CENTRE, Text.CENTRE), 2, alpha: (short)((225 - Program.gTimer) * 3.4f));
             }
 
             if (Program.gTimer > 225)
@@ -734,14 +733,14 @@ namespace Dysgenesis
             {
                 Text.DisplayText("des centaines d'années après les premiers voyages hors de la terre, l'espace\n" +
                                  "est devenue zone de guerre et de colonisation. des douzaines de factions \n" +
-                                 "existent à travers la galaxie.", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 60));
+                                 "existent à travers la galaxie.", (20, 700), 3, scroll: (ushort)(Program.gTimer - 60));
 
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                DessinerCercle(new Vector2(960, 440), 200, 50);
+                DessinerCercle((960, 440), 200, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 127, 255);
-                DessinerCercle(new Vector2(260, 390), 100, 50);
+                DessinerCercle((260, 390), 100, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 127, 255);
-                DessinerCercle(new Vector2(1660, 390), 100, 50);
+                DessinerCercle((1660, 390), 100, 50);
 
                 #region planète 1
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
@@ -871,7 +870,7 @@ namespace Dysgenesis
             {
                 Text.DisplayText("ayant servi plus d'une décennie pour l'armée de ta planète, tu es reconnu \n" +
                                  "par le dirigeant militaire de ta faction comme un des meilleurs pilotes \n" +
-                                 "de la région galactique locale.", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 300));
+                                 "de la région galactique locale.", (20, 700), 3, scroll: (ushort)(Program.gTimer - 300));
 
                 #region toi
                 NouveauSDLRenderDrawLine(Program.render, 1282, 680, 1261, 417);
@@ -885,7 +884,7 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 1261, 417, 1229, 637);
                 NouveauSDLRenderDrawLine(Program.render, 1545, 412, 1624, 337);
                 NouveauSDLRenderDrawLine(Program.render, 1624, 337, 1417, 260);
-                DessinerCercle(new Vector2(1416, 314), 77, 24);
+                DessinerCercle((1416, 314), 77, 24);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 127, 255);
                 NouveauSDLRenderDrawLine(Program.render, 1462, 434, 1503, 434);
@@ -919,8 +918,8 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 311, 452, 194, 500);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                DessinerCercle(new Vector2(479, 232), 91, 24);
-                DessinerCercle(new Vector2(479, 232), 65, 24);
+                DessinerCercle((479, 232), 91, 24);
+                DessinerCercle((479, 232), 65, 24);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
                 NouveauSDLRenderDrawLine(Program.render, 563, 195, 672, 204);
@@ -947,7 +946,7 @@ namespace Dysgenesis
                 Text.DisplayText("un jour, une lettre arrive à ta porte.\n" +
                                  "elle porte l'emblême officielle du pays, donc c'est probablement très \n" +
                                  "important.",
-                                 new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 540));
+                                 (20, 700), 3, scroll: (ushort)(Program.gTimer - 540));
 
                 #region lettre
                 NouveauSDLRenderDrawLine(Program.render, 717, 607, 600, 400);
@@ -960,8 +959,8 @@ namespace Dysgenesis
 
                 #region emblême cercle
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                DessinerCercle(new Vector2(832, 384), 30, 24);
-                DessinerCercle(new Vector2(832, 384), 39, 24);
+                DessinerCercle((832, 384), 30, 24);
+                DessinerCercle((832, 384), 39, 24);
                 #endregion
 
                 #region étoile
@@ -977,7 +976,7 @@ namespace Dysgenesis
             {
                 Text.DisplayText("\"bonjour. \n" +
                                  "la coalition des planètes locales vous a choisi pour mener une mission \n" +
-                                 "seule qui sauvera notre peuple des mains ennemies, ou bien même la mort.\"", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 780));
+                                 "seule qui sauvera notre peuple des mains ennemies, ou bien même la mort.\"", (20, 700), 3, scroll: (ushort)(Program.gTimer - 780));
 
                 #region lettre
                 NouveauSDLRenderDrawLine(Program.render, 717, 607, 600, 400);
@@ -1017,7 +1016,7 @@ namespace Dysgenesis
             {
                 Text.DisplayText("\"on a récemment crée l'un des meilleurs vaisseaux de la galaxie, mais \n" +
                                  "à cause du nombre de ressources requis pour le construire, on en n'a \n" +
-                                 "qu'un seul.\"", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 1020));
+                                 "qu'un seul.\"", (20, 700), 3, scroll: (ushort)(Program.gTimer - 1020));
 
                 #region modèles joueur
                 Program.player.position = new Vector3(400, 400, 0);
@@ -1028,7 +1027,7 @@ namespace Dysgenesis
 
                 Program.player.position = new Vector3(1400, 200, 0);
                 Program.player.pitch = 0;
-                Program.player.roll = 0.25f * (float)Sin(Program.gTimer / 30f);
+                Program.player.roll = 0.25f * MathF.Sin(Program.gTimer / 30f);
                 Program.player.taille = 5;
                 Program.player.RenderObjet();
                 #endregion
@@ -1047,7 +1046,7 @@ namespace Dysgenesis
                 #endregion
 
                 #region texte et blabla rouge
-                Text.DisplayText("x-57", new Vector2(880, 330), 10);
+                Text.DisplayText("x-57", (880, 330), 10);
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
                 NouveauSDLRenderDrawLine(Program.render, 394, 142, 556, 136);
                 NouveauSDLRenderDrawLine(Program.render, 565, 591, 708, 582);
@@ -1074,9 +1073,9 @@ namespace Dysgenesis
             {
                 Text.DisplayText("\"votre mission est d'aller détruire la bombe à pulsar dans la région \n" +
                                     "d'espace de l'ennemi, et de s'assurer qu'elle est neutralisée, ou sous \n" +
-                                    "notre controle.\"", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 1260));
+                                    "notre controle.\"", (20, 700), 3, scroll: (ushort)(Program.gTimer - 1260));
 
-                BombePulsar.DessinerBombePulsar(new Vector2(960, 330), 180, false);
+                BombePulsar.DessinerBombePulsar((960, 330), 180, false);
 
                 if (Program.gTimer == 1261)
                 {
@@ -1136,7 +1135,7 @@ namespace Dysgenesis
                 Text.DisplayText("\"les coordonées de la bombe se trouvent programmés dans votre vaisseau, \n" +
                                  "qui vous attend au garage 05. \n" +
                                  "on compte sur vous, n'échouez pas.\" \n" +
-                                 "- le dirigeant militaire", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 1500));
+                                 "- le dirigeant militaire", (20, 700), 3, scroll: (ushort)(Program.gTimer - 1500));
 
                 #region lettre
                 NouveauSDLRenderDrawLine(Program.render, 717, 607, 600, 400);
@@ -1175,7 +1174,7 @@ namespace Dysgenesis
             } // lettre ouverte 2
             else if (Program.gTimer > 1740 && Program.gTimer <= 1980)
             {
-                Text.DisplayText("05", new Vector2(100, 200), 15, 0x00FF00);
+                Text.DisplayText("05", (100, 200), 15, 0x00FF00);
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
 
                 #region hangar
@@ -1210,7 +1209,7 @@ namespace Dysgenesis
                 }
                 if (Program.gTimer >= 1800) for (int i = 0; i < 30; i++)
                     {
-                        if (Abs(stars[i, 0] - 1000.0f) < (Program.gTimer - 1800) * 5)
+                        if (MathF.Abs(stars[i, 0] - 1000.0f) < (Program.gTimer - 1800) * 5)
                             NouveauSDLRenderDrawPoint(Program.render, stars[i, 0], stars[i, 1]);
                     }
 
@@ -1226,10 +1225,10 @@ namespace Dysgenesis
                 {
                     Program.player.position = new Vector3(
                         1000,
-                        250 * (float)Pow(0.9f, Program.gTimer - 1830) + 300,
+                        250 * MathF.Pow(0.9f, Program.gTimer - 1830) + 300,
                         0
                     );
-                    Program.player.taille = 2 * (float)Pow(0.9f, Program.gTimer - 1830);
+                    Program.player.taille = 2 * MathF.Pow(0.9f, Program.gTimer - 1830);
                     Program.player.RenderObjet();
                 }
 
@@ -1312,8 +1311,8 @@ namespace Dysgenesis
                 Program.player.taille = 1f;
                 Program.player.position = new Vector3(771, 325, 0);
                 Program.player.roll = 0.5f;
-                double sinroll = Sin(Program.player.roll);
-                double cosroll = Cos(Program.player.roll);
+                double sinroll = MathF.Sin(Program.player.roll);
+                double cosroll = MathF.Cos(Program.player.roll);
                 float pitchconst = Program.player.pitch + 0.3f;//permapitch du joueur
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 0, 255);
                 for (int i = 0; i < Program.player.modele.Length - 1; i++)
@@ -1329,7 +1328,7 @@ namespace Dysgenesis
                 #endregion
 
                 #region bombe pulsar
-                BombePulsar.DessinerBombePulsar(new Vector2(1522 + Program.RNG.Next(-5, 5), 264 + Program.RNG.Next(-5, 5)),
+                BombePulsar.DessinerBombePulsar((1522 + Program.RNG.Next(-5, 5), 264 + Program.RNG.Next(-5, 5)),
                     133, false);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
@@ -1508,7 +1507,7 @@ namespace Dysgenesis
                 if (Program.gTimer > 450 && Program.gTimer <= 500)
                 {
                     lTimer = (byte)(2 * Program.gTimer - 900);
-                    int abs_lTimer = -2 * (int)Abs(lTimer - 50) + 100; // y=-2|x-(r/2)|+r, ou environ /\
+                    int abs_lTimer = -2 * (int)MathF.Abs(lTimer - 50) + 100; // y=-2|x-(r/2)|+r, ou environ /\
                     SDL_SetRenderDrawColor(Program.render, 255, 255, 255, (byte)(154 + lTimer));
                     rect.x = 716 - abs_lTimer * 2;
                     rect.y = 437 + abs_lTimer / 4;
@@ -1567,7 +1566,7 @@ namespace Dysgenesis
             else if (Program.gTimer >= 840 && Program.gTimer < 1020)
             {
                 Text.DisplayText("le grand vide laissé par l'explosion a démontré la vérité de cette guerre.",
-                    new Vector2(20, 700), 3, scroll: (int)Program.gTimer / 2 - 420);
+                    (20, 700), 3, scroll: (int)Program.gTimer / 2 - 420);
 
                 #region étoiles
                 if (Program.gTimer == 840)
@@ -1615,10 +1614,10 @@ namespace Dysgenesis
                 for (int i = 0; i < model.GetLength(0) - 1; i++)
                 {
                     NouveauSDLRenderDrawLine(Program.render,
-                        (int)(model[i].x * Pow(0.95f, depth) + x),
-                        (int)((model[i].y + (model[i].z * pitch)) * Pow(0.95f, depth) + y),
-                        (int)(model[i + 1].x * Pow(0.95f, depth) + x),
-                        (int)((model[i + 1].y + (model[i + 1].z * pitch)) * Pow(0.95f, depth) + y));
+                        (int)(model[i].x * MathF.Pow(0.95f, depth) + x),
+                        (int)((model[i].y + (model[i].z * pitch)) * MathF.Pow(0.95f, depth) + y),
+                        (int)(model[i + 1].x * MathF.Pow(0.95f, depth) + x),
+                        (int)((model[i + 1].y + (model[i + 1].z * pitch)) * MathF.Pow(0.95f, depth) + y));
                 }
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 0, 255);
@@ -1636,17 +1635,17 @@ namespace Dysgenesis
                 for (int i = 0; i < model.GetLength(0) - 1; i++)
                 {
                     NouveauSDLRenderDrawLine(Program.render,
-                        (int)(model[i].x * Pow(0.95f, depth) + x),
-                        (int)((model[i].y + (model[i].z * -pitch)) * Pow(0.95f, depth) + y),
-                        (int)(model[i + 1].x * Pow(0.95f, depth) + x),
-                        (int)((model[i + 1].y + (model[i + 1].z * -pitch)) * Pow(0.95f, depth) + y));
+                        (int)(model[i].x * MathF.Pow(0.95f, depth) + x),
+                        (int)((model[i].y + (model[i].z * -pitch)) * MathF.Pow(0.95f, depth) + y),
+                        (int)(model[i + 1].x * MathF.Pow(0.95f, depth) + x),
+                        (int)((model[i + 1].y + (model[i + 1].z * -pitch)) * MathF.Pow(0.95f, depth) + y));
                 }
                 #endregion
 
             } // ranconte proche - fini
             else if (Program.gTimer >= 1020 && Program.gTimer < 1200)
             {
-                Text.DisplayText("l'abscence de vrai gagnants.", new Vector2(20, 700), 3, scroll: (int)(Program.gTimer / 2 - 510));
+                Text.DisplayText("l'abscence de vrai gagnants.", (20, 700), 3, scroll: (int)(Program.gTimer / 2 - 510));
 
                 #region étoiles
                 if (Program.gTimer == 1020)
@@ -1685,7 +1684,7 @@ namespace Dysgenesis
             {
                 Text.DisplayText("les factions qui ont survécu ont vite cherché la paix entre eux.\n" +
                                  "des milliards sont morts, victimes de cette guerre. des milliards de trop.",
-                                 new Vector2(20, 700), 3, scroll: (int)(Program.gTimer - 1200));
+                                 (20, 700), 3, scroll: (int)(Program.gTimer - 1200));
 
                 #region promesse
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
@@ -1693,13 +1692,13 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 600, 500, 1350, 500);
                 NouveauSDLRenderDrawLine(Program.render, 1350, 500, 1350, 680);
 
-                DessinerCercle(new Vector2(730, 189), 57, 50);
+                DessinerCercle((730, 189), 57, 50);
                 NouveauSDLRenderDrawLine(Program.render, 648, 500, 606, 238);
                 NouveauSDLRenderDrawLine(Program.render, 606, 238, 836, 255);
                 NouveauSDLRenderDrawLine(Program.render, 836, 255, 806, 500);
                 NouveauSDLRenderDrawLine(Program.render, 606, 238, 593, 470);
 
-                DessinerCercle(new Vector2(1203, 186), 57, 50);
+                DessinerCercle((1203, 186), 57, 50);
                 NouveauSDLRenderDrawLine(Program.render, 1126, 500, 1096, 255);
                 NouveauSDLRenderDrawLine(Program.render, 1096, 255, 1304, 235);
                 NouveauSDLRenderDrawLine(Program.render, 1304, 235, 1278, 500);
@@ -1755,7 +1754,7 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 1200, 100, 1300, 600);
                 NouveauSDLRenderDrawLine(Program.render, 1300, 600, 700, 600);
 
-                Text.DisplayText("traité de paix", new Vector2(825, 125), 3, 0x7f7f7f);
+                Text.DisplayText("traité de paix", (825, 125), 3, 0x7f7f7f);
 
                 SDL_SetRenderDrawColor(Program.render, 255, 255, 255, 255);
                 NouveauSDLRenderDrawLine(Program.render, 816, 238, 979, 236);
@@ -1775,15 +1774,15 @@ namespace Dysgenesis
                 #endregion
 
                 #region main + signature
-                short x = 2000, y = 0;
+                int x = 2000, y = 0;
                 if (Program.gTimer > 1410 && Program.gTimer <= 1430)
                 {
                     x = 800;
-                    y = (short)(750 - (Program.gTimer - 1410) * 9);
+                    y = 750 - (Program.gTimer - 1410) * 9;
                 }
                 else if (Program.gTimer > 1430 && Program.gTimer <= 1500)
                 {
-                    x = (short)(800 + (Program.gTimer - 1430) * 3.57f);
+                    x = (int)(800 + (Program.gTimer - 1430) * 3.57f);
                     if (temp == 0)
                     {
                         lTimer = 127;
@@ -1794,14 +1793,14 @@ namespace Dysgenesis
                             stars[i, 1] = -1;
                         }
                     }
-                    if (Abs(temp - (lTimer + 434)) < 6)
+                    if (MathF.Abs(temp - (lTimer + 434)) < 6)
                     {
                         lTimer = (byte)Program.RNG.Next(107, 147);
                         for (int i = 0; i < stars.GetLength(0); i++)
                         {
                             if (stars[i, 0] == -1)
                             {
-                                stars[i, 0] = x;
+                                stars[i, 0] = (short)x;
                                 stars[i, 1] = temp;
                                 break;
                             }
@@ -1816,7 +1815,7 @@ namespace Dysgenesis
                 else if (Program.gTimer > 1500 && Program.gTimer <= 1520)
                 {
                     x = 1050;
-                    y = (short)(561 + (Program.gTimer - 1500) * 9);
+                    y = 561 + (Program.gTimer - 1500) * 9;
                 }
                 NouveauSDLRenderDrawLine(Program.render, x, y, x + 13, y - 27);
                 NouveauSDLRenderDrawLine(Program.render, x + 13, y - 27, x + 46, y - 70);
@@ -1847,20 +1846,20 @@ namespace Dysgenesis
                 #endregion
 
                 Text.DisplayText("les factions qui ont survécu ont vite charché la paix entre eux.\n" +
-                                 "des milliards sont morts, victimes de cette guerre. des milliards de trop.", new Vector2(20, 700), 3);
+                                 "des milliards sont morts, victimes de cette guerre. des milliards de trop.", (20, 700), 3);
             } // signature - fini
             else if (Program.gTimer >= 1560 && Program.gTimer < 1740)
             {
                 Text.DisplayText("les factions galactiques prospèrent maintenant tous économiquement\n" +
-                                 "avec leurs liens d'amitié entre eux.", new Vector2(20, 700), 3, scroll: (int)(Program.gTimer - 1560));
+                                 "avec leurs liens d'amitié entre eux.", (20, 700), 3, scroll: (int)(Program.gTimer - 1560));
 
                 #region planètes
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                DessinerCercle(new Vector2(960, 440), 200, 50);
+                DessinerCercle((960, 440), 200, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 0, 127, 255);
-                DessinerCercle(new Vector2(260, 390), 100, 50);
+                DessinerCercle((260, 390), 100, 50);
                 SDL_SetRenderDrawColor(Program.render, 255, 127, 127, 255);
-                DessinerCercle(new Vector2(1660, 390), 100, 50);
+                DessinerCercle((1660, 390), 100, 50);
 
                 SDL_SetRenderDrawColor(Program.render, 127, 255, 127, 255);
                 NouveauSDLRenderDrawLine(Program.render, 818, 298, 930, 336);
@@ -1979,7 +1978,7 @@ namespace Dysgenesis
             else if (Program.gTimer >= 1740 && Program.gTimer < 1920)
             {
                 Text.DisplayText("et même si le trou laissé par l'explosion laissera une empreinte\n" +
-                                    "pour quelque temps...", new Vector2(20, 700), 3, scroll: (int)(Program.gTimer - 1740));
+                                    "pour quelque temps...", (20, 700), 3, scroll: (int)(Program.gTimer - 1740));
 
                 #region étoiles
                 if (Program.gTimer == 1740)
@@ -2019,7 +2018,7 @@ namespace Dysgenesis
             } // vols entre étoiles - fini
             else if (Program.gTimer >= 1920 && Program.gTimer < 2310)
             {
-                Text.DisplayText("même les plus grandes cicatrices se guérissent éventuellement.", new Vector2(20, 700), 3, scroll: (int)(Program.gTimer / 2 - 960));
+                Text.DisplayText("même les plus grandes cicatrices se guérissent éventuellement.", (20, 700), 3, scroll: (int)(Program.gTimer / 2 - 960));
 
                 #region étoiles
                 if (Program.gTimer == 1920)
@@ -2188,8 +2187,8 @@ namespace Dysgenesis
                 Program.player.taille = death_timer / 60f + 0.5f;
                 Program.player.position = new Vector3(771 - death_timer, 325 + death_timer, 0);
                 Program.player.roll = death_timer / 250;
-                double sinroll = Sin(Program.player.roll);
-                double cosroll = Cos(Program.player.roll);
+                double sinroll = MathF.Sin(Program.player.roll);
+                double cosroll = MathF.Cos(Program.player.roll);
                 float pitchconst = Program.player.pitch + 0.3f;//joueur permapitch
                 for (int i = 0; i < Program.player.modele.Length - 1; i++)
                 {
@@ -2208,7 +2207,7 @@ namespace Dysgenesis
                 #endregion
 
                 #region pulsar bomb
-                BombePulsar.DessinerBombePulsar(new Vector2(1522, 264), 133, false);
+                BombePulsar.DessinerBombePulsar((1522, 264), 133, false);
 
                 SDL_SetRenderDrawColor(Program.render, 0, 0, 255, 255);
                 NouveauSDLRenderDrawLine(Program.render, 1463, 144, 1445, 97);
@@ -2261,24 +2260,24 @@ namespace Dysgenesis
 
                 #region pulsar bomb
                 if (Program.gTimer < 300)
-                    BombePulsar.DessinerBombePulsar(new Vector2(956, 336), 224, false);
+                    BombePulsar.DessinerBombePulsar((956, 336), 224, false);
                 else if (Program.gTimer >= 300 && Program.gTimer < 330)
                 {
                     SDL_SetRenderDrawColor(Program.render, 200, 255, 255, 255);
-                    if (Program.gTimer % Ceiling((Program.gTimer - 299) / 10f) == 0)
+                    if (Program.gTimer % MathF.Ceiling((Program.gTimer - 299) / 10f) == 0)
                         for (int i = 0; i < neutron_slowdown.Length; i++)
                         {
-                            float ang = Program.RNG.NextSingle() * (float)PI;
-                            neutron_slowdown[i].x = (short)(Program.RNG.Next(-224, 224) * Cos(ang) + 956);
-                            neutron_slowdown[i].y = (short)(Program.RNG.Next(-224, 224) * Sin(ang) + 336);
+                            float ang = Program.RNG.NextSingle() * MathF.PI;
+                            neutron_slowdown[i].x = (short)(Program.RNG.Next(-224, 224) * MathF.Cos(ang) + 956);
+                            neutron_slowdown[i].y = (short)(Program.RNG.Next(-224, 224) * MathF.Sin(ang) + 336);
                         }
 
-                    BombePulsar.DessinerBombePulsar(new Vector2(956, 336), 224, BombePulsar.COULEUR_BOMBE, false, neutron_slowdown);
+                    BombePulsar.DessinerBombePulsar((956, 336), 224, BombePulsar.COULEUR_BOMBE, false, neutron_slowdown);
                 }
                 else if (Program.gTimer >= 330)
                 {
                     SDL_SetRenderDrawColor(Program.render, BombePulsar.COULEUR_BOMBE.r, BombePulsar.COULEUR_BOMBE.g, BombePulsar.COULEUR_BOMBE.b, (byte)alpha);
-                    DessinerCercle(new Vector2(956, 336), 224, 50);
+                    DessinerCercle((956, 336), 224, 50);
                     for (int i = 0; i < 50; i++)
                         NouveauSDLRenderDrawLine(Program.render, (int)neutron_slowdown[i].x, (int)neutron_slowdown[i].y, 956, 336);
                 }
@@ -2334,8 +2333,8 @@ namespace Dysgenesis
                 SDL_SetRenderDrawColor(Program.render, 0, 255, 255, 255);
                 for (int i = 0; i < 50; i++)
                 {
-                    float ang = Program.RNG.NextSingle() * (float)PI;
-                    NouveauSDLRenderDrawLine(Program.render, (int)(Program.RNG.Next(-150, 150) * Cos(ang) + 960), (int)(Program.RNG.Next(-80, 80) * Sin(ang) + 130), 960, 130);
+                    float ang = Program.RNG.NextSingle() * MathF.PI;
+                    NouveauSDLRenderDrawLine(Program.render, (int)(Program.RNG.Next(-150, 150) * MathF.Cos(ang) + 960), (int)(Program.RNG.Next(-80, 80) * MathF.Sin(ang) + 130), 960, 130);
                 }
                 #endregion
 
@@ -2452,8 +2451,8 @@ namespace Dysgenesis
                     NouveauSDLRenderDrawLine(Program.render, 850, 680 - move, 850, 449 - move);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                    DessinerCercle(new Vector2(1050, 560 - move), 84, 50);
-                    DessinerCercle(new Vector2(1050, 560 - move), 63, 50);
+                    DessinerCercle((1050, 560 - move), 84, 50);
+                    DessinerCercle((1050, 560 - move), 63, 50);
 
                     SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
                     NouveauSDLRenderDrawLine(Program.render, 850, 518 - move, 978, 518 - move);
@@ -2486,7 +2485,7 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 499, 249, 630, 310);
                 NouveauSDLRenderDrawLine(Program.render, 630, 310, 539, 680);
 
-                DessinerCercle(new Vector2(400, 200), 78, 50);
+                DessinerCercle((400, 200), 78, 50);
 
                 NouveauSDLRenderDrawLine(Program.render, 156, 309, 159, 649);
                 NouveauSDLRenderDrawLine(Program.render, 630, 310, 685, 215);
@@ -2523,7 +2522,7 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 1048, 254, 1118, 295);
                 NouveauSDLRenderDrawLine(Program.render, 1118, 295, 1057, 680);
 
-                DessinerCercle(new Vector2(959, 205), 76, 50);
+                DessinerCercle((959, 205), 76, 50);
 
                 NouveauSDLRenderDrawLine(Program.render, 893, 166, 1031, 164);
                 NouveauSDLRenderDrawLine(Program.render, 1031, 164, 1018, 127);
@@ -2605,7 +2604,7 @@ namespace Dysgenesis
                     NouveauSDLRenderDrawLine(Program.render, 1315 + i, 305, 1300 + i, 300);
 
                     SDL_SetRenderDrawColor(Program.render, 255, 127, 0, 255);
-                    DessinerCercle(new Vector2(1346 + i, 375), 32, 50);
+                    DessinerCercle((1346 + i, 375), 32, 50);
 
                     SDL_SetRenderDrawColor(Program.render, 0, 255, 0, 255);
                     NouveauSDLRenderDrawLine(Program.render, 1368 + i, 352, 1371 + i, 309);
@@ -2645,7 +2644,7 @@ namespace Dysgenesis
                     NouveauSDLRenderDrawLine(Program.render, 1449, 203, 1415, 472);
                     NouveauSDLRenderDrawLine(Program.render, 1513, 253, 1444, 505);
                     NouveauSDLRenderDrawLine(Program.render, 1444, 505, 1249, 508);
-                    DessinerCercle(new Vector2(1555, 157), 70, 50);
+                    DessinerCercle((1555, 157), 70, 50);
                 }
                 else
                 {
@@ -2656,7 +2655,7 @@ namespace Dysgenesis
                     NouveauSDLRenderDrawLine(Program.render, 1180, 494, 1078, 539);
                     NouveauSDLRenderDrawLine(Program.render, 1400, 250, 1482, 323);
                     NouveauSDLRenderDrawLine(Program.render, 1482, 323, 1494, 471);
-                    DessinerCercle(new Vector2(1266, 220), 70, 50);
+                    DessinerCercle((1266, 220), 70, 50);
                 }
                 #endregion
 
@@ -2839,7 +2838,7 @@ namespace Dysgenesis
                 NouveauSDLRenderDrawLine(Program.render, 1296, 531, 1270, 266);
                 NouveauSDLRenderDrawLine(Program.render, 1290, 342, 1228, 527);
                 NouveauSDLRenderDrawLine(Program.render, 1228, 527, 1212, 256);
-                DessinerCercle(new Vector2(1256, 251), 67, 50);
+                DessinerCercle((1256, 251), 67, 50);
                 #endregion
 
                 #region fenêtre
@@ -2968,11 +2967,11 @@ namespace Dysgenesis
 
                 #region citation
                 if (Program.gTimer > 1520)
-                    Text.DisplayText("\"c'est un jeu bizarre, la guerre.", new Vector2(20, 700), 3, scroll: (ushort)(Program.gTimer - 1520));
+                    Text.DisplayText("\"c'est un jeu bizarre, la guerre.", (20, 700), 3, scroll: (ushort)(Program.gTimer - 1520));
                 if (Program.gTimer > 1580)
-                    Text.DisplayText(" la seule facon de gagner est de ne pas jouer.\"", new Vector2(20, 739), 3, scroll: (ushort)(Program.gTimer - 1580));
+                    Text.DisplayText(" la seule facon de gagner est de ne pas jouer.\"", (20, 739), 3, scroll: (ushort)(Program.gTimer - 1580));
                 if (Program.gTimer > 1670)
-                    Text.DisplayText("- w.o.p.r.", new Vector2(20, 778), 3, scroll: (ushort)(Program.gTimer - 1670));
+                    Text.DisplayText("- w.o.p.r.", (20, 778), 3, scroll: (ushort)(Program.gTimer - 1670));
                 #endregion
             } // la guerre c mauvais - fini
 
@@ -3016,54 +3015,54 @@ namespace Dysgenesis
                 short extra_y = 0;
                 if (Program.gTimer >= 300)
                     extra_y = (short)(Program.gTimer - 300);
-                Text.DisplayText("dysgenesis", new Vector2(Text.CENTRE, 540 - extra_y * 3), 4, alpha: alpha, scroll: ((Program.gTimer - 60) / 5));
+                Text.DisplayText("dysgenesis", (Text.CENTRE, 540 - extra_y * 3), 4, alpha: alpha, scroll: ((Program.gTimer - 60) / 5));
             }
             if (Program.gTimer >= 300 && Program.gTimer < 700)
-                Text.DisplayText("conception:\nmalcolm gauthier", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 300) * 3), 4, scroll: (Program.gTimer - 310) / 5);
+                Text.DisplayText("conception:\nmalcolm gauthier", (100, Program.W_HAUTEUR - (Program.gTimer - 300) * 3), 4, scroll: (Program.gTimer - 310) / 5);
             if (Program.gTimer >= 540 && Program.gTimer < 940)
-                Text.DisplayText("         modèles:\nmalcolm gauthier", new Vector2(Program.W_LARGEUR - 620, Program.W_HAUTEUR - (Program.gTimer - 540) * 3), 4, scroll: (Program.gTimer - 540) / 5);
+                Text.DisplayText("         modèles:\nmalcolm gauthier", (Program.W_LARGEUR - 620, Program.W_HAUTEUR - (Program.gTimer - 540) * 3), 4, scroll: (Program.gTimer - 540) / 5);
             if (Program.gTimer >= 780 && Program.gTimer < 1180)
-                Text.DisplayText("programmation:\nmalcolm gauthier", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 780) * 3), 4, scroll: (Program.gTimer - 780) / 5);
+                Text.DisplayText("programmation:\nmalcolm gauthier", (100, Program.W_HAUTEUR - (Program.gTimer - 780) * 3), 4, scroll: (Program.gTimer - 780) / 5);
             if (Program.gTimer >= 1020 && Program.gTimer < 1420)
-                Text.DisplayText(" effets sonnores:\nmalcolm gauthier", new Vector2(Program.W_LARGEUR - 620, Program.W_HAUTEUR - (Program.gTimer - 1020) * 3), 4, scroll: (Program.gTimer - 1020) / 5);
+                Text.DisplayText(" effets sonnores:\nmalcolm gauthier", (Program.W_LARGEUR - 620, Program.W_HAUTEUR - (Program.gTimer - 1020) * 3), 4, scroll: (Program.gTimer - 1020) / 5);
             if (Program.gTimer >= 1260 && Program.gTimer < 1660)
-                Text.DisplayText("musique", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1260) * 3), 4, scroll: (Program.gTimer - 1260) / 5);
+                Text.DisplayText("musique", (Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1260) * 3), 4, scroll: (Program.gTimer - 1260) / 5);
             if (Program.gTimer >= 1300 && Program.gTimer < 1700)
             {
-                Text.DisplayText("\"dance of the violins\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1300) * 3), 3, scroll: (Program.gTimer - 1300) / 5);
-                Text.DisplayText("jesse valentine (f-777)", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1320) * 3), 3, scroll: (Program.gTimer - 1320) / 5);
+                Text.DisplayText("\"dance of the violins\"", (Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1300) * 3), 3, scroll: (Program.gTimer - 1300) / 5);
+                Text.DisplayText("jesse valentine (f-777)", (Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1320) * 3), 3, scroll: (Program.gTimer - 1320) / 5);
             }
             if (Program.gTimer >= 1400 && Program.gTimer < 1800)
             {
-                Text.DisplayText("\"240 bits per mile\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1400) * 3), 3, scroll: (Program.gTimer - 1400) / 5);
-                Text.DisplayText("leon riskin", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1420) * 3), 3, scroll: (Program.gTimer - 1420) / 5);
+                Text.DisplayText("\"240 bits per mile\"", (Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1400) * 3), 3, scroll: (Program.gTimer - 1400) / 5);
+                Text.DisplayText("leon riskin", (Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1420) * 3), 3, scroll: (Program.gTimer - 1420) / 5);
             }
             if (Program.gTimer >= 1500 && Program.gTimer < 1900)
             {
-                Text.DisplayText("\"dysgenesis\"         \"eugenesis\"", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1500) * 3), 3, scroll: (Program.gTimer - 1500) / 3);
-                Text.DisplayText("malcolm gauthier", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1520) * 3), 3, scroll: (Program.gTimer - 1520) / 5);
+                Text.DisplayText("\"dysgenesis\"         \"eugenesis\"", (Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1500) * 3), 3, scroll: (Program.gTimer - 1500) / 3);
+                Text.DisplayText("malcolm gauthier", (Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1520) * 3), 3, scroll: (Program.gTimer - 1520) / 5);
             }
             if (Program.gTimer >= 1600 && Program.gTimer < 2000)
             {
-                Text.DisplayText("autres musiques", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1600) * 3), 3, scroll: (Program.gTimer - 1600) / 5);
-                Text.DisplayText("malcolm gauthier, mélodies non-originales", new Vector2(Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1620) * 3), 3, scroll: (Program.gTimer - 1620) / 3);
+                Text.DisplayText("autres musiques", (Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1600) * 3), 3, scroll: (Program.gTimer - 1600) / 5);
+                Text.DisplayText("malcolm gauthier, mélodies non-originales", (Text.CENTRE, Program.W_HAUTEUR - (Program.gTimer - 1620) * 3), 3, scroll: (Program.gTimer - 1620) / 3);
             }
             if (Program.gTimer >= 1740 && Program.gTimer < 2140)
-                Text.DisplayText("mélodies utilisées", new Vector2(100, Program.W_HAUTEUR - (Program.gTimer - 1740) * 3), 4, scroll: (Program.gTimer - 1740) / 5);
+                Text.DisplayText("mélodies utilisées", (100, Program.W_HAUTEUR - (Program.gTimer - 1740) * 3), 4, scroll: (Program.gTimer - 1740) / 5);
             if (Program.gTimer >= 1780 && Program.gTimer < 2180)
             {
-                Text.DisplayText("\"can't remove the pain\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1780) * 3), 3, scroll: (Program.gTimer - 1780) / 5);
-                Text.DisplayText("todd porter et herman miller", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1800) * 3), 3, scroll: (Program.gTimer - 1800) / 5);
+                Text.DisplayText("\"can't remove the pain\"", (400, Program.W_HAUTEUR - (Program.gTimer - 1780) * 3), 3, scroll: (Program.gTimer - 1780) / 5);
+                Text.DisplayText("todd porter et herman miller", (400, Program.W_HAUTEUR - (Program.gTimer - 1800) * 3), 3, scroll: (Program.gTimer - 1800) / 5);
             }
             if (Program.gTimer >= 1880 && Program.gTimer < 2280)
             {
-                Text.DisplayText("\"pesenka\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1880) * 3), 3, scroll: (Program.gTimer - 1880) / 5);
-                Text.DisplayText("Sergey Zhukov et Aleksey Potekhin", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1900) * 3), 3, scroll: (Program.gTimer - 1900) / 5);
+                Text.DisplayText("\"pesenka\"", (400, Program.W_HAUTEUR - (Program.gTimer - 1880) * 3), 3, scroll: (Program.gTimer - 1880) / 5);
+                Text.DisplayText("Sergey Zhukov et Aleksey Potekhin", (400, Program.W_HAUTEUR - (Program.gTimer - 1900) * 3), 3, scroll: (Program.gTimer - 1900) / 5);
             }
             if (Program.gTimer >= 1980 && Program.gTimer < 2380)
             {
-                Text.DisplayText("\"the beginning of time\"", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 1980) * 3), 3, scroll: (Program.gTimer - 1980) / 5);
-                Text.DisplayText("nathan ingalls (dj-nate)", new Vector2(400, Program.W_HAUTEUR - (Program.gTimer - 2000) * 3), 3, scroll: (Program.gTimer - 2000) / 5);
+                Text.DisplayText("\"the beginning of time\"", (400, Program.W_HAUTEUR - (Program.gTimer - 1980) * 3), 3, scroll: (Program.gTimer - 1980) / 5);
+                Text.DisplayText("nathan ingalls (dj-nate)", (400, Program.W_HAUTEUR - (Program.gTimer - 2000) * 3), 3, scroll: (Program.gTimer - 2000) / 5);
             }
             if (Program.gTimer >= 2250)
             {
@@ -3072,32 +3071,32 @@ namespace Dysgenesis
                     alpha = (byte)((Program.gTimer - 2250) * 2.5f);
                 else
                     alpha = 255;
-                Text.DisplayText("fin", new Vector2(Text.CENTRE, Text.CENTRE), 5, alpha: alpha);
+                Text.DisplayText("fin", (Text.CENTRE, Text.CENTRE), 5, alpha: alpha);
                 if (Program.gTimer > 2350)
-                    Text.DisplayText("tapez \"arcade\" au menu du jeu pour accéder au mode arcade!", new Vector2(5, 5), 1, alpha: (short)((Program.gTimer - 2350) * 10));
+                    Text.DisplayText("tapez \"arcade\" au menu du jeu pour accéder au mode arcade!", (5, 5), 1, alpha: (short)((Program.gTimer - 2350) * 10));
             }
             #endregion
 
             #region ennemis & joueur
             if (Program.gTimer >= 400 && Program.gTimer < 500)
             {
-                Program.player.taille = 10 * (float)Pow(0.95f, Program.gTimer - 400);
+                Program.player.taille = 10 * MathF.Pow(0.95f, Program.gTimer - 400);
                 Program.player.position.x = (Program.gTimer - 400) * 4 + 1000;
-                Program.player.position.y = (float)Pow(Program.gTimer - 450, 2) * -0.1f + 600;
+                Program.player.position.y = MathF.Pow(Program.gTimer - 450, 2) * -0.1f + 600;
                 Program.player.pitch = (Program.gTimer - 400) / 333f;
                 if (Program.gTimer >= 460 && Program.gTimer < 480)
-                    Program.player.roll = (Program.gTimer - 440) * (float)(PI / 10) + 0.3f;
+                    Program.player.roll = (Program.gTimer - 440) * (MathF.PI / 10) + 0.3f;
                 else
-                    Program.player.roll = (500 - Program.gTimer) * (float)(PI / 300);
+                    Program.player.roll = (500 - Program.gTimer) * (MathF.PI / 300);
                 Program.player.RenderObjet();
             }
             else if (Program.gTimer >= 600 && Program.gTimer < 900)
             {
                 if (Program.gTimer == 600)
                 {
-                    new Ennemi(TypeEnnemi.CROISSANT, StatusEnnemi.INITIALIZATION);
-                    new Ennemi(TypeEnnemi.OCTAHEDRON, StatusEnnemi.INITIALIZATION);
-                    new Ennemi(TypeEnnemi.DIAMANT, StatusEnnemi.INITIALIZATION);
+                    new Croissant(false);
+                    new Octahedron(false);
+                    new Diamant(false);
                     for (byte i = 0; i < 3; i++)
                     {
                         Program.enemies[i].position.z = -5;
@@ -3107,7 +3106,7 @@ namespace Dysgenesis
                 for (byte i = 0; i < 3; i++)
                 {
                     Program.enemies[i].position.x = (600 - Program.gTimer) * 8.2f + 2000 + i * 200;
-                    Program.enemies[i].position.y = (float)Sin((Program.gTimer - 600) / -10f + i) * 50 + Program.W_SEMI_HAUTEUR;
+                    Program.enemies[i].position.y = MathF.Sin((Program.gTimer - 600) / -10f + i) * 50 + Program.W_SEMI_HAUTEUR;
                 }
                 if (Program.gTimer == 899)
                 {
@@ -3125,16 +3124,16 @@ namespace Dysgenesis
                     }
                     if (Program.gTimer == 1000)
                     {
-                        ens[i] = new Ennemi(TypeEnnemi.PATRA, StatusEnnemi.PATRA_8_RESTANT);
+                        ens[i] = new Patra(false);
                         ens[i].position.z = -5;
                     }
                     if (Program.gTimer > 1150)
                     {
                         if (i == 0)
-                            ens[i].position.x = 300 - (float)Pow((Program.gTimer - 1150), 1.9f);
+                            ens[i].position.x = 300 - MathF.Pow((Program.gTimer - 1150), 1.9f);
                         else
-                            ens[i].position.x = 1000 + (float)Pow((Program.gTimer - 1150), 1.9f);
-                        ens[i].position.y = 800 - (float)Pow(Program.gTimer - 1150, 2);
+                            ens[i].position.x = 1000 + MathF.Pow((Program.gTimer - 1150), 1.9f);
+                        ens[i].position.y = 800 - MathF.Pow(Program.gTimer - 1150, 2);
                     }
                     else
                     {
@@ -3160,7 +3159,7 @@ namespace Dysgenesis
                     }
                     if (Program.gTimer == 1300)
                     {
-                        ens[i] = new Ennemi(TypeEnnemi.ENERGIE, StatusEnnemi.INITIALIZATION);
+                        ens[i] = new Energie(false);
                         ens[i].position.z = -5;
                     }
                     ens[i].position.x = 200 + i * 1500 + (Program.gTimer - 1300);
@@ -3171,7 +3170,7 @@ namespace Dysgenesis
             {
                 if (Program.gTimer == 1620)
                 {
-                    ens[1] = new Ennemi(TypeEnnemi.TOURNANT, StatusEnnemi.INITIALIZATION);
+                    ens[1] = new Tournant(false);
                     ens[1].position.z = 10;
                 }
 
@@ -3189,16 +3188,16 @@ namespace Dysgenesis
             {
                 if (Program.gTimer == 1900)
                 {
-                    ens[0] = new Ennemi(TypeEnnemi.DUPLIQUEUR, StatusEnnemi.INITIALIZATION);
+                    ens[0] = new Dupliqueur(false, null);
                     ens[0].position.z = -5;
                     ens[0].pitch = -0.6f;
                 }
-                ens[0].roll = 0.5f * (float)Sin(Program.gTimer / 6f);
+                ens[0].roll = 0.5f * MathF.Sin(Program.gTimer / 6f);
                 ens[0].position.y = (Program.gTimer - 1900) * -3f + 1100;
                 ens[0].position.x = (Program.gTimer - 1900) * -8 + 1950;
                 if (Program.gTimer == 1999)
                 {
-                    ens[1] = new Ennemi(TypeEnnemi.DUPLIQUEUR, StatusEnnemi.INITIALIZATION);
+                    ens[1] = new Dupliqueur(false, null);
                     ens[1].pitch = -0.6f;
                     ens[0].position.z = 5;
                     ens[1].position.z = 5;
@@ -3207,7 +3206,7 @@ namespace Dysgenesis
             else if (Program.gTimer > 2240)
             {
                 Program.player.taille = 1;
-                Program.player.roll = (float)Sin(Program.gTimer / 8f) / 5f;
+                Program.player.roll = MathF.Sin(Program.gTimer / 8f) / 5f;
                 Program.player.pitch = 0.3f;
                 Program.player.position.x = Program.W_SEMI_LARGEUR;
                 Program.player.position.y = Program.W_SEMI_HAUTEUR + 100;
@@ -3229,18 +3228,18 @@ namespace Dysgenesis
                 else
                 {
                     if (Program.gTimer == 1600)
-                        ens[0] = new Ennemi(TypeEnnemi.BOSS, StatusEnnemi.INITIALIZATION);
+                        ens[0] = new Boss();
 
-                    ens[0].position.z = 40 - Pow((Program.gTimer - 1600) / 33f, 3);
+                    ens[0].position.z = 40 - MathF.Pow((Program.gTimer - 1600) / 33f, 3);
                     ens[0].pitch = (Program.gTimer - 1600) / -200f;
-                    ens[0].roll = (1600 - Program.gTimer) * (float)(PI / 600);
+                    ens[0].roll = (1600 - Program.gTimer) * (MathF.PI / 600);
 
                     if (Program.gTimer < 1650)
                         ens[0].position.x = 1500 + (Program.gTimer - 1600) * 10;
                     else
                         ens[0].position.x = -600 + (Program.gTimer - 1600) * 10;
 
-                    ens[0].position.y = 200 * (float)Sin((Program.gTimer - 1600) / 50f) + Program.W_SEMI_HAUTEUR;
+                    ens[0].position.y = 200 * MathF.Sin((Program.gTimer - 1600) / 50f) + Program.W_SEMI_HAUTEUR;
                     ens[0].couleure.a = Program.gTimer < 1620 ? (byte)((Program.gTimer - 1600) * 12f) : (byte)255;
                 }
             }
@@ -3285,18 +3284,18 @@ namespace Dysgenesis
                 {
                     for (byte i = 0; i < 2; i++)
                     {
-                        Program.enemies[i].roll = 0.5f * (float)Sin(Program.gTimer / 6f);
+                        Program.enemies[i].roll = 0.5f * MathF.Sin(Program.gTimer / 6f);
                         Program.enemies[i].position.x = (Program.gTimer - 1900) * -8 + 1950;
                     }
-                    Program.enemies[0].position.y = (Program.gTimer - 1900) * -3f + 1100 + (float)Sqrt(Program.gTimer - 1999) * 18;
-                    Program.enemies[1].position.y = (Program.gTimer - 1900) * -3f + 1100 - (float)Sqrt(Program.gTimer - 1999) * 18;
+                    Program.enemies[0].position.y = (Program.gTimer - 1900) * -3f + 1100 + MathF.Sqrt(Program.gTimer - 1999) * 18;
+                    Program.enemies[1].position.y = (Program.gTimer - 1900) * -3f + 1100 - MathF.Sqrt(Program.gTimer - 1999) * 18;
                 }
             }
 
             foreach (Ennemi e in Program.enemies)
             {
                 e.RenderObjet();
-                e.ActualiserModele();
+                e.AnimationModele();
                 e.timer++;
             }
             for (int i = 0; i < Program.explosions.Count; i++)
@@ -3565,13 +3564,13 @@ namespace Dysgenesis
                 return;
 
             // division par zéro évitée dans le constructeur
-            byte rayon = (byte)(Program.G_MAX_DEPTH * 8.0f / (Program.G_MAX_DEPTH - timer) + RAYON_MIN_EXPLOSION);
+            byte rayon = (byte)(Program.G_MAX_DEPTH * 8f / (Program.G_MAX_DEPTH - timer) + RAYON_MIN_EXPLOSION);
 
             for (int i = 0; i < DENSITE_EXPLOSION; i++)
             {
-                float angle = Program.RNG.NextSingle() * PI;
-                float sin_ang = Sin(angle);
-                float cos_ang = Cos(angle);
+                float angle = Program.RNG.NextSingle() * MathF.PI;
+                float sin_ang = MathF.Sin(angle);
+                float cos_ang = MathF.Cos(angle);
 
                 // couleure rouge-orange-jaune au hasard
                 SDL_SetRenderDrawColor(Program.render,
@@ -3622,7 +3621,7 @@ namespace Dysgenesis
             { ListeAudioMusique.DYSGENESIS, @"audio\titlescreen.wav" },
             { ListeAudioMusique.ATW, @"audio\around the world.wav" },
             { ListeAudioMusique.TBOT, @"audio\the beginning of Time.wav" },
-            { ListeAudioMusique.DOTV, @"audio\Dance of the Violins.wav" },
+            { ListeAudioMusique.DOTV, @"audio\dotv.wav" },
             { ListeAudioMusique.EUGENESIS, @"audio\eugenesis.wav" },
             { ListeAudioMusique.DCQBPM, @"audio\240 Bits Per Mile.wav" }
         };

@@ -389,8 +389,10 @@ namespace Dysgenesis
                 // si l'ennemi meurt
                 if (Program.enemies[i].HP <= 0)
                 {
-                    Program.ennemis_tues++;
-                    Program.enemies[i].afficher = false;
+                    if (Program.enemies[i].QuandMort())
+                    {
+                        Program.ennemis_tues++;
+                    }
                     Program.enemies.RemoveAt(i);
                 }
             }
